@@ -1,22 +1,18 @@
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Splitter } from "./Splitter";
-import styles from "../../app/page.module.css"
 
 export const CardBalace = () => {
   return (
-    <Card className="w-full max-w-80">
-        <CardHeader className="flex justify-center items-center">
-          <CardTitle>Balance ARS</CardTitle>
-          <CardContent>
-            <h4>$556.058</h4>
-          </CardContent>
-        </CardHeader>
-        <Splitter/>
-        <CardFooter className={styles.ctas}>
-          <Button variant={"outline"}>Ultimos Movimientos</Button>
-          <Button variant={"outline"}>Cambiar a peso</Button>
-        </CardFooter>
-      </Card>
+    <Card className="w-full gap-3 h-24 flex justify-center">
+      <CardHeader className="flex justify-center items-center">
+        <CardTitle>Balance ARS</CardTitle>
+        <CardTitle>$556.058</CardTitle>
+      </CardHeader>
+      {/* <Splitter/> */}
+      <CardFooter className="flex items-center justify-center gap-2 p-2">
+        <Button variant={"outline"}>Ultimos Movimientos</Button>
+        <Button variant={"outline"}>Cambiar a peso</Button>
+      </CardFooter>
+    </Card>
   )
 }
