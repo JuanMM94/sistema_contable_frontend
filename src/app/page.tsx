@@ -181,7 +181,6 @@ export default function Home() {
               </TableBody>
             </Table>
             <ButtonDrawer></ButtonDrawer>
-            {/* <Button variant={"secondary"}>Agregar un movimiento</Button> */}
           </section>
         </div>
       </div>
