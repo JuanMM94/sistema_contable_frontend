@@ -33,6 +33,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Calendar28 } from "./InputCalendar";
+import { Textarea } from "../ui/textarea";
 
 const currencyFormatter = new Intl.NumberFormat("es-AR", {
   style: "currency",
@@ -187,6 +188,7 @@ const formSchema = z.object({
   date: z.iso.datetime(getTodayISODate()),
   client: z.string(),
   concept: z.string(),
+  note: z.string().optional(),
   method: z.literal(["Efectivo", "Deposito", "Transferencia"]),
   totalAmount: moneyNumberSchema,
   status: z.literal(["Pago", "Pendiente", "No pago"]),
@@ -200,6 +202,7 @@ export function ButtonDrawer() {
       method: "Efectivo",
       date: getTodayISODate(),
       concept: "",
+      note: "",
       totalAmount: 0.0,
       status: "Pendiente",
       isInput: true,
@@ -219,18 +222,19 @@ export function ButtonDrawer() {
       <DrawerTrigger asChild>
         <Button variant="outline">Nuevo Movimiento</Button>
       </DrawerTrigger>
-      <DrawerContent className="flex items-center">
-        <div className="mx-auto w-full max-w-sm">
-          <DrawerHeader>
+      <DrawerContent className="flex justify-center items-center px-4 sm:px-6">
+        <div className="mx-auto flex w-full max-w-5xl max-h-[90vh] flex-col min-h-0 gap-5">
+          <DrawerHeader className="shrink-0 px-4 sm:px-6">
             <DrawerTitle>Nuevo Movimiento</DrawerTitle>
           </DrawerHeader>
-          <div className="p-4 pb-0">
+          <div className="min-h-0 flex-1 overflow-y-auto p-4 pb-0 sm:p-6 sm:pb-0">
             <Form {...form}>
               <form
+                id="new-movement-form"
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-8 flex flex-col gap-6"
+                className="grid grid-cols-1 gap-6 auto-rows-min md:grid-cols-2"
               >
-                <Field>
+                <Field className="md:col-span-1">
                   <FieldLabel htmlFor="method-used">
                     Metodo de transacción
                   </FieldLabel>
@@ -247,7 +251,7 @@ export function ButtonDrawer() {
                     </SelectContent>
                   </Select>
                 </Field>
-                <Field>
+                <Field className="md:col-span-1">
                   <FieldLabel htmlFor="current-state">
                     Estado de la transacción
                   </FieldLabel>
@@ -264,12 +268,11 @@ export function ButtonDrawer() {
                     </SelectContent>
                   </Select>
                 </Field>
-
                 <FormField
                   control={form.control}
                   name="concept"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="md:col-span-1">
                       <FormLabel>Concepto</FormLabel>
                       <FormControl>
                         <Input
@@ -281,12 +284,11 @@ export function ButtonDrawer() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="totalAmount"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="md:col-span-1">
                       <FormLabel>Monto total</FormLabel>
                       <FormControl>
                         <Input
@@ -389,19 +391,41 @@ export function ButtonDrawer() {
                     </FormItem>
                   )}
                 />
+                <div className="md:col-span-2">
+                  <Calendar28 />
+                </div>
 
-                <Calendar28/>
+                <FormField control={form.control} name="note" render={({field}) => (
+                  <FormItem className="md:col-span-2">
+                    <FormLabel>Nota <i>opcional</i></FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Agrega información opcional a este movimiento"
+                        {...field}
+                        className="min-h-24"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}/>
 
-                <Button type="submit">Submit</Button>
               </form>
             </Form>
           </div>
-          <DrawerFooter>
-            <DrawerClose asChild>
-              <Button variant="outline">Cancelar</Button>
-            </DrawerClose>
+          <DrawerFooter className="shrink-0 px-4 sm:px-6 flex self-end">
+            <div className="flex w-100 flex-col gap-2 lg:flex-col sm:flex-row justify-end sm:gap-5">
+              <Button type="submit" form="new-movement-form" className="w-full sm:w-auto">
+                Submit
+              </Button>
+              <DrawerClose asChild>
+                <Button variant="outline" className="w-full sm:w-auto">
+                  Cancelar
+                </Button>
+              </DrawerClose>
+            </div>
           </DrawerFooter>
         </div>
+        {/* This is the padding in the bottom of the drawer */}
+        <div aria-hidden className="h-6 sm:h-8" />
       </DrawerContent>
     </Drawer>
   );
