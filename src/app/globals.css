@@ -3,7 +3,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-:Root{
+:root{
   --background: #fafafa;
   --foreground: #fff;
   --primary-color: #88b7bd;
