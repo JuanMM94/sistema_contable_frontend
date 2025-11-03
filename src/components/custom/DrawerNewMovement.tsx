@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +22,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
+import { FieldErrors, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Field, FieldLabel } from "../ui/field";
@@ -47,7 +47,9 @@ const moneyNumberSchema = z
   );
 
 const formSchema = z.object({
-  date: z.iso.datetime(getTodayISODate()),
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Invalid ISO date" }),
   client: z.string(),
   concept: z.string(),
   note: z.string().optional(),
@@ -67,6 +69,7 @@ export function ButtonDrawer({ invoiceAction: invoiceAction }: ButtonDrawerProps
     defaultValues: {
       method: "Efectivo",
       date: getTodayISODate(),
+      client: "",
       concept: "",
       note: "",
       totalAmount: 0.00,
@@ -78,6 +81,16 @@ export function ButtonDrawer({ invoiceAction: invoiceAction }: ButtonDrawerProps
   const [amountDisplay, setAmountDisplay] = useState<string>("");
   const [isAmountFocused, setIsAmountFocused] = useState(false);
   const amountInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleError = (
+    errors: FieldErrors<z.infer<typeof formSchema>>
+  ) => {
+    console.warn("Submit blocked", errors);
+  };
+
+  useEffect(() => {
+    console.log("Form errors", form.formState.errors);
+  }, [form.formState.errors]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
@@ -97,9 +110,25 @@ export function ButtonDrawer({ invoiceAction: invoiceAction }: ButtonDrawerProps
             <Form {...form}>
               <form
                 id="new-movement-form"
-                onSubmit={form.handleSubmit(onSubmit)}
+                onSubmit={form.handleSubmit(onSubmit, handleError)}
                 className="grid grid-cols-1 gap-6 auto-rows-min md:grid-cols-2"
               >
+                <FormField
+                  control={form.control}
+                  name="client"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-1">
+                      <FormLabel>Nombre del cliente</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="ej. Pedro Martinez"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <Field className="md:col-span-1">
                   <FieldLabel htmlFor="method-used">
                     Metodo de transacción
@@ -257,9 +286,13 @@ export function ButtonDrawer({ invoiceAction: invoiceAction }: ButtonDrawerProps
                     </FormItem>
                   )}
                 />
-                <div className="md:col-span-2">
-                  <Calendar28 />
-                </div>
+
+                <FormField control={form.control} name="date" render={({field}) => (
+                  <div className="md:col-span-1">
+                    <Calendar28 {...field} />
+                  </div>
+                )}/>
+
 
                 <FormField control={form.control} name="note" render={({field}) => (
                   <FormItem className="md:col-span-2">
