@@ -46,6 +46,7 @@ import {
   parseMoneyInput,
   toPlainAmount,
 } from "@/lib/utils";
+import { PAYMENT_METHOD_OPTIONS, STATUS_OPTIONS, TRANSACTION_TYPES_OPTION } from "@/lib/global_variables";
 
 const moneyNumberSchema = z
   .number()
@@ -89,23 +90,6 @@ export function ButtonDrawer({
       type: "income",
     },
   });
-
-  const PAYMENT_METHOD_OPTIONS = [
-    { value: "cash", label: "Efectivo" },
-    { value: "check", label: "Cheque" },
-    { value: "wire", label: "Transferencia Bancaria" },
-  ];
-
-  const STATUS_OPTIONS = [
-    { value: "paid", label: "Pago" },
-    { value: "not-paid", label: "No pago" },
-    { value: "pending", label: "Pendiente" },
-  ];
-
-  const TRANSACTION_TYPES_OPTION = [
-    { value: "income", label: "Ingreso" },
-    { value: "egress", label: "Egreso" },
-  ];
 
   const [amountDisplay, setAmountDisplay] = useState<string>("");
   const [isAmountFocused, setIsAmountFocused] = useState(false);

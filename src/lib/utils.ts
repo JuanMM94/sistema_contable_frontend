@@ -12,7 +12,6 @@ export function formatCurrencyValue(value?: number) {
   if (typeof value !== "number" || Number.isNaN(value) || value === 0) {
     return "";
   }
-
   return currencyFormatter.format(value);
 }
 

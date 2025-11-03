@@ -6,9 +6,7 @@ export function isValidDate(date: Date | undefined) {
 }
 
 export function formatShortDate(date: Date | undefined) {
-  console.log(date)
   if (!isValidDate(date)) {
-    console.log("whaty?")
     return ""
   }
 
