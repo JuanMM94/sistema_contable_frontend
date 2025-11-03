@@ -12,17 +12,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { dateFormatter } from "@/lib/global_variables"
 
 function formatDate(date: Date | undefined) {
   if (!date) {
     return ""
   }
-
-  const formatter = new Intl.DateTimeFormat("es-AR", {
-    dateStyle: "short",
-    timeZone: "America/Argentina/Buenos_Aires",
-  })
-  return formatter.format(date)
+  return dateFormatter.format(date)
 }
 
 function isValidDate(date: Date | undefined) {
