@@ -34,9 +34,18 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Calendar28 } from "./InputCalendar";
+import { formatISODate } from "@/lib/date_utils";
 import { Textarea } from "../ui/textarea";
 import type { Invoice } from "@/types/invoice";
-import { caretFromDigitPosition, countDigitsBeforeCaret, formatCurrencyValue, getTodayISODate, maskCurrencyInput, moneyInputRegex, parseMoneyInput, toPlainAmount } from "@/lib/utils";
+import {
+  caretFromDigitPosition,
+  countDigitsBeforeCaret,
+  formatCurrencyValue,
+  maskCurrencyInput,
+  moneyInputRegex,
+  parseMoneyInput,
+  toPlainAmount,
+} from "@/lib/utils";
 
 const moneyNumberSchema = z
   .number()
@@ -47,44 +56,62 @@ const moneyNumberSchema = z
   );
 
 const formSchema = z.object({
-  date: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Invalid ISO date" }),
-  client: z.string(),
+  date: z.string()
+  .refine((value) => !Number.isNaN(Date.parse(value)), {
+    message: "Formato ISO8601 inválido",
+  }),
+  payer: z.string(),
   concept: z.string(),
   note: z.string().optional(),
-  method: z.enum(["Efectivo", "Deposito", "Transferencia"]),
+  paymentMethod: z.enum(["cash", "deposit", "wire"]),
   totalAmount: moneyNumberSchema,
-  status: z.enum(["Pago", "Pendiente", "No pago"]),
-  isInput: z.boolean().optional(),
+  paymentStatus: z.enum(["paid", "pending", "not-paid"]),
+  type: z.enum(["income", "egress"]),
 });
 
 type ButtonDrawerProps = {
-  invoiceAction: Dispatch<SetStateAction<Invoice[]>>;
+  setInvoiceList: Dispatch<SetStateAction<Invoice[]>>;
 };
 
-export function ButtonDrawer({ invoiceAction: invoiceAction }: ButtonDrawerProps) {
+export function ButtonDrawer({
+  setInvoiceList: setInvoiceList,
+}: ButtonDrawerProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      method: "Efectivo",
-      date: getTodayISODate(),
-      client: "",
+      paymentMethod: "cash",
+      date: formatISODate(new Date()),
+      payer: "",
       concept: "",
       note: "",
-      totalAmount: 0.00,
-      status: "Pendiente",
-      isInput: true,
+      totalAmount: 0.0,
+      paymentStatus: "pending",
+      type: "income",
     },
   });
+
+  const PAYMENT_METHOD_OPTIONS = [
+    { value: "cash", label: "Efectivo" },
+    { value: "check", label: "Cheque" },
+    { value: "wire", label: "Transferencia Bancaria" },
+  ];
+
+  const STATUS_OPTIONS = [
+    { value: "paid", label: "Pago" },
+    { value: "not-paid", label: "No pago" },
+    { value: "pending", label: "Pendiente" },
+  ];
+
+  const TRANSACTION_TYPES_OPTION = [
+    { value: "income", label: "Ingreso" },
+    { value: "egress", label: "Egreso" },
+  ];
 
   const [amountDisplay, setAmountDisplay] = useState<string>("");
   const [isAmountFocused, setIsAmountFocused] = useState(false);
   const amountInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleError = (
-    errors: FieldErrors<z.infer<typeof formSchema>>
-  ) => {
+  const handleError = (errors: FieldErrors<z.infer<typeof formSchema>>) => {
     console.warn("Submit blocked", errors);
   };
 
@@ -92,8 +119,41 @@ export function ButtonDrawer({ invoiceAction: invoiceAction }: ButtonDrawerProps
     console.log("Form errors", form.formState.errors);
   }, [form.formState.errors]);
 
+  useEffect(() => {
+    const sub = form.watch((values, info) => {
+      if (info.name) {
+        console.log(
+          "Changed:",
+          info.name,
+          "→",
+          values[info.name as keyof typeof values]
+        );
+      }
+    });
+    return () => sub.unsubscribe();
+  }, [form]);
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+    setInvoiceList((prev) => {
+      const lastNumericId = prev.reduce((max, invoice) => {
+        const numericPart = Number(invoice.invoice.replace(/\D/g, ""));
+        if (!Number.isFinite(numericPart)) {
+          return max;
+        }
+        return Math.max(max, numericPart);
+      }, 0);
+
+      const nextNumericId = lastNumericId + 1;
+      const nextInvoiceId = `INV${String(nextNumericId).padStart(3, "0")}`;
+
+      const newInvoice: Invoice = {
+        invoice: nextInvoiceId,
+        ...values,
+      };
+
+      return [...prev, newInvoice];
+    });
   }
 
   return (
@@ -115,54 +175,101 @@ export function ButtonDrawer({ invoiceAction: invoiceAction }: ButtonDrawerProps
               >
                 <FormField
                   control={form.control}
-                  name="client"
+                  name="payer"
                   render={({ field }) => (
                     <FormItem className="md:col-span-1">
                       <FormLabel>Nombre del cliente</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="ej. Pedro Martinez"
-                          {...field}
-                        />
+                        <Input placeholder="ej. Pedro Martinez" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Field className="md:col-span-1">
-                  <FieldLabel htmlFor="method-used">
-                    Metodo de transacción
-                  </FieldLabel>
-                  <Select defaultValue="cash">
-                    <SelectTrigger id="method-used">
-                      <SelectValue placeholder="Metodo de transacción" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="cash">Efectivo</SelectItem>
-                      <SelectItem value="check">Cheque</SelectItem>
-                      <SelectItem value="wiretransfer">
-                        Transferencia Bancaria
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </Field>
-                <Field className="md:col-span-1">
-                  <FieldLabel htmlFor="current-state">
-                    Estado de la transacción
-                  </FieldLabel>
-                  <Select defaultValue="paid">
-                    <SelectTrigger id="current-state">
-                      <SelectValue placeholder="Estado" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="paid">Pago</SelectItem>
-                      <SelectItem value="not-paid">No Pago</SelectItem>
-                      <SelectItem value="pending">
-                        Pendiente
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </Field>
+                <FormField
+                  control={form.control}
+                  name="paymentMethod"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-1">
+                      <FormLabel>Método de transacción</FormLabel>
+                      <FormControl>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger id="method-used" className="w-full">
+                            <SelectValue placeholder="Método de transacción" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {PAYMENT_METHOD_OPTIONS.map((opt) => (
+                              <SelectItem key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="paymentStatus"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-1">
+                      <FormLabel>Estado de transacción</FormLabel>
+                      <FormControl>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger id="status" className="w-full">
+                            <SelectValue placeholder="Estado de transacción" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {STATUS_OPTIONS.map((opt) => (
+                              <SelectItem key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-1">
+                      <FormLabel>Tipo de transacción</FormLabel>
+                      <FormControl>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger id="type" className="w-full">
+                            <SelectValue placeholder="Tipo de transacción" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {TRANSACTION_TYPES_OPTION.map((opt) => (
+                              <SelectItem key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="concept"
@@ -247,8 +354,7 @@ export function ButtonDrawer({ invoiceAction: invoiceAction }: ButtonDrawerProps
 
                             setAmountDisplay(maskedValue);
 
-                            const parsedValue =
-                              parseMoneyInput(maskedValue);
+                            const parsedValue = parseMoneyInput(maskedValue);
 
                             if (parsedValue !== null) {
                               field.onChange(parsedValue);
@@ -287,32 +393,44 @@ export function ButtonDrawer({ invoiceAction: invoiceAction }: ButtonDrawerProps
                   )}
                 />
 
-                <FormField control={form.control} name="date" render={({field}) => (
-                  <div className="md:col-span-1">
-                    <Calendar28 {...field} />
-                  </div>
-                )}/>
+                <FormField
+                  control={form.control}
+                  name="date"
+                  render={({ field }) => (
+                    <div className="md:col-span-2">
+                      <Calendar28 {...field} />
+                    </div>
+                  )}
+                />
 
-
-                <FormField control={form.control} name="note" render={({field}) => (
-                  <FormItem className="md:col-span-2">
-                    <FormLabel>Nota <i>opcional</i></FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Agrega información opcional a este movimiento"
-                        {...field}
-                        className="min-h-24"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}/>
-
+                <FormField
+                  control={form.control}
+                  name="note"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>
+                        Nota <i>opcional</i>
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Agrega información opcional a este movimiento"
+                          {...field}
+                          className="min-h-24"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
               </form>
             </Form>
           </div>
           <DrawerFooter className="shrink-0 px-4 sm:px-6 flex self-end">
             <div className="flex w-100 flex-col gap-2 lg:flex-col sm:flex-row justify-end sm:gap-5">
-              <Button type="submit" form="new-movement-form" className="w-full sm:w-auto">
+              <Button
+                type="submit"
+                form="new-movement-form"
+                className="w-full sm:w-auto"
+              >
                 Submit
               </Button>
               <DrawerClose asChild>

@@ -1,10 +1,10 @@
 export type Invoice = {
   date: string;
-  client: string;
+  payer: string;
   concept: string;
   invoice: string;
   paymentStatus: string;
-  totalAmount: string;
-  isInput: boolean;
+  totalAmount: number;
+  type: string;
   paymentMethod: string;
 };

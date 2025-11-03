@@ -19,82 +19,15 @@ import {
 } from "@/components/ui/table"
 import { ButtonDrawer } from "@/components/custom/DrawerNewMovement";
 import type { Invoice } from "@/types/invoice";
+import { invoices } from "@/mock/invoices";
+import { formatCurrencyValue } from "@/lib/utils";
+import { formatShortDate } from "@/lib/date_utils";
 
-const invoices: Invoice[] = [
-  {
-    date:"18/10",
-    client: "Pablo Perez",
-    concept: "Cobranza",
-    invoice: "INV001",
-    paymentStatus: "Pago",
-    totalAmount: "$1.250.000",
-    isInput: true,
-    paymentMethod: "Efectivo",
-  },
-  {
-    date:"18/10",
-    client: "Raul Gimenez",
-    concept: "Cobranza",
-    invoice: "INV002",
-    paymentStatus: "Pendiente",
-    totalAmount: "$150.000",
-    isInput: false,
-    paymentMethod: "Efectivo",
-  },
-  {
-    date:"18/10",
-    client: "Marta Maradona",
-    concept: "Cobranza",
-    invoice: "INV003",
-    paymentStatus: "No pago",
-    totalAmount: "$350.000",
-    isInput: true,
-    paymentMethod: "Transferencia",
-  },
-  {
-    date:"18/10",
-    client: "Pablo Perez",
-    concept: "Cobranza",
-    invoice: "INV004",
-    paymentStatus: "Pago",
-    totalAmount: "$450.000",
-    isInput: true,
-    paymentMethod: "Efectivo",
-  },
-  {
-    date:"18/10",
-    client: "Marta Maradona",
-    concept: "Cobranza",
-    invoice: "INV005",
-    paymentStatus: "Pago",
-    totalAmount: "$550.000",
-    isInput: true,
-    paymentMethod: "Efectivo",
-  },
-  {
-    date:"18/10",
-    client: "Juan Miguel",
-    concept: "Cobranza",
-    invoice: "INV006",
-    paymentStatus: "Pendiente",
-    totalAmount: "$200.000",
-    isInput: true,
-    paymentMethod: "Transferencia",
-  },
-  {
-    date:"18/10",
-    client: "Marta Maradona",
-    concept: "Cobranza",
-    invoice: "INV007",
-    paymentStatus: "No pago",
-    totalAmount: "$300.000",
-    isInput: true,
-    paymentMethod: "Efectivo",
-  },
-]
 
 export default function Home() {
   const [invoiceList, setInvoiceList] = useState<Invoice[]>(invoices);
+
+  console.log(invoiceList[0])
 
   return (
     <div className={styles.dashboard}>
@@ -146,10 +79,10 @@ export default function Home() {
                 {invoiceList.map((invoice) => (
                   <TableRow key={invoice.invoice} className="cursor-pointer">
                     <TableCell className="font-medium">{invoice.invoice}</TableCell>
-                    <TableCell className="font-medium">{invoice.date}</TableCell>
+                    <TableCell className="font-medium">{formatShortDate(new Date(invoice.date))}</TableCell>
                     <TableCell>{invoice.paymentStatus}</TableCell>
                     <TableCell>{invoice.paymentMethod}</TableCell>
-                    <TableCell className="text-right">{invoice.totalAmount}</TableCell>
+                    <TableCell className="text-right">{formatCurrencyValue(invoice.totalAmount)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -168,6 +101,7 @@ export default function Home() {
                 <TableRow>
                   <TableHead className="w-[100px]">Id de factura</TableHead>
                   <TableHead>Fecha</TableHead>
+                  <TableHead>Pagador</TableHead>
                   <TableHead>Estado</TableHead>
                   <TableHead>Metodo</TableHead>
                   <TableHead className="text-right">Cantidad</TableHead>
@@ -177,15 +111,16 @@ export default function Home() {
                 {invoiceList.map((invoice) => (
                   <TableRow key={invoice.invoice} className="cursor-pointer">
                     <TableCell className="font-medium">{invoice.invoice}</TableCell>
-                    <TableCell className="font-medium">{invoice.date}</TableCell>
+                    <TableCell className="font-medium">{formatShortDate(new Date(invoice.date))}</TableCell>
+                    <TableCell className="font-medium">{invoice.payer}</TableCell>
                     <TableCell>{invoice.paymentStatus}</TableCell>
                     <TableCell>{invoice.paymentMethod}</TableCell>
-                    <TableCell className="text-right">{invoice.totalAmount}</TableCell>
+                    <TableCell className="text-right">{formatCurrencyValue(invoice.totalAmount)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-            <ButtonDrawer invoiceAction={setInvoiceList} />
+            <ButtonDrawer setInvoiceList={setInvoiceList} />
           </section>
         </div>
       </div>
