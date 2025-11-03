@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@radix-ui/react-navigation-menu";
 import styles from "./page.module.css";
 import Link from "next/link";
@@ -14,10 +17,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Button } from "@/components/ui/button";
 import { ButtonDrawer } from "@/components/custom/DrawerNewMovement";
+import type { Invoice } from "@/types/invoice";
 
-const invoices = [
+const invoices: Invoice[] = [
   {
     date:"18/10",
     client: "Pablo Perez",
@@ -91,6 +94,8 @@ const invoices = [
 ]
 
 export default function Home() {
+  const [invoiceList, setInvoiceList] = useState<Invoice[]>(invoices);
+
   return (
     <div className={styles.dashboard}>
       <header className={styles.navbar}>
@@ -138,7 +143,7 @@ export default function Home() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {invoices.map((invoice) => (
+                {invoiceList.map((invoice) => (
                   <TableRow key={invoice.invoice} className="cursor-pointer">
                     <TableCell className="font-medium">{invoice.invoice}</TableCell>
                     <TableCell className="font-medium">{invoice.date}</TableCell>
@@ -169,7 +174,7 @@ export default function Home() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {invoices.map((invoice) => (
+                {invoiceList.map((invoice) => (
                   <TableRow key={invoice.invoice} className="cursor-pointer">
                     <TableCell className="font-medium">{invoice.invoice}</TableCell>
                     <TableCell className="font-medium">{invoice.date}</TableCell>
@@ -180,7 +185,7 @@ export default function Home() {
                 ))}
               </TableBody>
             </Table>
-            <ButtonDrawer></ButtonDrawer>
+            <ButtonDrawer invoiceAction={setInvoiceList} />
           </section>
         </div>
       </div>
