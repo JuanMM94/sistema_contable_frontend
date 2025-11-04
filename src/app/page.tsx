@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-} from "@radix-ui/react-navigation-menu";
-import styles from "./page.module.css";
-import Link from "next/link";
-import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
-import { Splitter } from "@/components/custom/Splitter";
-import { CardBalace } from "@/components/custom/CardBalance";
+} from '@radix-ui/react-navigation-menu';
+import styles from './page.module.css';
+import Link from 'next/link';
+import { navigationMenuTriggerStyle } from '@/components/ui/navigation-menu';
+import { Splitter } from '@/components/custom/Splitter';
+import { CardBalace } from '@/components/custom/CardBalance';
 
 import {
   Table,
@@ -21,17 +21,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { ButtonDrawer } from "@/components/custom/DrawerNewMovement";
-import type { Invoice } from "@/types/invoice";
-import { invoices } from "@/mock/invoices";
-import { formatCurrencyValue } from "@/lib/utils";
-import { formatShortDate } from "@/lib/date_utils";
-import { Button } from "@/components/ui/button";
-import {
-  PAYMENT_METHOD_OPTIONS,
-  STATUS_OPTIONS,
-} from "@/lib/global_variables";
+} from '@/components/ui/table';
+import { ButtonDrawer } from '@/components/custom/DrawerNewMovement';
+import type { Invoice } from '@/types/invoice';
+import { invoices } from '@/mock/invoices';
+import { formatCurrencyValue } from '@/lib/utils';
+import { formatShortDate } from '@/lib/date_utils';
+import { Button } from '@/components/ui/button';
+import { PAYMENT_METHOD_OPTIONS, STATUS_OPTIONS } from '@/lib/global_variables';
 
 const paymentMethodLabelMap = new Map(
   PAYMENT_METHOD_OPTIONS.map(({ value, label }) => [value, label] as const),
@@ -41,11 +38,9 @@ const paymentStatusLabelMap = new Map(
   STATUS_OPTIONS.map(({ value, label }) => [value, label] as const),
 );
 
-const getPaymentMethodLabel = (value: string) =>
-  paymentMethodLabelMap.get(value) ?? value;
+const getPaymentMethodLabel = (value: string) => paymentMethodLabelMap.get(value) ?? value;
 
-const getPaymentStatusLabel = (value: string) =>
-  paymentStatusLabelMap.get(value) ?? value;
+const getPaymentStatusLabel = (value: string) => paymentStatusLabelMap.get(value) ?? value;
 
 export default function Home() {
   const [invoiceList, setInvoiceList] = useState<Invoice[]>(invoices);
@@ -63,18 +58,12 @@ export default function Home() {
         <NavigationMenu>
           <NavigationMenuList className="flex flex-row gap-5">
             <NavigationMenuItem>
-              <NavigationMenuLink
-                asChild
-                className={navigationMenuTriggerStyle()}
-              >
+              <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
                 <Link href="/movements">Ver Movimientos</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <NavigationMenuLink
-                asChild
-                className={navigationMenuTriggerStyle()}
-              >
+              <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
                 <Link href="/exchange">Cambiar Moneda</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
@@ -103,21 +92,12 @@ export default function Home() {
               </TableHeader>
               <TableBody>
                 {invoiceList.map((invoice) => {
-                  const paymentStatusLabel = getPaymentStatusLabel(
-                    invoice.paymentStatus,
-                  );
-                  const paymentMethodLabel = getPaymentMethodLabel(
-                    invoice.paymentMethod,
-                  );
+                  const paymentStatusLabel = getPaymentStatusLabel(invoice.paymentStatus);
+                  const paymentMethodLabel = getPaymentMethodLabel(invoice.paymentMethod);
 
                   return (
-                    <TableRow
-                      key={invoice.invoice}
-                      className="cursor-pointer"
-                    >
-                      <TableCell className="font-medium">
-                        {invoice.invoice}
-                      </TableCell>
+                    <TableRow key={invoice.invoice} className="cursor-pointer">
+                      <TableCell className="font-medium">{invoice.invoice}</TableCell>
                       <TableCell className="font-medium">
                         {formatShortDate(new Date(invoice.date))}
                       </TableCell>
@@ -156,27 +136,16 @@ export default function Home() {
               </TableHeader>
               <TableBody>
                 {invoiceList.map((invoice) => {
-                  const paymentStatusLabel = getPaymentStatusLabel(
-                    invoice.paymentStatus,
-                  );
-                  const paymentMethodLabel = getPaymentMethodLabel(
-                    invoice.paymentMethod,
-                  );
+                  const paymentStatusLabel = getPaymentStatusLabel(invoice.paymentStatus);
+                  const paymentMethodLabel = getPaymentMethodLabel(invoice.paymentMethod);
 
                   return (
-                    <TableRow
-                      key={invoice.invoice}
-                      className="cursor-pointer"
-                    >
-                      <TableCell className="font-medium">
-                        {invoice.invoice}
-                      </TableCell>
+                    <TableRow key={invoice.invoice} className="cursor-pointer">
+                      <TableCell className="font-medium">{invoice.invoice}</TableCell>
                       <TableCell className="font-medium">
                         {formatShortDate(new Date(invoice.date))}
                       </TableCell>
-                      <TableCell className="font-medium">
-                        {invoice.payer}
-                      </TableCell>
+                      <TableCell className="font-medium">{invoice.payer}</TableCell>
                       <TableCell>{paymentStatusLabel}</TableCell>
                       <TableCell>{paymentMethodLabel}</TableCell>
                       <TableCell className="text-right">

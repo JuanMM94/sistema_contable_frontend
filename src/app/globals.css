@@ -1,9 +1,9 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
-:root{
+:root {
   --background: #fafafa;
   --foreground: #fff;
   --primary-color: #88b7bd;
@@ -41,12 +41,24 @@ a {
 }
 
 @layer base {
-  h1 { @apply text-4xl font-bold tracking-tight leading-tight; }
-  h2 { @apply text-3xl font-semibold leading-snug; }
-  h3 { @apply text-2xl font-semibold leading-snug; }
-  h4 { @apply text-xl font-medium; }
-  h5 { @apply text-lg font-medium; }
-  h6 { @apply text-base font-medium uppercase tracking-wide; }
+  h1 {
+    @apply text-4xl font-bold tracking-tight leading-tight;
+  }
+  h2 {
+    @apply text-3xl font-semibold leading-snug;
+  }
+  h3 {
+    @apply text-2xl font-semibold leading-snug;
+  }
+  h4 {
+    @apply text-xl font-medium;
+  }
+  h5 {
+    @apply text-lg font-medium;
+  }
+  h6 {
+    @apply text-base font-medium uppercase tracking-wide;
+  }
 }
 
 @media (prefers-color-scheme: dark) {

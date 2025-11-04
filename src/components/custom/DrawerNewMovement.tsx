@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
-import type { Dispatch, SetStateAction } from "react";
-import { Button } from "@/components/ui/button";
+import { useEffect, useRef, useState } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Drawer,
   DrawerClose,
@@ -11,7 +11,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer";
+} from '@/components/ui/drawer';
 
 import {
   Form,
@@ -20,23 +20,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { FieldErrors, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Field, FieldLabel } from "../ui/field";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { Calendar28 } from "./InputCalendar";
-import { formatISODate } from "@/lib/date_utils";
-import { Textarea } from "../ui/textarea";
-import type { Invoice } from "@/types/invoice";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { FieldErrors, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Field, FieldLabel } from '../ui/field';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Calendar28 } from './InputCalendar';
+import { formatISODate } from '@/lib/date_utils';
+import { Textarea } from '../ui/textarea';
+import type { Invoice } from '@/types/invoice';
 import {
   caretFromDigitPosition,
   countDigitsBeforeCaret,
@@ -45,73 +39,68 @@ import {
   moneyInputRegex,
   parseMoneyInput,
   toPlainAmount,
-} from "@/lib/utils";
-import { PAYMENT_METHOD_OPTIONS, STATUS_OPTIONS, TRANSACTION_TYPES_OPTION } from "@/lib/global_variables";
+} from '@/lib/utils';
+import {
+  PAYMENT_METHOD_OPTIONS,
+  STATUS_OPTIONS,
+  TRANSACTION_TYPES_OPTION,
+} from '@/lib/global_variables';
 
 const moneyNumberSchema = z
   .number()
-  .positive({ message: "Amount must be positive." })
-  .refine(
-    (val) => Number.isFinite(val) && /^\d+\.\d{2}$/.test(val.toFixed(2)),
-    { message: "Must have exactly 2 decimal places." }
-  );
+  .positive({ message: 'Amount must be positive.' })
+  .refine((val) => Number.isFinite(val) && /^\d+\.\d{2}$/.test(val.toFixed(2)), {
+    message: 'Must have exactly 2 decimal places.',
+  });
 
 const formSchema = z.object({
-  date: z.string()
-  .refine((value) => !Number.isNaN(Date.parse(value)), {
-    message: "Formato ISO8601 inválido",
+  date: z.string().refine((value) => !Number.isNaN(Date.parse(value)), {
+    message: 'Formato ISO8601 inválido',
   }),
   payer: z.string(),
   concept: z.string(),
   note: z.string().optional(),
-  paymentMethod: z.enum(["cash", "deposit", "wire"]),
+  paymentMethod: z.enum(['cash', 'deposit', 'wire']),
   totalAmount: moneyNumberSchema,
-  paymentStatus: z.enum(["paid", "pending", "not-paid"]),
-  type: z.enum(["income", "egress"]),
+  paymentStatus: z.enum(['paid', 'pending', 'not-paid']),
+  type: z.enum(['income', 'egress']),
 });
 
 type ButtonDrawerProps = {
   setInvoiceList: Dispatch<SetStateAction<Invoice[]>>;
 };
 
-export function ButtonDrawer({
-  setInvoiceList: setInvoiceList,
-}: ButtonDrawerProps) {
+export function ButtonDrawer({ setInvoiceList: setInvoiceList }: ButtonDrawerProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      paymentMethod: "cash",
+      paymentMethod: 'cash',
       date: formatISODate(new Date()),
-      payer: "",
-      concept: "",
-      note: "",
+      payer: '',
+      concept: '',
+      note: '',
       totalAmount: 0.0,
-      paymentStatus: "pending",
-      type: "income",
+      paymentStatus: 'pending',
+      type: 'income',
     },
   });
 
-  const [amountDisplay, setAmountDisplay] = useState<string>("");
+  const [amountDisplay, setAmountDisplay] = useState<string>('');
   const [isAmountFocused, setIsAmountFocused] = useState(false);
   const amountInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleError = (errors: FieldErrors<z.infer<typeof formSchema>>) => {
-    console.warn("Submit blocked", errors);
+    console.warn('Submit blocked', errors);
   };
 
   useEffect(() => {
-    console.log("Form errors", form.formState.errors);
+    console.log('Form errors', form.formState.errors);
   }, [form.formState.errors]);
 
   useEffect(() => {
     const sub = form.watch((values, info) => {
       if (info.name) {
-        console.log(
-          "Changed:",
-          info.name,
-          "→",
-          values[info.name as keyof typeof values]
-        );
+        console.log('Changed:', info.name, '→', values[info.name as keyof typeof values]);
       }
     });
     return () => sub.unsubscribe();
@@ -121,7 +110,7 @@ export function ButtonDrawer({
     console.log(values);
     setInvoiceList((prev) => {
       const lastNumericId = prev.reduce((max, invoice) => {
-        const numericPart = Number(invoice.invoice.replace(/\D/g, ""));
+        const numericPart = Number(invoice.invoice.replace(/\D/g, ''));
         if (!Number.isFinite(numericPart)) {
           return max;
         }
@@ -129,7 +118,7 @@ export function ButtonDrawer({
       }, 0);
 
       const nextNumericId = lastNumericId + 1;
-      const nextInvoiceId = `INV${String(nextNumericId).padStart(3, "0")}`;
+      const nextInvoiceId = `INV${String(nextNumericId).padStart(3, '0')}`;
 
       const newInvoice: Invoice = {
         invoice: nextInvoiceId,
@@ -261,10 +250,7 @@ export function ButtonDrawer({
                     <FormItem className="md:col-span-1">
                       <FormLabel>Concepto</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="ej. Cobranza / Compra dolar a 1.420"
-                          {...field}
-                        />
+                        <Input placeholder="ej. Cobranza / Compra dolar a 1.420" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -285,11 +271,7 @@ export function ButtonDrawer({
                           name={field.name}
                           inputMode="decimal"
                           placeholder="ej. 1.420,00"
-                          value={
-                            isAmountFocused
-                              ? amountDisplay
-                              : formatCurrencyValue(field.value)
-                          }
+                          value={isAmountFocused ? amountDisplay : formatCurrencyValue(field.value)}
                           onFocus={() => {
                             setIsAmountFocused(true);
                             setAmountDisplay(toPlainAmount(field.value));
@@ -299,35 +281,32 @@ export function ButtonDrawer({
 
                             const parsedValue = parseMoneyInput(amountDisplay);
                             if (parsedValue === null) {
-                              setAmountDisplay("");
+                              setAmountDisplay('');
                               field.onChange(0);
                               setIsAmountFocused(false);
                               return;
                             }
 
                             field.onChange(parsedValue);
-                            setAmountDisplay("");
+                            setAmountDisplay('');
                             setIsAmountFocused(false);
                           }}
                           onChange={(event) => {
                             const inputElement = event.target;
                             const rawValue = inputElement.value;
-                            const selectionStart =
-                              inputElement.selectionStart ?? rawValue.length;
+                            const selectionStart = inputElement.selectionStart ?? rawValue.length;
 
                             const digitsBeforeCaret = countDigitsBeforeCaret(
                               rawValue,
-                              selectionStart
+                              selectionStart,
                             );
                             const insertedChar =
-                              selectionStart > 0
-                                ? rawValue[selectionStart - 1]
-                                : undefined;
+                              selectionStart > 0 ? rawValue[selectionStart - 1] : undefined;
 
                             const maskedValue = maskCurrencyInput(rawValue);
 
                             if (!maskedValue) {
-                              setAmountDisplay("");
+                              setAmountDisplay('');
                               field.onChange(0);
                               return;
                             }
@@ -346,18 +325,18 @@ export function ButtonDrawer({
 
                             let nextCaretPosition = caretFromDigitPosition(
                               maskedValue,
-                              digitsBeforeCaret
+                              digitsBeforeCaret,
                             );
 
                             if (
                               insertedChar &&
                               /[.,]/.test(insertedChar) &&
-                              (maskedValue[nextCaretPosition] === "," ||
-                                maskedValue[nextCaretPosition] === ".")
+                              (maskedValue[nextCaretPosition] === ',' ||
+                                maskedValue[nextCaretPosition] === '.')
                             ) {
                               nextCaretPosition = Math.min(
                                 maskedValue.length,
-                                nextCaretPosition + 1
+                                nextCaretPosition + 1,
                               );
                             }
 
@@ -365,7 +344,7 @@ export function ButtonDrawer({
                               if (amountInputRef.current) {
                                 amountInputRef.current.setSelectionRange(
                                   nextCaretPosition,
-                                  nextCaretPosition
+                                  nextCaretPosition,
                                 );
                               }
                             });
@@ -410,11 +389,7 @@ export function ButtonDrawer({
           </div>
           <DrawerFooter className="shrink-0 px-4 sm:px-6 flex self-end">
             <div className="flex w-100 flex-col gap-2 lg:flex-col sm:flex-row justify-end sm:gap-5">
-              <Button
-                type="submit"
-                form="new-movement-form"
-                className="w-full sm:w-auto"
-              >
+              <Button type="submit" form="new-movement-form" className="w-full sm:w-auto">
                 Submit
               </Button>
               <DrawerClose asChild>

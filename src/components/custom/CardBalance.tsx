@@ -1,5 +1,5 @@
-import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 export const CardBalace = () => {
   return (
@@ -10,9 +10,9 @@ export const CardBalace = () => {
       </CardHeader>
       {/* <Splitter/> */}
       <CardFooter className="flex items-center justify-center gap-2 p-2">
-        <Button variant={"outline"}>Ultimos Movimientos</Button>
-        <Button variant={"outline"}>Cambiar a peso</Button>
+        <Button variant={'outline'}>Ultimos Movimientos</Button>
+        <Button variant={'outline'}>Cambiar a peso</Button>
       </CardFooter>
     </Card>
-  )
-}
+  );
+};

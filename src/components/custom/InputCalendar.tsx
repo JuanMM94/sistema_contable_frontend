@@ -1,167 +1,144 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import { CalendarIcon } from "lucide-react"
+import * as React from 'react';
+import { CalendarIcon } from 'lucide-react';
 
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { formatISODate, formatShortDate, isCompleteShortDate, maskShortDateInput, parseISODate, shortDateToISO } from "@/lib/date_utils"
+  formatISODate,
+  formatShortDate,
+  isCompleteShortDate,
+  maskShortDateInput,
+  parseISODate,
+  shortDateToISO,
+} from '@/lib/date_utils';
 
 type Calendar28Props = {
-  value?: string | null
-  onChange?: (value: string) => void
-  onBlur?: React.FocusEventHandler<HTMLInputElement>
-  name?: string
-  id?: string
-  disabled?: boolean
-  label?: string
-}
+  value?: string | null;
+  onChange?: (value: string) => void;
+  onBlur?: React.FocusEventHandler<HTMLInputElement>;
+  name?: string;
+  id?: string;
+  disabled?: boolean;
+  label?: string;
+};
 
 export const Calendar28 = React.forwardRef<HTMLInputElement, Calendar28Props>(
-  (
-    {
-      value,
-      onChange,
-      onBlur,
-      name,
-      id,
-      disabled,
-      label = "Fecha",
-    },
-    ref
-  ) => {
-    const [open, setOpen] = React.useState(false)
-    const initialDate = React.useMemo(
-      () => parseISODate(value ?? undefined),
-      [value]
-    )
-    const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
-      initialDate
-    )
-    const [displayMonth, setDisplayMonth] = React.useState<Date>(
-      initialDate ?? new Date()
-    )
-    const [inputValue, setInputValue] = React.useState<string>(() =>
-      formatShortDate(initialDate)
-    )
+  ({ value, onChange, onBlur, name, id, disabled, label = 'Fecha' }, ref) => {
+    const [open, setOpen] = React.useState(false);
+    const initialDate = React.useMemo(() => parseISODate(value ?? undefined), [value]);
+    const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(initialDate);
+    const [displayMonth, setDisplayMonth] = React.useState<Date>(initialDate ?? new Date());
+    const [inputValue, setInputValue] = React.useState<string>(() => formatShortDate(initialDate));
 
     React.useEffect(() => {
-      const nextDate = parseISODate(value ?? undefined)
-      setSelectedDate(nextDate)
-      setInputValue(formatShortDate(nextDate))
+      const nextDate = parseISODate(value ?? undefined);
+      setSelectedDate(nextDate);
+      setInputValue(formatShortDate(nextDate));
       if (nextDate) {
-        setDisplayMonth(nextDate)
+        setDisplayMonth(nextDate);
       }
-    }, [value])
+    }, [value]);
 
-    const inputId = id ?? name ?? "date"
+    const inputId = id ?? name ?? 'date';
 
     const emitChange = React.useCallback(
       (isoDate: string) => {
         if (onChange) {
-          onChange(isoDate)
+          onChange(isoDate);
         }
       },
-      [onChange]
-    )
+      [onChange],
+    );
 
     const handleInputChange = React.useCallback(
       (event: React.ChangeEvent<HTMLInputElement>) => {
-        const maskedValue = maskShortDateInput(event.target.value)
-        setInputValue(maskedValue)
+        const maskedValue = maskShortDateInput(event.target.value);
+        setInputValue(maskedValue);
 
         if (!maskedValue) {
-          setSelectedDate(undefined)
-          emitChange("")
-          return
+          setSelectedDate(undefined);
+          emitChange('');
+          return;
         }
 
         if (!isCompleteShortDate(maskedValue)) {
-          return
+          return;
         }
 
-        const isoString = shortDateToISO(
-          maskedValue,
-          selectedDate ?? displayMonth
-        )
+        const isoString = shortDateToISO(maskedValue, selectedDate ?? displayMonth);
         if (!isoString) {
-          return
+          return;
         }
 
-        const parsed = parseISODate(isoString)
-        setSelectedDate(parsed)
+        const parsed = parseISODate(isoString);
+        setSelectedDate(parsed);
         if (parsed) {
-          setDisplayMonth(parsed)
+          setDisplayMonth(parsed);
         }
-        emitChange(isoString)
+        emitChange(isoString);
       },
-      [displayMonth, emitChange, selectedDate]
-    )
+      [displayMonth, emitChange, selectedDate],
+    );
 
     const handleCalendarSelect = React.useCallback(
       (date: Date | undefined) => {
         if (!date) {
-          setSelectedDate(undefined)
-          setInputValue("")
-          emitChange("")
-          return
+          setSelectedDate(undefined);
+          setInputValue('');
+          emitChange('');
+          return;
         }
 
-        setSelectedDate(date)
-        setDisplayMonth(date)
-        setInputValue(formatShortDate(date))
-        emitChange(formatISODate(date))
-        setOpen(false)
+        setSelectedDate(date);
+        setDisplayMonth(date);
+        setInputValue(formatShortDate(date));
+        emitChange(formatISODate(date));
+        setOpen(false);
       },
-      [emitChange]
-    )
+      [emitChange],
+    );
 
     const handleBlur = React.useCallback(
       (event: React.FocusEvent<HTMLInputElement>) => {
         if (onBlur) {
-          onBlur(event)
+          onBlur(event);
         }
 
         if (!inputValue) {
-          setSelectedDate(undefined)
-          emitChange("")
-          return
+          setSelectedDate(undefined);
+          emitChange('');
+          return;
         }
 
         if (!isCompleteShortDate(inputValue)) {
-          setInputValue(formatShortDate(selectedDate))
-          return
+          setInputValue(formatShortDate(selectedDate));
+          return;
         }
 
-        const isoString = shortDateToISO(
-          inputValue,
-          selectedDate ?? displayMonth
-        )
+        const isoString = shortDateToISO(inputValue, selectedDate ?? displayMonth);
 
         if (!isoString) {
-          setInputValue(formatShortDate(selectedDate))
-          return
+          setInputValue(formatShortDate(selectedDate));
+          return;
         }
 
         if (value !== isoString) {
-          emitChange(isoString)
+          emitChange(isoString);
         }
 
-        const parsed = parseISODate(isoString)
-        setSelectedDate(parsed)
+        const parsed = parseISODate(isoString);
+        setSelectedDate(parsed);
         if (parsed) {
-          setDisplayMonth(parsed)
+          setDisplayMonth(parsed);
         }
       },
-      [displayMonth, emitChange, inputValue, onBlur, selectedDate, value]
-    )
+      [displayMonth, emitChange, inputValue, onBlur, selectedDate, value],
+    );
 
     return (
       <div className="flex flex-col gap-3">
@@ -179,9 +156,9 @@ export const Calendar28 = React.forwardRef<HTMLInputElement, Calendar28Props>(
             onChange={handleInputChange}
             onBlur={handleBlur}
             onKeyDown={(event) => {
-              if (event.key === "ArrowDown") {
-                event.preventDefault()
-                setOpen(true)
+              if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                setOpen(true);
               }
             }}
           />
@@ -216,8 +193,8 @@ export const Calendar28 = React.forwardRef<HTMLInputElement, Calendar28Props>(
           </Popover>
         </div>
       </div>
-    )
-  }
-)
+    );
+  },
+);
 
-Calendar28.displayName = "Calendar28"
+Calendar28.displayName = 'Calendar28';
