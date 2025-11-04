@@ -49,9 +49,6 @@ const getPaymentStatusLabel = (value: string) =>
 
 export default function Home() {
   const [invoiceList, setInvoiceList] = useState<Invoice[]>(invoices);
-
-  console.log(invoiceList[0]);
-
   return (
     <div className={styles.dashboard}>
       <header className={styles.navbar}>
