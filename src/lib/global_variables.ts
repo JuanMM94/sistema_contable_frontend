@@ -13,18 +13,28 @@ export const dateFormatter = new Intl.DateTimeFormat(locale, {
 });
 
 export const PAYMENT_METHOD_OPTIONS = [
-  { value: 'cash', label: 'Efectivo' },
-  { value: 'deposit', label: 'Deposito' },
-  { value: 'wire', label: 'Transferencia Bancaria' },
+  { value: 'CASH', label: 'Efectivo' },
+  { value: 'DEPOSIT', label: 'Deposito' },
+  { value: 'WIRE', label: 'Transferencia Bancaria' },
 ];
 
-export const STATUS_OPTIONS = [
-  { value: 'paid', label: 'Pago' },
-  { value: 'not-paid', label: 'No pago' },
-  { value: 'pending', label: 'Pendiente' },
+export const PAYMENT_STATUS_OPTIONS = [
+  { value: 'PAID', label: 'Pago' },
+  { value: 'UNPAID', label: 'No pago' },
+  { value: 'PENDING', label: 'Pendiente' },
 ];
 
-export const TRANSACTION_TYPES_OPTION = [
-  { value: 'income', label: 'Ingreso' },
-  { value: 'egress', label: 'Egreso' },
+export const PAYMENT_TYPES_OPTIONS = [
+  { value: 'INCOME', label: 'Ingreso' },
+  { value: 'ENGRESS', label: 'Egreso' },
 ];
+
+export const paymentMethodLabelMap = new Map(
+  PAYMENT_METHOD_OPTIONS.map(({ value, label }) => [value, label] as const),
+);
+export const paymentStatusLabelMap = new Map(
+  PAYMENT_STATUS_OPTIONS.map(({ value, label }) => [value, label] as const),
+);
+export const paymentTypeLabelMap = new Map(
+  PAYMENT_TYPES_OPTIONS.map(({ value, label }) => [value, label] as const),
+);
