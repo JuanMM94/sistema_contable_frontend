@@ -32,7 +32,7 @@ export default function HomeClient({ initialMovements }: { initialMovements: Ser
     <div className={styles.dashboard}>
       <header className={styles.navbar}>
         <div>
-          <h1>BananasPro</h1>
+          <h1>Sistema Contable</h1>
         </div>
         <div>
           <p>PABLO PEREZ</p>
