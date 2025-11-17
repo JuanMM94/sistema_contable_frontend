@@ -15,8 +15,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { userLogin } from '@/lib/actions';
-import { storeAuthToken } from '@/lib/token';
+import API_BASE from '@/lib/endpoint';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,19 +32,16 @@ export default function LoginPage() {
     const password = (form.elements.namedItem('password') as HTMLInputElement).value;
 
     try {
-      const userStatus = await userLogin({ email, password });
-
-      if (!userStatus || !userStatus.data?.token) {
-        setErr("Error al ingresar, porfavor intenta nuevamente");
-        return;
-      }
-
-      storeAuthToken(userStatus.data.token);
-
-      console.log(userStatus)
-
-      router.replace('/panel');
-      router.refresh();
+      const res = await fetch(`${API_BASE}/users/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      });
+      console.log("After login")
+      console.log(res)
+      if (res.ok) router.replace('/panel');
+      else setErr('Credenciales inválidas');
     } catch {
       setErr('No se pudo conectar con el servidor.');
     } finally {

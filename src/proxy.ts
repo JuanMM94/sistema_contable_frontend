@@ -1,36 +1,34 @@
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import API_BASE from './lib/endpoint';
 
-const AUTH_COOKIE = 'auth';
-const PUBLIC_PATH_PREFIXES = ['/ingresar', '/api', '/_next', '/favicon.ico', '/robots.txt'];
+const PROTECTED = ['/panel'];
 
-export function proxy(request: NextRequest) {
-  console.log('Proxy running');
+export async function proxy(request: NextRequest) {
 
-  const { pathname } = request.nextUrl;
-  const isPublicRoute = PUBLIC_PATH_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
-  );
-
-  if (isPublicRoute) {
+  console.log("proxy run")
+  if (!PROTECTED.some((p) => request.nextUrl.pathname.startsWith(p))) {
     return NextResponse.next();
   }
 
-  const hasAuthCookie = request.cookies.get(AUTH_COOKIE)?.value?.length;
+  const cookieHeader = request.headers.get('cookie') ?? '';
 
-  if (hasAuthCookie) {
-    return NextResponse.next();
-  }
+  console.log('middleware cookies:', cookieHeader);
 
-  const backendBase = process.env.BACKEND_API?.replace(/\/$/, '');
-  const fallbackTarget = `${request.nextUrl.origin}/ingresar`;
-  const redirectTarget = backendBase ? `${backendBase}/v1/api/ingresar` : fallbackTarget;
+  const res = await fetch(`${API_BASE}/session`, {
+    method: 'GET',
+    headers: { cookie: cookieHeader },
+    credentials: "include"
+    // next/fetch inside middleware won’t forward cookies automatically,
+    // so include the header above.
+  });
 
-  return NextResponse.redirect(redirectTarget);
+  console.log(res)
+
+  if (res.ok) return NextResponse.next();
+
+  const url = request.nextUrl.clone();
+  url.pathname = '/ingresar';
+  return NextResponse.redirect(url);
 }
 
-export const config = {
-  matcher: ['/(.*)'],
-};
-
-export default proxy;
+export const config = { matcher: ['/panel/:path*'] };

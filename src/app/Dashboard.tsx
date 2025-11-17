@@ -12,15 +12,15 @@ import { navigationMenuTriggerStyle } from '@/components/ui/navigation-menu';
 import { Splitter } from '@/components/custom/Splitter';
 import { CardBalace } from '@/components/custom/CardBalance';
 import { ButtonDrawer } from '@/components/custom/DrawerNewMovement';
-import type { ServerMovement } from '@/types/movement';
+import type { ServerMovement, ServerUser } from '@/types/movement';
 import MovementsList from '@/components/custom/MovementsList';
 import { NewMovementInputT } from '@/lib/schemas';
 import { createMovement } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-export default function HomeClient({ initialMovements }: { initialMovements: ServerMovement[] }) {
-  const [movementsList] = useState<ServerMovement[]>(initialMovements ?? []);
+export default function HomeClient({ userMovements, userInformation }: { userMovements: ServerMovement[], userInformation: ServerUser }) {
+  const [movementsList] = useState<ServerMovement[]>(userMovements ?? []);
 
   const router = useRouter();
   const onCreated = async (payload: NewMovementInputT) => {
@@ -35,7 +35,7 @@ export default function HomeClient({ initialMovements }: { initialMovements: Ser
           <h1>Sistema Contable</h1>
         </div>
         <div>
-          <p>PABLO PEREZ</p>
+          <p>{userInformation.username}</p>
         </div>
       </header>
       <nav>

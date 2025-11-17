@@ -2,9 +2,10 @@
 
 import { revalidateTag } from 'next/cache';
 import { NewMovementInputT, UserLogin, UserLoginResponse } from './schemas';
+import API_BASE from './endpoint';
 
 export async function createMovement(data: NewMovementInputT) {
-  const res = await fetch(`${process.env.BACKEND_API_DEV!}/api/v1/movements`, {
+  const res = await fetch(`${API_BASE}/movements`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(data),
@@ -17,7 +18,7 @@ export async function createMovement(data: NewMovementInputT) {
 export async function userLogin(
   data: UserLogin,
 ): Promise<{ ok: boolean; status: number; data: UserLoginResponse } | null> {
-  const res = await fetch(`${process.env.BACKEND_API_DEV}/api/v1/users/login`, {
+  const res = await fetch(`${API_BASE}/users/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -26,6 +27,9 @@ export async function userLogin(
       password: data.password,
     }),
   });
+
+  const setCookies = (res).headers?.getSetCookie?.() ?? [];
+  console.log('Set-Cookie array:', setCookies);
   try {
     const json: UserLoginResponse = await res.json();
     return { ok: res.ok, status: res.status, data: json };

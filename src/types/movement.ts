@@ -16,3 +16,17 @@ export interface ServerMovement extends Movement {
   accountId?: string;
   account?: object;
 }
+
+export type User = {
+  username: string;
+  email: string;
+  role: string;
+}
+
+export interface ServerUser extends User {
+  id: string;
+  accountId?: string;
+  account?: object;
+  sessionId?: string;
+  session?: object;
+}
