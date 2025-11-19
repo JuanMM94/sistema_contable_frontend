@@ -28,15 +28,15 @@ export const CardAccount = ({
           <section className='flex gap-3'>
         <Badge
           variant="secondary"
-  className={
-    accountInformation.percentChange == null
-      ? "bg-gray-400 text-white dark:bg-gray-700 px-2!"
-      : accountInformation.percentChange > 0
-      ? "bg-green-700 text-white dark:bg-green-900 px-2!"
-      : accountInformation.percentChange < 0
-      ? "bg-red-700 text-white dark:bg-red-900 px-2!"
-      : "bg-gray-400 text-white dark:bg-gray-700 px-2!"
-  }
+        className={
+          accountInformation.percentChange == null
+            ? "bg-gray-400 text-white dark:bg-gray-700 px-2!"
+            : accountInformation.percentChange > 0
+            ? "bg-green-700 text-white dark:bg-green-900 px-2!"
+            : accountInformation.percentChange < 0
+            ? "bg-red-700 text-white dark:bg-red-900 px-2!"
+            : "bg-gray-400 text-white dark:bg-gray-700 px-2!"
+        }
         >
           {accountInformation.percentChange == null || accountInformation.percentChange === 0 ? (
             <>0,00%</>
