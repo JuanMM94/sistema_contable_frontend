@@ -68,6 +68,7 @@ a {
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
+  --color-secondary-light: var(--secondary-light);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
@@ -94,16 +95,16 @@ a {
 
 :root {
   --radius: 0.625rem;
-  --card: #602770;
-  --card-foreground: #ffcd38;
+  --card: oklch(0.985 0 0);
+  --card-foreground: oklch(0.205 0 0);
   --button: #602770;
   --button-secondary: #895397;
   --button-foreground: oklch(1 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --primary: #602770;
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
+  --secondary: #ffcd38;
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
@@ -127,12 +128,14 @@ a {
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --background: oklch(1 0 0);
-  --foreground: #602770;
+  --foreground: oklch(0.205 0 0);
 }
 
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
+  --primary-color:#602770;
+  --secondary-color:#ffcd38;
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
   --button: oklch(0.985 0 0);

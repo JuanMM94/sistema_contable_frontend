@@ -27,9 +27,6 @@ export async function userLogin(
       password: data.password,
     }),
   });
-
-  const setCookies = (res).headers?.getSetCookie?.() ?? [];
-  console.log('Set-Cookie array:', setCookies);
   try {
     const json: UserLoginResponse = await res.json();
     return { ok: res.ok, status: res.status, data: json };

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import LoginPage from './Login';
+import LoginPage from './(ingresar)/Login';
 
 export const metadata: Metadata = {
   title: 'Ingresar',

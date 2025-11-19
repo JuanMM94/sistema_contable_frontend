@@ -1,21 +1,13 @@
-export type Movement = {
-  date: string;
-  payer: string;
-  concept: string;
-  currency: string;
-  exchangeRate: number;
-  status: string;
-  amount: number;
-  type: string;
-  method: string;
-};
+import type { AccountWithMovements, Movement as MovementRecord } from "@/lib/schemas";
 
-export interface ServerMovement extends Movement {
-  id: string;
-  note?: string;
-  accountId?: string;
-  account?: object;
-}
+export type Movement = MovementRecord;
+
+// export interface ServerMovement extends Movement {
+//   id: string;
+//   note?: string;
+//   accountId?: string;
+//   account?: object;
+// }
 
 export type User = {
   username: string;
@@ -25,8 +17,7 @@ export type User = {
 
 export interface ServerUser extends User {
   id: string;
-  accountId?: string;
-  account?: object;
-  sessionId?: string;
-  session?: object;
+  accounts?: AccountWithMovements[];
+  sessions?: object[];
+  movements?: Movement[]
 }

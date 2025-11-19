@@ -10,17 +10,17 @@ import styles from './page.module.css';
 import Link from 'next/link';
 import { navigationMenuTriggerStyle } from '@/components/ui/navigation-menu';
 import { Splitter } from '@/components/custom/Splitter';
-import { CardBalace } from '@/components/custom/CardBalance';
+import { CardAccount } from '@/components/custom/CardAccount';
 import { ButtonDrawer } from '@/components/custom/DrawerNewMovement';
-import type { ServerMovement, ServerUser } from '@/types/movement';
 import MovementsList from '@/components/custom/MovementsList';
 import { NewMovementInputT } from '@/lib/schemas';
 import { createMovement } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useSession } from './RouteFetchProvider';
+import { ButtonLogout } from '@/components/custom/ButtonLogout';
 
-export default function HomeClient({ userMovements, userInformation }: { userMovements: ServerMovement[], userInformation: ServerUser }) {
-  const [movementsList] = useState<ServerMovement[]>(userMovements ?? []);
+export default function HomeClient() {
+  const { user, loading } = useSession();
 
   const router = useRouter();
   const onCreated = async (payload: NewMovementInputT) => {
@@ -30,15 +30,18 @@ export default function HomeClient({ userMovements, userInformation }: { userMov
 
   return (
     <div className={styles.dashboard}>
-      <header className={styles.navbar}>
+      <header className="w-full py-4! flex items-center justify-around border-b-secondary border">
         <div>
-          <h1>Sistema Contable</h1>
+          <h1 className="text-primary">
+            Sistema Contable
+          </h1>
         </div>
-        <div>
-          <p>{userInformation.username}</p>
+        <div className="flex items-center gap-4">
+          <p>{user?.email}</p>
+          <ButtonLogout />
         </div>
       </header>
-      <nav>
+      {/* <nav>
         <NavigationMenu>
           <NavigationMenuList className="flex flex-row gap-5">
             <NavigationMenuItem>
@@ -53,20 +56,22 @@ export default function HomeClient({ userMovements, userInformation }: { userMov
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
-      </nav>
-      <Splitter />
+      </nav> */}
       <div className={styles.home}>
-        <h3>Hola, Pablo Gimenez! (Admin)</h3>
+        <h3>Hola, {user?.username ?? 'usuario'}!</h3>
         <div className={styles.information_container}>
           <section className={styles.card_section}>
-            <CardBalace />
-            <CardBalace />
+            {loading ? (
+              <></>
+            ) : (
+              user?.accounts?.map((acc) => <CardAccount key={acc.id} accountInformation={acc} />)
+            )}
           </section>
         </div>
         <div className={styles.information_container}>
           <section className={styles.table_section}>
             <h4>Ultimos movimientos</h4>
-            <MovementsList initialMovements={movementsList} />
+            <MovementsList initialMovements={user?.movements ?? []} userRole={user?.role}/>
             <ButtonDrawer onCreated={onCreated} />
           </section>
         </div>
