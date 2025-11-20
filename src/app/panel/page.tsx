@@ -5,11 +5,8 @@ export const metadata: Metadata = {
   description: 'Manejá y mirá todas tus transacciones.',
 };
 
-import { getMovements } from '@/lib/movements';
 import HomeClient from '../Dashboard';
 
 export default async function Page() {
-  const userMovements = await getMovements()
-
-  return <HomeClient userMovements={userMovements.data} />;
+  return <HomeClient />;
 }
