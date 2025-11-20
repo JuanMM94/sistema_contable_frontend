@@ -37,5 +37,37 @@ export const MovementDTO = NewMovementInput.extend({
     .optional(),
 });
 
+export const RoleSchema = z.enum(["ADMIN", "MEMBER"]);
+export type Role = z.infer<typeof RoleSchema>;
+export const UserSchema = z.object({
+  id: z.uuid(),
+  authId: z.string(),
+  name: z.string().min(1),
+  email: z.email(),
+  role: RoleSchema.default("MEMBER"),
+  createdAt: z.iso.datetime({ offset: true }),
+  updatedAt: z.iso.datetime({ offset: true }),
+  accounts: z.array(z.unknown()).optional(),
+});
+
+export const UserCreateInputSchema = z.object({
+  name: z.string().min(1),
+  email: z.email(),
+  password: z.string().min(8),
+  role: RoleSchema.optional(),
+});
+
+export const UserLoginSchema = z.object({
+  email: z.email(),
+  password: z.string().min(8),
+});
+
 export type NewMovementInputT = z.infer<typeof NewMovementInput>;
 export type MovementDTOT = z.infer<typeof MovementDTO>;
+export type User = z.infer<typeof UserSchema>;
+export type UserCreateInput = z.infer<typeof UserCreateInputSchema>;
+export type UserLogin = z.infer<typeof UserLoginSchema>;
+export type UserLoginResponse = {
+  user: User;
+  token: string;
+};
