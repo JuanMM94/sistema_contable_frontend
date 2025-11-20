@@ -1,6 +1,11 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { currencyFormatter } from './global_variables';
+import {
+  paymentMethodLabelMap,
+  paymentStatusLabelMap,
+  paymentTypeLabelMap,
+} from './global_variables';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -8,11 +13,45 @@ export function cn(...inputs: ClassValue[]) {
 
 export const moneyInputRegex = /^(\d{1,3}(?:\.\d{3})*|\d+)(?:,\d{0,2})?$/;
 
-export function formatCurrencyValue(value?: number) {
-  if (typeof value !== 'number' || Number.isNaN(value) || value === 0) {
-    return '';
-  }
-  return currencyFormatter.format(value);
+type DecimalLike = { toString(): string };
+
+export function formatCurrencyValue(value: string | DecimalLike): string {
+  const raw = typeof value === 'string' ? value : value.toString(); // e.g. "1234.50" or "-9876543.21"
+
+  const m = raw.match(/^(-?)(\d+)(?:\.(\d+))?$/);
+  if (!m) return raw; // fallback: show as-is
+  const [, , intPartRaw, fracRaw = ''] = m;
+  const frac = (fracRaw + '00').slice(0, 2);
+
+  const parts = currencyFormatter.formatToParts(1234567.89);
+  const groupSym = parts.find((p) => p.type === 'group')?.value ?? ',';
+  const decSym = parts.find((p) => p.type === 'decimal')?.value ?? '.';
+
+  const intPart = intPartRaw.replace(/\B(?=(\d{3})+(?!\d))/g, groupSym);
+  let integerRendered = false;
+
+  return parts
+    .map((p) => {
+      switch (p.type) {
+        case 'currency':
+          return p.value;
+        case 'integer':
+          if (integerRendered) {
+            return '';
+          }
+          integerRendered = true;
+          return intPart;
+        case 'group':
+          return '';
+        case 'decimal':
+          return decSym;
+        case 'fraction':
+          return frac;
+        default:
+          return p.value;
+      }
+    })
+    .join('');
 }
 
 export function parseMoneyInput(value: string): number | null {
@@ -135,3 +174,7 @@ export function toPlainAmount(value?: number) {
 
   return maskCurrencyInput(value.toFixed(2).replace('.', ','));
 }
+
+export const getPaymentMethodLabel = (value: string) => paymentMethodLabelMap.get(value) ?? value;
+export const getPaymentStatusLabel = (value: string) => paymentStatusLabelMap.get(value) ?? value;
+export const getPaymentTypeLabel = (value: string) => paymentTypeLabelMap.get(value) ?? value;
