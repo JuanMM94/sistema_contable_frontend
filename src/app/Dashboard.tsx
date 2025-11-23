@@ -10,7 +10,7 @@ import styles from './page.module.css';
 import Link from 'next/link';
 import { navigationMenuTriggerStyle } from '@/components/ui/navigation-menu';
 import { Splitter } from '@/components/custom/Splitter';
-import { CardBalace } from '@/components/custom/CardBalance';
+import { CardBalance } from '@/components/custom/CardBalance';
 import { ButtonDrawer } from '@/components/custom/DrawerNewMovement';
 import type { ServerMovement, ServerUser } from '@/types/movement';
 import MovementsList from '@/components/custom/MovementsList';
@@ -59,13 +59,13 @@ export default function HomeClient({ userMovements, userInformation }: { userMov
         <h3>Hola, Pablo Gimenez! (Admin)</h3>
         <div className={styles.information_container}>
           <section className={styles.card_section}>
-            <CardBalace />
-            <CardBalace />
+            <CardBalance />
+            <CardBalance />
           </section>
         </div>
         <div className={styles.information_container}>
           <section className={styles.table_section}>
-            <h4>Ultimos movimientos</h4>
+            <h4>Últimos movimientos</h4>
             <MovementsList initialMovements={movementsList} />
             <ButtonDrawer onCreated={onCreated} />
           </section>

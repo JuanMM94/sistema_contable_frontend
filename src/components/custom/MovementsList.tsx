@@ -27,7 +27,7 @@ export default function MovementsList({
             <TableHead>Fecha</TableHead>
             <TableHead>Pagador</TableHead>
             <TableHead>Estado</TableHead>
-            <TableHead>Metodo</TableHead>
+            <TableHead>Método</TableHead>
             <TableHead>Tipo</TableHead>
             <TableHead className="text-right">Cantidad</TableHead>
             <TableHead className="text-center" colSpan={2}>

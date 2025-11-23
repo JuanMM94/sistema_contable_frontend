@@ -12,7 +12,7 @@ export async function createMovement(data: NewMovementInputT) {
     cache: 'no-store',
   });
   if (!res.ok) throw new Error('Failed to create movement');
-  revalidateTag('movements', 'max');
+  revalidateTag('movements');
 }
 
 export async function userLogin(
@@ -28,8 +28,6 @@ export async function userLogin(
     }),
   });
 
-  const setCookies = (res).headers?.getSetCookie?.() ?? [];
-  console.log('Set-Cookie array:', setCookies);
   try {
     const json: UserLoginResponse = await res.json();
     return { ok: res.ok, status: res.status, data: json };

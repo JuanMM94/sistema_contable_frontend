@@ -11,5 +11,5 @@ export function RouteFetchProvider() {
   useEffect(() => {
     void fetch(`${API_BASE}/session`, { cache: 'no-store' });
   }, [pathname]); // runs on reload (remount) and when pathname changes
-  return(<></>)
+  return <></>;
 }
