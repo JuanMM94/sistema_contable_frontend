@@ -12,7 +12,7 @@ export async function createMovement(data: NewMovementInputT) {
     cache: 'no-store',
   });
   if (!res.ok) throw new Error('Failed to create movement');
-  revalidateTag('movements');
+  revalidateTag('movements', 'max');
 }
 
 export async function userLogin(
