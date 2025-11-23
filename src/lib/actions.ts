@@ -27,7 +27,6 @@ export async function userLogin(
       password: data.password,
     }),
   });
-
   try {
     const json: UserLoginResponse = await res.json();
     return { ok: res.ok, status: res.status, data: json };

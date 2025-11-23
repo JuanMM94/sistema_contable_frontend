@@ -1,6 +1,5 @@
 'use client';
 
-import { ServerMovement } from '@/types/movement';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { formatShortDate } from '@/lib/date_utils';
 import {
@@ -11,11 +10,14 @@ import {
 } from '@/lib/utils';
 import styles from '../../app/page.module.css';
 import { Button } from '../ui/button';
+import { Movement } from '@/lib/schemas';
 
 export default function MovementsList({
   initialMovements,
+  userRole,
 }: {
-  initialMovements: ServerMovement[];
+  initialMovements: Movement[] | [];
+  userRole: string | undefined;
 }) {
   // pass onCreated to ButtonDrawer
   return (
@@ -25,14 +27,16 @@ export default function MovementsList({
           <TableRow>
             <TableHead className="w-[100px]">Id de factura</TableHead>
             <TableHead>Fecha</TableHead>
-            <TableHead>Pagador</TableHead>
+            {userRole == 'ADMIN' && <TableHead>Pagador</TableHead>}
             <TableHead>Estado</TableHead>
             <TableHead>Método</TableHead>
             <TableHead>Tipo</TableHead>
             <TableHead className="text-right">Cantidad</TableHead>
-            <TableHead className="text-center" colSpan={2}>
-              Acciones
-            </TableHead>
+            {userRole == 'ADMIN' && (
+              <TableHead className="text-center" colSpan={2}>
+                Acciones
+              </TableHead>
+            )}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -44,21 +48,27 @@ export default function MovementsList({
                 <TableCell className="font-medium">
                   {formatShortDate(new Date(movement.date))}
                 </TableCell>
-                <TableCell className="font-medium">{movement.payer}</TableCell>
+                {userRole == 'ADMIN' && (
+                  <TableCell className="font-medium">{movement.payer}</TableCell>
+                )}
                 <TableCell>{getPaymentStatusLabel(movement.status)}</TableCell>
                 <TableCell>{getPaymentMethodLabel(movement.method)}</TableCell>
                 <TableCell>{getPaymentTypeLabel(movement.type)}</TableCell>
                 <TableCell className="text-right">{formatCurrencyValue(movement.amount)}</TableCell>
-                <TableCell className="text-center text-blue-600">
-                  <Button variant="ghost" className="cursor-pointer">
-                    Editar
-                  </Button>
-                </TableCell>
-                <TableCell className="text-center text-red-400">
-                  <Button variant="ghost" className="cursor-pointer">
-                    Borrar
-                  </Button>
-                </TableCell>
+                {userRole == 'ADMIN' && (
+                  <>
+                    <TableCell className="text-center text-blue-600">
+                      <Button variant="ghost" className="cursor-pointer">
+                        Editar
+                      </Button>
+                    </TableCell>
+                    <TableCell className="text-center text-red-400">
+                      <Button variant="ghost" className="cursor-pointer">
+                        Borrar
+                      </Button>
+                    </TableCell>
+                  </>
+                )}
               </TableRow>
             );
           })}
