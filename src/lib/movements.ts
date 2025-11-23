@@ -2,7 +2,6 @@ import 'server-only';
 import API_BASE from './endpoint';
 
 export async function getMovements() {
-  console.log(API_BASE)
   const res = await fetch(`${API_BASE}/movements`, {
     // opt into Next caching:
     next: { revalidate: 60, tags: ['movements'] },
