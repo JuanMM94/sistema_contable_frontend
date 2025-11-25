@@ -29,7 +29,7 @@ export default function MovementsList({
             <TableHead>Fecha</TableHead>
             {userRole == 'ADMIN' && <TableHead>Pagador</TableHead>}
             <TableHead>Estado</TableHead>
-            <TableHead>Metodo</TableHead>
+            <TableHead>Método</TableHead>
             <TableHead>Tipo</TableHead>
             <TableHead className="text-right">Cantidad</TableHead>
             {userRole == 'ADMIN' && (

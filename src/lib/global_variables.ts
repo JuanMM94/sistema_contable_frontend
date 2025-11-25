@@ -14,7 +14,7 @@ export const dateFormatter = new Intl.DateTimeFormat(locale, {
 
 export const PAYMENT_METHOD_OPTIONS = [
   { value: 'CASH', label: 'Efectivo' },
-  { value: 'DEPOSIT', label: 'Deposito' },
+  { value: 'DEPOSIT', label: 'Depósito' },
   { value: 'WIRE', label: 'Transferencia Bancaria' },
 ];
 
@@ -26,7 +26,7 @@ export const PAYMENT_STATUS_OPTIONS = [
 
 export const PAYMENT_TYPES_OPTIONS = [
   { value: 'INCOME', label: 'Ingreso' },
-  { value: 'ENGRESS', label: 'Egreso' },
+  { value: 'EGRESS', label: 'Egreso' },
 ];
 
 export const paymentMethodLabelMap = new Map(

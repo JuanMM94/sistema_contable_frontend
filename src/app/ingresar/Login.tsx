@@ -38,8 +38,6 @@ export default function LoginPage() {
         credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
-      console.log("After login")
-      console.log(res)
       if (res.ok) router.replace('/panel');
       else setErr('Credenciales inválidas');
     } catch {
