@@ -1,7 +1,7 @@
 "use client"
 
 import MovementsList from "@/components/custom/MovementsList";
-import { useMovements } from "@/providers/MovementProvider";
+import { useMovements } from "@/providers/AdminFetchProvider";
 import { useSession } from "@/providers/RouteFetchProvider";
 
 export default function Page() {
