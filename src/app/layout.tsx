@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import { RouteFetchProvider } from './RouteFetchProvider';
+import { RouteFetchProvider } from '@/providers/RouteFetchProvider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
