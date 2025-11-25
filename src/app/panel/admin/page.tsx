@@ -1,13 +1,13 @@
 "use client"
 
 import MovementsList from "@/components/custom/MovementsList";
-import { useMovements } from "@/providers/AdminFetchProvider";
+import { useAdminContext } from "@/providers/AdminFetchProvider";
 import { useSession } from "@/providers/RouteFetchProvider";
 
 export default function Page() {
 
   const {user} = useSession()
-  const {movements, users} = useMovements()
+  const {movements, users} = useAdminContext()
 
   return (
     <div className="flex justify-center w-full mt-6!">

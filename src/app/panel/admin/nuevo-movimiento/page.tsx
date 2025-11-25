@@ -3,7 +3,7 @@
 import { NewMovementInputT } from '@/lib/schemas';
 import { createMovement } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
-import { useMovements } from "@/providers/AdminFetchProvider";
+import { useAdminContext } from "@/providers/AdminFetchProvider";
 import { useSession } from '@/providers/RouteFetchProvider';
 import { Splitter } from '@/components/custom/Splitter';
 import { FormNewMovement } from '@/components/custom/FormNewMovement';
@@ -11,7 +11,7 @@ import { FormNewMovement } from '@/components/custom/FormNewMovement';
 export default function NewMovementPage() {
 
   const {user} = useSession()
-  const {movements, loading} = useMovements()
+  const {movements, loading} = useAdminContext()
 
     const router = useRouter();
     const onCreated = async (payload: NewMovementInputT) => {

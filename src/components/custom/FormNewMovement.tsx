@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { InputUser } from '@/components/custom/InputUser';
 import { Calendar28 } from './InputCalendar';
 import { formatISODate } from '@/lib/date_utils';
 import {
@@ -155,7 +156,12 @@ export function FormNewMovement({
               <FormItem className="md:col-span-1">
                 <FormLabel>Nombre del cliente</FormLabel>
                 <FormControl>
-                  <Input placeholder="ej. Pedro Martinez" {...field} />
+                  <InputUser
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Elige un usuario..."
+                    onBlur={field.onBlur}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

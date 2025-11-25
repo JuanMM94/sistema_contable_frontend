@@ -67,18 +67,13 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
           `Failed to fetch admin context (movements: ${movementsRes.status}, users: ${usersRes.status})`,
         );
       }
-
       const [movementsPayload, usersPayload] = await Promise.all([
         movementsRes.json(),
         usersRes.json(),
       ]);
-      console.log(
-        `SERVER ADMIN CONTEXT RESPONSE: ${JSON.stringify(
-          { movements: movementsPayload, users: usersPayload },
-          null,
-          2,
-        )}`,
-      );
+
+      console.log(movementsPayload, usersPayload);
+
       setMovements(movementsPayload.data);
       setUsers(usersPayload.data);
     } catch (err) {
@@ -88,6 +83,20 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       setError(err instanceof Error ? err.message : 'Unknown admin context error');
     } finally {
       setLoading(false);
+      console.log(
+        `SERVER MOVEMENTS CONTEXT RESPONSE: ${JSON.stringify(
+          movements,
+          null,
+          2,
+        )}`,
+      );
+      console.log(
+        `SERVER USERS CONTEXT RESPONSE: ${JSON.stringify(
+          users,
+          null,
+          2,
+        )}`,
+      );
     }
   }, []);
 
@@ -116,7 +125,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useMovements() {
+export function useAdminContext() {
   const context = useContext(AdminContext);
   if (!context) throw new Error('useAdmin must be used within a AdminFetchProvider');
   return context;
