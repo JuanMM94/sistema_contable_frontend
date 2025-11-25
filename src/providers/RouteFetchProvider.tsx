@@ -54,8 +54,10 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
       if (!res.ok) throw new Error(`Failed to fetch session (${res.status})`);
 
       const payload = await res.json();
+      console.log(`SERVER USER SESSION RESPONSE: ${JSON.stringify(payload, null, 2)}`);
       setUser(payload.user);
     } catch (err) {
+      console.error('Session fetch failed', err);
       setUser(null);
       setError(err instanceof Error ? err.message : 'Unknown session error');
     } finally {
@@ -79,7 +81,7 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
 
   return (
     <SessionContext.Provider value={value}>
-      {loading ?
+      {loading ?     
       <div className="flex items-center justify-center gap-4 h-lvh w-lvw">
         <Spinner className='size-12 text-foreground'/>
       </div> : children}
