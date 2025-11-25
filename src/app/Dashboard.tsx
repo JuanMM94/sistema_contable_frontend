@@ -34,7 +34,7 @@ export default function HomeClient() {
         </div>
         <div className={styles.information_container}>
           <section className={styles.table_section}>
-            <h4>Ultimos movimientos</h4>
+            <h4>Últimos movimientos</h4>
             <MovementsList initialMovements={user?.movements ?? []} userRole={user?.role}/>
             <ButtonDrawer onCreated={onCreated} />
           </section>

@@ -95,7 +95,7 @@ export function ButtonDrawer({ onCreated }: ButtonDrawerProps) {
   const amountInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleError = (errors: FieldErrors<z.infer<typeof formSchema>>) => {
-    console.warn('Submit blocked', errors);
+    // Form validation errors - handled by FormMessage components
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -348,7 +348,7 @@ export function ButtonDrawer({ onCreated }: ButtonDrawerProps) {
           <DrawerFooter className="shrink-0 px-4 sm:px-6 flex self-end">
             <div className="flex w-100 flex-col gap-2 lg:flex-col sm:flex-row justify-end sm:gap-5">
               <Button type="submit" form="new-movement-form" className="w-full sm:w-auto">
-                Submit
+                Guardar
               </Button>
               <DrawerClose asChild>
                 <Button variant="outline" className="w-full sm:w-auto">

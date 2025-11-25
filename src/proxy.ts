@@ -12,6 +12,8 @@ export async function proxy(request: NextRequest) {
     method: 'GET',
     headers: { cookie: cookieHeader },
     credentials: "include"
+    // next/fetch inside middleware won't forward cookies automatically,
+    // so include the header above.
   });
   if (res.ok) return NextResponse.next();
 
