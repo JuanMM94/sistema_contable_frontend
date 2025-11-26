@@ -1,5 +1,5 @@
 
-import { AdminFetchProvider } from '@/providers/MovementProvider';
+import { AdminFetchProvider } from '@/providers/AdminFetchProvider';
 import '../../globals.css';
 
 
