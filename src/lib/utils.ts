@@ -16,14 +16,14 @@ export const moneyInputRegex = /^(\d{1,3}(?:\.\d{3})*|\d+)(?:,\d{0,2})?$/;
 type DecimalLike = { toString(): string };
 
 export function formatCurrencyValue(value: string | DecimalLike): string {
-  const raw = typeof value === 'string' ? value : value.toString(); // e.g. "1234.50" or "-9876543.21"
+  const raw = typeof value === 'string' ? value : value.toString();
 
   const m = raw.match(/^(-?)(\d+)(?:\.(\d+))?$/);
   if (!m) return raw; // fallback: show as-is
   const [, , intPartRaw, fracRaw = ''] = m;
   const frac = (fracRaw + '00').slice(0, 2);
 
-  const parts = currencyFormatter.formatToParts(1234567.89);
+  const parts = currencyFormatter("USD").formatToParts(1234567.89);
   const groupSym = parts.find((p) => p.type === 'group')?.value ?? ',';
   const decSym = parts.find((p) => p.type === 'decimal')?.value ?? '.';
 

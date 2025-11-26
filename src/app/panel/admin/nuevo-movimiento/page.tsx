@@ -1,21 +1,18 @@
 "use client"
 
-import { NewMovementInputT } from '@/lib/schemas';
-import { createMovement } from '@/lib/actions';
+import { InputMovement, Movement } from '@/lib/schemas';
 import { useRouter } from 'next/navigation';
-import { useAdminContext } from "@/providers/AdminFetchProvider";
-import { useSession } from '@/providers/RouteFetchProvider';
 import { Splitter } from '@/components/custom/Splitter';
 import { FormNewMovement } from '@/components/custom/FormNewMovement';
+import { useAdminContext } from '@/providers/AdminFetchProvider';
 
 export default function NewMovementPage() {
-
-  const {user} = useSession()
-  const {movements, loading} = useAdminContext()
-
     const router = useRouter();
-    const onCreated = async (payload: NewMovementInputT) => {
-      await createMovement(payload);
+    const {createMovement} = useAdminContext();
+
+    const onCreated = async (payload: InputMovement) => {
+      console.log('Creating movement with payload:', payload);
+      createMovement(payload);
       router.refresh();
     };
 
@@ -24,7 +21,7 @@ export default function NewMovementPage() {
         <div className='flex flex-row gap-4 w-[70vw]'>
           <section className='flex flex-col items-center justify-center w-full gap-4 '>
             <h4>Nuevo movimiento</h4>
-            <FormNewMovement/> 
+            <FormNewMovement onCreated={onCreated}/> 
             <Splitter/>
           </section>
         </div>

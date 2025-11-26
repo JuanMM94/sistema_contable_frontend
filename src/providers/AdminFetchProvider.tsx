@@ -13,13 +13,14 @@ import {
 import { usePathname } from 'next/navigation';
 import API_BASE from '@/lib/endpoint';
 import { Spinner } from '@/components/ui/spinner';
-import { Movement, type User } from '@/lib/schemas';
+import { InputMovement, Movement, type User } from '@/lib/schemas';
 
 type AdminContextValue = {
   movements: Movement[] | null;
   users: User[] | null;
   loading: boolean;
   error: string | null;
+  createMovement: (data: InputMovement) => Promise<void>;
   refresh: () => Promise<void>;
 };
 
@@ -83,20 +84,21 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       setError(err instanceof Error ? err.message : 'Unknown admin context error');
     } finally {
       setLoading(false);
-      console.log(
-        `SERVER MOVEMENTS CONTEXT RESPONSE: ${JSON.stringify(
-          movements,
-          null,
-          2,
-        )}`,
-      );
-      console.log(
-        `SERVER USERS CONTEXT RESPONSE: ${JSON.stringify(
-          users,
-          null,
-          2,
-        )}`,
-      );
+      console.log(`SERVER MOVEMENTS CONTEXT RESPONSE: ${JSON.stringify(movements, null, 2)}`);
+      console.log(`SERVER USERS CONTEXT RESPONSE: ${JSON.stringify(users, null, 2)}`);
+    }
+  }, []);
+
+  const createMovementRequest = useCallback(async (data: InputMovement) => {
+    {
+      const res = await fetch(`${API_BASE}/movements`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(data),
+        cache: 'no-store',
+      });
+      if (!res.ok) throw new Error('Failed to create movement');
     }
   }, []);
 
@@ -110,17 +112,21 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       users,
       loading,
       error,
+      createMovement: createMovementRequest,
       refresh: fetchAdminContext,
     }),
-    [movements, users, loading, error, fetchAdminContext],
+    [movements, users, loading, error, createMovementRequest, fetchAdminContext],
   );
 
   return (
     <AdminContext.Provider value={value}>
-      {loading ?     
-      <div className="flex items-center justify-center gap-4 h-lvh w-lvw">
-        <Spinner className='size-12 text-foreground'/>
-      </div> : children}
+      {loading ? (
+        <div className="flex items-center justify-center gap-4 h-lvh w-lvw">
+          <Spinner className="size-12 text-foreground" />
+        </div>
+      ) : (
+        children
+      )}
     </AdminContext.Provider>
   );
 }
