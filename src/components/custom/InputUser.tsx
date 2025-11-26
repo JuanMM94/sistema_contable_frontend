@@ -40,14 +40,12 @@ export function InputUser({
   const { users } = useAdminContext()
   const [open, setOpen] = React.useState(false)
 
-  const selectedName = users?.find((user) => user.name === value)?.name ?? value
+  const selectedName = users?.find((user) => user.id === value)?.name ?? ""
 
   const handleOpenChange = (nextOpen: boolean) => {
     setOpen(nextOpen)
     if (!nextOpen) onBlur?.()
   }
-
-  console.log(users)
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
@@ -72,7 +70,7 @@ export function InputUser({
               {users?.map((user) => (
                 <CommandItem
                   key={user.id}
-                  value={user.name}
+                  value={user.id}
                   onSelect={(currentValue) => {
                     const nextValue = currentValue === value ? "" : currentValue
                     onChange?.(nextValue)
@@ -83,7 +81,7 @@ export function InputUser({
                   <Check
                     className={cn(
                       "ml-auto",
-                      value === user.name ? "opacity-100" : "opacity-0"
+                      value === user.id ? "opacity-100" : "opacity-0"
                     )}
                   />
                 </CommandItem>

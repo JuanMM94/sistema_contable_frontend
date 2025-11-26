@@ -40,7 +40,7 @@ import {
   moneyInputRegex,
   toPlainAmount,
 } from '@/lib/utils';
-import type { InputMovement, Movement } from '@/lib/schemas';
+import type { InputMovement } from '@/lib/schemas';
 
 const moneyNumberSchema = z
   .number()
@@ -54,7 +54,7 @@ const formSchema = z.object({
     .string()
     .refine((v) => !Number.isNaN(Date.parse(v)), { message: 'Formato ISO8601 inválido' }),
   payer: z.string().min(1),
-  member: z.cuid2(),
+  member: z.uuidv4(),
   concept: z.string().min(1),
   note: z.string().optional(),
   method: z.enum(['CASH', 'DEPOSIT', 'WIRE']),

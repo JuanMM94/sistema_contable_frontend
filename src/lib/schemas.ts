@@ -4,7 +4,7 @@ import { z } from 'zod';
 export const RoleSchema = z.enum(["ADMIN", "MEMBER"]);
 export type Role = z.infer<typeof RoleSchema>;
 export const UserSchema = z.object({
-  id: z.uuid(),
+  id: z.uuidv4(),
   authId: z.string(),
   name: z.string().min(1),
   email: z.email(),
@@ -34,8 +34,8 @@ export const PaymentMethodSchema = z.enum(['CASH', 'WIRE' , 'DEPOSIT']); // add 
 export const MovementTypeSchema = z.enum(['INCOME', 'EGRESS']); // add more: 'EXPENSE', etc.
 
 export const MovementSchema = z.object({
-  id: z.uuid(),
-  accountId: z.uuid(),
+  id: z.uuidv4(),
+  accountId: z.uuidv4(),
   payer: z.string(),
   concept: z.string(),
   amount: z.string(), // Prisma Decimal serialized as string
@@ -56,13 +56,13 @@ const InputMovementSchema = MovementSchema.omit({
   updatedAt: true,
   createdAt: true,
 }).extend({
-  member: z.cuid2(),
+  member: z.uuidv4(),
 });
 
 export type InputMovement = z.TypeOf<typeof InputMovementSchema>;
 
 export const AccountSchema = z.object({
-  id: z.uuid(),
+  id: z.uuidv4(),
   currency: CurrencySchema,
   amount: z.string(),
   createdAt: z.iso.datetime(),
