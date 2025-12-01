@@ -9,7 +9,6 @@ import { useSession } from '@/providers/RouteFetchProvider';
 export default function HomeClient() {
   const { user, loading } = useSession();
 
-
   return (
     <div className={styles.dashboard}>
       <div className={styles.home}>
@@ -26,7 +25,7 @@ export default function HomeClient() {
         <div className={styles.information_container}>
           <section className={styles.table_section}>
             <h4>Últimos movimientos</h4>
-            <MovementsList initialMovements={user?.movements ?? []} userRole={user?.role}/>
+            <MovementsList initialMovements={user?.movements ?? []} userRole={user?.role} />
           </section>
         </div>
       </div>

@@ -34,7 +34,7 @@ export const PAYMENT_TYPES_OPTIONS = [
 
 export const PAYMENT_AVAILABLE_CURRENCY = [
   { value: 'ARS', label: 'ARS (Pesos Argentinos)' },
-  { value: 'USD', label: 'USD (Dólares Estadounidenses)' }
+  { value: 'USD', label: 'USD (Dólares Estadounidenses)' },
 ] as const;
 
 export const paymentMethodLabelMap = new Map(

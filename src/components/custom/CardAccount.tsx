@@ -13,7 +13,7 @@ export const CardAccount = ({
   return (
     <Card className="w-full gap-3 flex justify-center p-2!">
       <CardHeader className="flex flex-col justify-center items-start mt-2!">
-        <CardTitle className='text-primary text-2xl'>Balance</CardTitle>
+        <CardTitle className="text-primary text-2xl">Balance</CardTitle>
         <p className="opacity-50">{accountInformation.id}</p>
       </CardHeader>
       <CardContent>
@@ -25,38 +25,39 @@ export const CardAccount = ({
               <span className="text-2xl opacity-80">{accountInformation.currency}</span>
             </p>
           </section>
-          <section className='flex gap-3'>
-        <Badge
-          variant="secondary"
-        className={
-          accountInformation.percentChange == null
-            ? "bg-gray-400 text-white dark:bg-gray-700 px-2!"
-            : accountInformation.percentChange > 0
-            ? "bg-green-700 text-white dark:bg-green-900 px-2!"
-            : accountInformation.percentChange < 0
-            ? "bg-red-700 text-white dark:bg-red-900 px-2!"
-            : "bg-gray-400 text-white dark:bg-gray-700 px-2!"
-        }
-        >
-          {accountInformation.percentChange == null || accountInformation.percentChange === 0 ? (
-            <>0,00%</>
-          ) : accountInformation.percentChange > 0 ? (
-            <>
-              <TrendingUp className="mr-1 h-4 w-4" />
-              {accountInformation.percentChange}%
-            </>
-          ) : (
-            <>
-              <TrendingDown className="mr-1 h-4 w-4" />
-              {accountInformation.percentChange}%
-            </>
-          )}
-        </Badge>
-            <p className='opacity-30'>comparado al último mes</p>
+          <section className="flex gap-3">
+            <Badge
+              variant="secondary"
+              className={
+                accountInformation.percentChange == null
+                  ? 'bg-gray-400 text-white dark:bg-gray-700 px-2!'
+                  : accountInformation.percentChange > 0
+                    ? 'bg-green-700 text-white dark:bg-green-900 px-2!'
+                    : accountInformation.percentChange < 0
+                      ? 'bg-red-700 text-white dark:bg-red-900 px-2!'
+                      : 'bg-gray-400 text-white dark:bg-gray-700 px-2!'
+              }
+            >
+              {accountInformation.percentChange == null ||
+              accountInformation.percentChange === 0 ? (
+                <>0,00%</>
+              ) : accountInformation.percentChange > 0 ? (
+                <>
+                  <TrendingUp className="mr-1 h-4 w-4" />
+                  {accountInformation.percentChange}%
+                </>
+              ) : (
+                <>
+                  <TrendingDown className="mr-1 h-4 w-4" />
+                  {accountInformation.percentChange}%
+                </>
+              )}
+            </Badge>
+            <p className="opacity-30">comparado al último mes</p>
           </section>
-          <section className='flex items-center gap-2'>
-            <Button className='flex-1 bg-secondary text-primary'>Ultimos Movimientos</Button>
-            <Button className='flex-1 bg-secondary text-primary'>Cambiar</Button>
+          <section className="flex items-center gap-2">
+            <Button className="flex-1 bg-secondary text-primary">Ultimos Movimientos</Button>
+            <Button className="flex-1 bg-secondary text-primary">Cambiar</Button>
           </section>
         </div>
       </CardContent>

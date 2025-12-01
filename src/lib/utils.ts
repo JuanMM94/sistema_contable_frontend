@@ -23,7 +23,7 @@ export function formatCurrencyValue(value: string | DecimalLike): string {
   const [, , intPartRaw, fracRaw = ''] = m;
   const frac = (fracRaw + '00').slice(0, 2);
 
-  const parts = currencyFormatter("USD").formatToParts(1234567.89);
+  const parts = currencyFormatter('USD').formatToParts(1234567.89);
   const groupSym = parts.find((p) => p.type === 'group')?.value ?? ',';
   const decSym = parts.find((p) => p.type === 'decimal')?.value ?? '.';
 

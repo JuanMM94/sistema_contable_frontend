@@ -3,7 +3,6 @@
 import { UserLogin, UserLoginResponse } from './schemas';
 import API_BASE from './endpoint';
 
-
 export async function userLogin(
   data: UserLogin,
 ): Promise<{ ok: boolean; status: number; data: UserLoginResponse } | null> {

@@ -1,10 +1,10 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
+import * as React from 'react';
+import { Check, ChevronsUpDown } from 'lucide-react';
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import {
   Command,
   CommandEmpty,
@@ -12,40 +12,36 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { useAdminContext } from "@/providers/AdminFetchProvider"
+} from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useAdminContext } from '@/providers/AdminFetchProvider';
 
 type InputUserProps = {
-  value?: string
-  onChange?: (value: string) => void
-  onBlur?: () => void
-  placeholder?: string
-  disabled?: boolean
-  className?: string
-}
+  value?: string;
+  onChange?: (value: string) => void;
+  onBlur?: () => void;
+  placeholder?: string;
+  disabled?: boolean;
+  className?: string;
+};
 
 export function InputUser({
-  value = "",
+  value = '',
   onChange,
   onBlur,
-  placeholder = "Elige un usuario...",
+  placeholder = 'Elige un usuario...',
   disabled = false,
   className,
 }: InputUserProps) {
-  const { users } = useAdminContext()
-  const [open, setOpen] = React.useState(false)
+  const { users } = useAdminContext();
+  const [open, setOpen] = React.useState(false);
 
-  const selectedName = users?.find((user) => user.id === value)?.name ?? ""
+  const selectedName = users?.find((user) => user.id === value)?.name ?? '';
 
   const handleOpenChange = (nextOpen: boolean) => {
-    setOpen(nextOpen)
-    if (!nextOpen) onBlur?.()
-  }
+    setOpen(nextOpen);
+    if (!nextOpen) onBlur?.();
+  };
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
@@ -54,7 +50,7 @@ export function InputUser({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between", className)}
+          className={cn('w-full justify-between', className)}
           disabled={disabled}
         >
           {selectedName ? selectedName : placeholder}
@@ -72,17 +68,14 @@ export function InputUser({
                   key={user.id}
                   value={user.id}
                   onSelect={(currentValue) => {
-                    const nextValue = currentValue === value ? "" : currentValue
-                    onChange?.(nextValue)
-                    handleOpenChange(false)
+                    const nextValue = currentValue === value ? '' : currentValue;
+                    onChange?.(nextValue);
+                    handleOpenChange(false);
                   }}
                 >
                   {user.name}
                   <Check
-                    className={cn(
-                      "ml-auto",
-                      value === user.id ? "opacity-100" : "opacity-0"
-                    )}
+                    className={cn('ml-auto', value === user.id ? 'opacity-100' : 'opacity-0')}
                   />
                 </CommandItem>
               ))}
@@ -91,5 +84,5 @@ export function InputUser({
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }

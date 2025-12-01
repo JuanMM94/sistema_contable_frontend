@@ -90,7 +90,7 @@ export function FormNewMovement({
       amount: 0.0,
       status: 'PENDING',
       type: 'INCOME',
-      currency: "USD",
+      currency: 'USD',
     },
   });
 
@@ -110,7 +110,7 @@ export function FormNewMovement({
       amount: Number(values.amount).toFixed(2), // send as string for Decimal
       note: values.note,
       date: values.date,
-      exchangeRate: "",
+      exchangeRate: '',
       currency: values.currency,
       status: values.status,
       method: values.method,
@@ -121,25 +121,20 @@ export function FormNewMovement({
   }
 
   const actions =
-    renderActions !== undefined
-      ? renderActions(formId)
-      : (
-        <div className="flex w-100 flex-col gap-2 lg:flex-col sm:flex-row justify-end sm:gap-5">
-          <Button type="submit" form={formId} className="w-full sm:w-auto">
-            Crear nuevo movimiento
+    renderActions !== undefined ? (
+      renderActions(formId)
+    ) : (
+      <div className="flex w-100 flex-col gap-2 lg:flex-col sm:flex-row justify-end sm:gap-5">
+        <Button type="submit" form={formId} className="w-full sm:w-auto">
+          Crear nuevo movimiento
+        </Button>
+        {onCancel && (
+          <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={onCancel}>
+            Cancelar
           </Button>
-          {onCancel && (
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full sm:w-auto"
-              onClick={onCancel}
-            >
-              Cancelar
-            </Button>
-          )}
-        </div>
-      );
+        )}
+      </div>
+    );
 
   return (
     <div className="flex flex-col gap-5 w-[70vw]">
