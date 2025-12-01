@@ -11,7 +11,7 @@ export async function proxy(request: NextRequest) {
   const res = await fetch(`${API_BASE}/session`, {
     method: 'GET',
     headers: { cookie: cookieHeader },
-    credentials: "include"
+    credentials: 'include',
     // next/fetch inside middleware won't forward cookies automatically,
     // so include the header above.
   });

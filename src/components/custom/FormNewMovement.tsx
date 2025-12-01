@@ -23,9 +23,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { InputUser } from '@/components/custom/InputUser';
 import { Calendar28 } from './InputCalendar';
 import { formatISODate } from '@/lib/date_utils';
 import {
+  PAYMENT_AVAILABLE_CURRENCY,
   PAYMENT_METHOD_OPTIONS,
   PAYMENT_STATUS_OPTIONS,
   PAYMENT_TYPES_OPTIONS,
@@ -38,7 +40,7 @@ import {
   moneyInputRegex,
   toPlainAmount,
 } from '@/lib/utils';
-import type { NewMovementInputT } from '@/lib/schemas';
+import type { InputMovement } from '@/lib/schemas';
 
 const moneyNumberSchema = z
   .number()
@@ -52,19 +54,18 @@ const formSchema = z.object({
     .string()
     .refine((v) => !Number.isNaN(Date.parse(v)), { message: 'Formato ISO8601 inválido' }),
   payer: z.string().min(1),
+  member: z.uuidv4(),
   concept: z.string().min(1),
   note: z.string().optional(),
   method: z.enum(['CASH', 'DEPOSIT', 'WIRE']),
   amount: moneyNumberSchema,
   status: z.enum(['PAID', 'UNPAID', 'PENDING']),
   type: z.enum(['INCOME', 'EGRESS']),
+  currency: z.enum(['ARS', 'USD']),
 });
 
-const ACCOUNT_ID = 'cmhmg8qtg0001w53gjg9vsjkn'; // Current user -- IMPORTANT CHANGE --
-const DEFAULT_CURRENCY: NewMovementInputT['currency'] = 'USD';
-
 type FormNewMovementProps = {
-  onCreated?: (payload: NewMovementInputT) => void | Promise<void>;
+  onCreated?: (payload: InputMovement) => void | Promise<void>;
   onCancel?: () => void;
   formId?: string;
   renderActions?: (formId: string) => ReactNode;
@@ -83,11 +84,13 @@ export function FormNewMovement({
       method: 'CASH',
       date: formatISODate(new Date()),
       payer: '',
+      member: '',
       concept: '',
       note: '',
       amount: 0.0,
       status: 'PENDING',
       type: 'INCOME',
+      currency: 'USD',
     },
   });
 
@@ -95,49 +98,43 @@ export function FormNewMovement({
   const [isAmountFocused, setIsAmountFocused] = useState(false);
   const amountInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleError = (errors: FieldErrors<z.infer<typeof formSchema>>) => {
+  const handleError = (errors: FieldErrors<InputMovement>) => {
     console.warn('Submit blocked', errors);
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const payload: NewMovementInputT = {
-      accountId: ACCOUNT_ID,
+    const payload: InputMovement = {
       payer: values.payer,
+      member: values.member,
       concept: values.concept,
-      amount: values.amount.toFixed(2), // send as string for Decimal
-      note: values.note || undefined,
-      date: new Date(values.date),
-      exchangeRate: undefined,
-      currency: DEFAULT_CURRENCY,
+      amount: Number(values.amount).toFixed(2), // send as string for Decimal
+      note: values.note,
+      date: values.date,
+      exchangeRate: '',
+      currency: values.currency,
       status: values.status,
       method: values.method,
       type: values.type,
     };
-
-    await onCreated?.(payload as NewMovementInputT);
+    await onCreated?.(payload);
     router.refresh(); // refetches RSC data
   }
 
   const actions =
-    renderActions !== undefined
-      ? renderActions(formId)
-      : (
-        <div className="flex w-100 flex-col gap-2 lg:flex-col sm:flex-row justify-end sm:gap-5">
-          <Button type="submit" form={formId} className="w-full sm:w-auto">
-            Crear nuevo movimiento
+    renderActions !== undefined ? (
+      renderActions(formId)
+    ) : (
+      <div className="flex w-100 flex-col gap-2 lg:flex-col sm:flex-row justify-end sm:gap-5">
+        <Button type="submit" form={formId} className="w-full sm:w-auto">
+          Crear nuevo movimiento
+        </Button>
+        {onCancel && (
+          <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={onCancel}>
+            Cancelar
           </Button>
-          {onCancel && (
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full sm:w-auto"
-              onClick={onCancel}
-            >
-              Cancelar
-            </Button>
-          )}
-        </div>
-      );
+        )}
+      </div>
+    );
 
   return (
     <div className="flex flex-col gap-5 w-[70vw]">
@@ -147,6 +144,25 @@ export function FormNewMovement({
           onSubmit={form.handleSubmit(onSubmit, handleError)}
           className="grid grid-cols-1 gap-6 auto-rows-min md:grid-cols-2"
         >
+          {/* userId */}
+          <FormField
+            control={form.control}
+            name="member"
+            render={({ field }) => (
+              <FormItem className="md:col-span-1">
+                <FormLabel>Miembro a cobrar</FormLabel>
+                <FormControl>
+                  <InputUser
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Elige un usuario..."
+                    onBlur={field.onBlur}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           {/* payer */}
           <FormField
             control={form.control}
@@ -155,7 +171,7 @@ export function FormNewMovement({
               <FormItem className="md:col-span-1">
                 <FormLabel>Nombre del cliente</FormLabel>
                 <FormControl>
-                  <Input placeholder="ej. Pedro Martinez" {...field} />
+                  <Input placeholder="ej. Cobranza / Compra dolar a 1.420" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -248,15 +264,30 @@ export function FormNewMovement({
               </FormItem>
             )}
           />
-          {/* concept */}
+          {/* currency */}
           <FormField
             control={form.control}
-            name="concept"
+            name="currency"
             render={({ field }) => (
               <FormItem className="md:col-span-1">
-                <FormLabel>Concepto</FormLabel>
+                <FormLabel>Moneda de la transacción</FormLabel>
                 <FormControl>
-                  <Input placeholder="ej. Cobranza / Compra dolar a 1.420" {...field} />
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <SelectTrigger id="method-used" className="w-full">
+                      <SelectValue placeholder="Método de transacción" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PAYMENT_AVAILABLE_CURRENCY.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -278,7 +309,7 @@ export function FormNewMovement({
                     name={field.name}
                     inputMode="decimal"
                     placeholder="ej. 1.420,00"
-                    value={isAmountFocused ? amountDisplay : field.value.toFixed(2)}
+                    value={isAmountFocused ? amountDisplay : toPlainAmount(field.value)}
                     onFocus={() => {
                       setIsAmountFocused(true);
                       setAmountDisplay(toPlainAmount(field.value));
@@ -286,8 +317,9 @@ export function FormNewMovement({
                     onBlur={() => {
                       field.onBlur();
                       const parsed = parseMoneyInput(amountDisplay);
-                      field.onChange(parsed ?? 0);
-                      setAmountDisplay('');
+                      const nextValue = parsed ?? field.value ?? 0;
+                      field.onChange(parsed ?? nextValue);
+                      setAmountDisplay(toPlainAmount(nextValue));
                       setIsAmountFocused(false);
                     }}
                     onChange={(e) => {
@@ -318,6 +350,20 @@ export function FormNewMovement({
                       );
                     }}
                   />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* concept */}
+          <FormField
+            control={form.control}
+            name="concept"
+            render={({ field }) => (
+              <FormItem className="md:col-span-2">
+                <FormLabel>Concepto</FormLabel>
+                <FormControl>
+                  <Input placeholder="ej. Cobranza / Compra dolar a 1.420" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

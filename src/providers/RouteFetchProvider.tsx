@@ -81,10 +81,13 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
 
   return (
     <SessionContext.Provider value={value}>
-      {loading ?     
-      <div className="flex items-center justify-center gap-4 h-lvh w-lvw">
-        <Spinner className='size-12 text-foreground'/>
-      </div> : children}
+      {loading ? (
+        <div className="flex items-center justify-center gap-4 h-lvh w-lvw">
+          <Spinner className="size-12 text-foreground" />
+        </div>
+      ) : (
+        children
+      )}
     </SessionContext.Provider>
   );
 }

@@ -34,6 +34,7 @@ npm run format
 ### Next.js 16 App Router
 
 This project uses the App Router (not Pages Router):
+
 - **React Server Components (RSC)** by default - mark client components with `'use client'`
 - **Server Actions** for mutations (`/lib/actions.ts`)
 - **Server-side data fetching** in page components
@@ -53,12 +54,14 @@ This project uses the App Router (not Pages Router):
 ### API Backend Integration
 
 Backend API base URL is determined by environment:
+
 - **Development:** `NEXT_PUBLIC_BACKEND_API_DEV`
 - **Production:** `NEXT_PUBLIC_BACKEND_API`
 
 Logic in `/lib/endpoint.ts` - exports `API_BASE`.
 
 **Key endpoints:**
+
 - `POST /users/login` - Authentication
 - `GET /session` - Session validation
 - `GET /movements` - Fetch user movements
@@ -68,6 +71,7 @@ Logic in `/lib/endpoint.ts` - exports `API_BASE`.
 ### Data Flow Pattern
 
 **Server Components (data fetching):**
+
 ```typescript
 // src/app/panel/page.tsx
 export default async function Page() {
@@ -78,6 +82,7 @@ export default async function Page() {
 ```
 
 **Client Components (mutations):**
+
 ```typescript
 'use client';
 // Components use server actions for mutations
@@ -92,6 +97,7 @@ const handleSubmit = async (data) => {
 ## Code Organization
 
 ### `/src/app` - App Router Structure
+
 - **`/ingresar`** - Login page (public)
 - **`/panel`** - Dashboard page (protected by middleware)
 - **`Dashboard.tsx`** - Main dashboard client component
@@ -99,7 +105,9 @@ const handleSubmit = async (data) => {
 - **`RouteFetchProvider.tsx`** - Client-side session keepalive
 
 ### `/src/lib` - Business Logic
+
 Currently flat structure containing:
+
 - **`actions.ts`** - Server actions (mutations)
 - **`movements.ts`** - Server-side movement fetching
 - **`user.ts`** - Server-side user fetching
@@ -112,6 +120,7 @@ Currently flat structure containing:
 **Important:** Files with server-only imports must include `import 'server-only'` at the top.
 
 ### `/src/components`
+
 - **`/ui`** - Shadcn UI primitives (button, form, input, table, etc.)
 - **`/custom`** - Business components:
   - `DrawerNewMovement.tsx` - Form to create movements
@@ -120,6 +129,7 @@ Currently flat structure containing:
   - `InputCalendar.tsx` - Date picker
 
 ### `/src/types`
+
 - **`movement.ts`** - Movement and User TypeScript types
 - **`invoice.ts`** - Unused legacy type
 
@@ -132,11 +142,15 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
-const schema = z.object({ /* ... */ });
+const schema = z.object({
+  /* ... */
+});
 
 const form = useForm({
   resolver: zodResolver(schema),
-  defaultValues: { /* ... */ }
+  defaultValues: {
+    /* ... */
+  },
 });
 ```
 
@@ -147,12 +161,14 @@ Zod schemas are defined in `/lib/schemas.ts` for server validation.
 ## UI Components with Shadcn
 
 This project uses [Shadcn UI](https://ui.shadcn.com/) components:
+
 - Components are in `/components/ui/`
 - **Do not modify** UI components directly - they're auto-generated
 - Customize via Tailwind classes or create wrappers in `/components/custom/`
 
 **Component library:**
-- Radix UI primitives (@radix-ui/react-*)
+
+- Radix UI primitives (@radix-ui/react-\*)
 - Tailwind CSS for styling
 - `class-variance-authority` for variant management
 - `tailwind-merge` + `clsx` via `cn()` utility
@@ -160,6 +176,7 @@ This project uses [Shadcn UI](https://ui.shadcn.com/) components:
 ## Spanish UI Localization
 
 All user-facing text is hardcoded in Spanish:
+
 - Form labels: "Nombre del cliente", "Método de transacción", etc.
 - Buttons: "Guardar", "Cancelar", "Editar", "Borrar"
 - Messages: "Credenciales inválidas", "No se pudo conectar con el servidor"
@@ -175,6 +192,7 @@ No i18n library is currently implemented - all text is inline JSX.
 ## TypeScript Paths
 
 Absolute imports configured via `tsconfig.json`:
+
 ```typescript
 import { Button } from '@/components/ui/button';
 import { createMovement } from '@/lib/actions';
@@ -189,6 +207,7 @@ import type { ServerMovement } from '@/types/movement';
 **Installed but unused:** Zustand (v5.0.8)
 
 Server state is managed via:
+
 - Server Components fetch on each navigation
 - `router.refresh()` to revalidate after mutations
 - Next.js caching with `revalidateTag()` in server actions
@@ -205,6 +224,7 @@ Server state is managed via:
 ## Environment Variables
 
 Required variables:
+
 ```bash
 # Development API endpoint
 NEXT_PUBLIC_BACKEND_API_DEV=http://localhost:4000
