@@ -1,6 +1,6 @@
 "use client"
 
-import { InputMovement, Movement } from '@/lib/schemas';
+import { InputMovement } from '@/lib/schemas';
 import { useRouter } from 'next/navigation';
 import { Splitter } from '@/components/custom/Splitter';
 import { FormNewMovement } from '@/components/custom/FormNewMovement';

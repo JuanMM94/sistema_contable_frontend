@@ -87,7 +87,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       console.log(`SERVER MOVEMENTS CONTEXT RESPONSE: ${JSON.stringify(movements, null, 2)}`);
       console.log(`SERVER USERS CONTEXT RESPONSE: ${JSON.stringify(users, null, 2)}`);
     }
-  }, []);
+  }, [movements, users]);
 
   const createMovementRequest = useCallback(async (data: InputMovement) => {
     {

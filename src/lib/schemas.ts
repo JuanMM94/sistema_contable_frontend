@@ -1,14 +1,14 @@
 import { z } from 'zod';
 
 // -- User Schema --
-export const RoleSchema = z.enum(["ADMIN", "MEMBER"]);
+export const RoleSchema = z.enum(['ADMIN', 'MEMBER']);
 export type Role = z.infer<typeof RoleSchema>;
 export const UserSchema = z.object({
   id: z.uuidv4(),
   authId: z.string(),
   name: z.string().min(1),
   email: z.email(),
-  role: RoleSchema.default("MEMBER"),
+  role: RoleSchema.default('MEMBER'),
   createdAt: z.iso.datetime({ offset: true }),
   updatedAt: z.iso.datetime({ offset: true }),
   accounts: z.array(z.unknown()).optional(),
@@ -30,7 +30,7 @@ export const UserLoginSchema = z.object({
 
 export const CurrencySchema = z.enum(['USD', 'ARS']); // add more: 'ARS', etc.
 export const PaymentStatusSchema = z.enum(['PAID', 'PENDING', 'UNPAID']);
-export const PaymentMethodSchema = z.enum(['CASH', 'WIRE' , 'DEPOSIT']); // add more: 'CHECK', etc.
+export const PaymentMethodSchema = z.enum(['CASH', 'WIRE', 'DEPOSIT']); // add more: 'CHECK', etc.
 export const MovementTypeSchema = z.enum(['INCOME', 'EGRESS']); // add more: 'EXPENSE', etc.
 
 export const MovementSchema = z.object({
@@ -50,16 +50,10 @@ export const MovementSchema = z.object({
   createdAt: z.iso.datetime(),
 });
 
-const InputMovementSchema = MovementSchema.omit({
-  id: true,
-  accountId: true,
-  updatedAt: true,
-  createdAt: true,
-}).extend({
-  member: z.uuidv4(),
-});
-
-export type InputMovement = z.TypeOf<typeof InputMovementSchema>;
+export type InputMovement = Omit<
+  z.infer<typeof MovementSchema>,
+  'id' | 'accountId' | 'updatedAt' | 'createdAt'
+> & { member: string };
 
 export const AccountSchema = z.object({
   id: z.uuidv4(),
@@ -67,7 +61,7 @@ export const AccountSchema = z.object({
   amount: z.string(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
-  percentChange: z.number()
+  percentChange: z.number(),
 });
 
 export type Movement = z.infer<typeof MovementSchema>;
