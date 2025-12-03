@@ -3,7 +3,7 @@
 import styles from './page.module.css';
 import { Splitter } from '@/components/custom/Splitter';
 import { CardAccount } from '@/components/custom/CardAccount';
-import MovementsList from '@/components/custom/MovementsList';
+import MovementsList from '@/components/custom/ListMovements';
 import { useSession } from '@/providers/RouteFetchProvider';
 
 export default function HomeClient() {
