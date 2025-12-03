@@ -13,13 +13,14 @@ import {
 import { usePathname } from 'next/navigation';
 import API_BASE from '@/lib/endpoint';
 import { Spinner } from '@/components/ui/spinner';
-import { InputMovement, Movement, type User } from '@/lib/schemas';
+import { InputMember, InputMovement, Movement, type User } from '@/lib/schemas';
 
 type AdminContextValue = {
   movements: Movement[] | null;
   users: User[] | null;
   loading: boolean;
   error: string | null;
+  createMember: (data: InputMember) => Promise<void>;
   createMovement: (data: InputMovement) => Promise<void>;
   refresh: () => Promise<void>;
 };
@@ -63,6 +64,10 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
         setLoading(false);
         return;
       }
+
+      console.log(`MOVEMENTS RESPONSE STATUS: ${movementsRes.status}`);
+      console.log(`USERS RESPONSE STATUS: ${usersRes.status}`);
+
       if (!movementsRes.ok || !usersRes.ok) {
         throw new Error(
           `Failed to fetch admin context (movements: ${movementsRes.status}, users: ${usersRes.status})`,
@@ -84,10 +89,21 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       setError(err instanceof Error ? err.message : 'Unknown admin context error');
     } finally {
       setLoading(false);
-      console.log(`SERVER MOVEMENTS CONTEXT RESPONSE: ${JSON.stringify(movements, null, 2)}`);
-      console.log(`SERVER USERS CONTEXT RESPONSE: ${JSON.stringify(users, null, 2)}`);
     }
-  }, [movements, users]);
+  }, []);
+
+  const createMemberRequest = useCallback(async (data: InputMember) => {
+    {
+      const res = await fetch(`${API_BASE}/users/create`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(data),
+        cache: 'no-store',
+      });
+      if (!res.ok) throw new Error('Failed to create user');
+    }
+  }, []);
 
   const createMovementRequest = useCallback(async (data: InputMovement) => {
     {
@@ -115,10 +131,11 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       users,
       loading,
       error,
+      createMember: createMemberRequest,
       createMovement: createMovementRequest,
       refresh: fetchAdminContext,
     }),
-    [movements, users, loading, error, createMovementRequest, fetchAdminContext],
+    [movements, users, loading, error, createMemberRequest, createMovementRequest, fetchAdminContext],
   );
 
   return (
