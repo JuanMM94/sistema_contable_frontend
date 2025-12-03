@@ -1,4 +1,3 @@
-// src/app/RouteFetchProvider.tsx
 'use client';
 
 import {
@@ -7,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -102,7 +102,10 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const didFetchRef = useRef(false);
   useEffect(() => {
+    if (didFetchRef.current) return;
+    didFetchRef.current = true;
     void fetchAdminContext();
   }, [pathname, fetchAdminContext]);
 
