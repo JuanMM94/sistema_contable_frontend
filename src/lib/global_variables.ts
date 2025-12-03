@@ -37,6 +37,11 @@ export const PAYMENT_AVAILABLE_CURRENCY = [
   { value: 'USD', label: 'USD (Dólares Estadounidenses)' },
 ] as const;
 
+export const MEMBER_AVAILABLE_ROLES = [
+  { value: 'ADMIN', label: 'Administrador' },
+  { value: 'MEMBER', label: 'Miembro' },
+] as const;
+
 export const paymentMethodLabelMap = new Map(
   PAYMENT_METHOD_OPTIONS.map(({ value, label }) => [value, label] as const),
 );
@@ -48,4 +53,8 @@ export const paymentTypeLabelMap = new Map(
 );
 export const paymentCurrencyLabelMap = new Map(
   PAYMENT_AVAILABLE_CURRENCY.map(({ value, label }) => [value, label] as const),
+);
+
+export const memberRoleLabelMap = new Map(
+  MEMBER_AVAILABLE_ROLES.map(({ value, label }) => [value, label] as const),
 );

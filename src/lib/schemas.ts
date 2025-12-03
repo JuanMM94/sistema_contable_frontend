@@ -14,17 +14,15 @@ export const UserSchema = z.object({
   accounts: z.array(z.unknown()).optional(),
 });
 
-export const UserCreateInputSchema = z.object({
-  name: z.string().min(1),
-  email: z.email(),
-  password: z.string().min(8),
-  role: RoleSchema.optional(),
-});
-
 export const UserLoginSchema = z.object({
   email: z.email(),
   password: z.string().min(8),
 });
+
+export type InputMember = Omit<
+  z.infer<typeof UserSchema>,
+  'id' | 'authId' | 'accounts' | 'updatedAt' | 'createdAt'
+> & { password: string };
 
 // -- Account Schema --
 
@@ -68,7 +66,6 @@ export type Movement = z.infer<typeof MovementSchema>;
 export type AccountWithMovements = z.infer<typeof AccountSchema>;
 export const AccountsResponseSchema = z.array(AccountSchema);
 export type User = z.infer<typeof UserSchema>;
-export type UserCreateInput = z.infer<typeof UserCreateInputSchema>;
 export type UserLogin = z.infer<typeof UserLoginSchema>;
 export type UserLoginResponse = {
   user: User;

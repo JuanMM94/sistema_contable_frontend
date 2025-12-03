@@ -50,11 +50,11 @@ export default function PanelLayout({
                   <Link href="/panel/admin/nuevo-movimiento">Nuevo movimiento</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
-              {/* <NavigationMenuItem>
+              <NavigationMenuItem>
                 <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), 'px-3!')}>
-                  <Link href="#">Agregar más miembros</Link>
+                  <Link href="/panel/admin/nuevo-miembro">Agregar más miembros</Link>
                 </NavigationMenuLink>
-              </NavigationMenuItem> */}
+              </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
         </nav>
