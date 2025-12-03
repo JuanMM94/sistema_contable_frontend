@@ -1,24 +1,25 @@
 'use client';
 
-import MovementsList from '@/components/custom/MovementsList';
+import ListMovements from '@/components/custom/ListMovements';
+import ListUsers from '@/components/custom/ListUsers';
 import { useAdminContext } from '@/providers/AdminFetchProvider';
 import { useSession } from '@/providers/RouteFetchProvider';
 
 export default function Page() {
   const { user } = useSession();
-  const { movements } = useAdminContext();
+  const { movements, users } = useAdminContext();
 
   return (
     <div className="flex justify-center w-full mt-6!">
       <div className="w-[70vw]">
         <h3>Panel de Administrador</h3>
         <section>
-          <h5>Últimos movimientos</h5>
-          <MovementsList initialMovements={movements ?? []} userRole={user?.role} />
+          <h5>Lista de últimos movimientos</h5>
+          <ListMovements initialMovements={movements ?? []} userRole={user?.role} />
         </section>
         <section>
-          <h5>Usuarios</h5>
-          <MovementsList initialMovements={movements ?? []} userRole={user?.role} />
+          <h5>Lista de usuarios</h5>
+          <ListUsers users={users ?? []}/>
         </section>
       </div>
     </div>

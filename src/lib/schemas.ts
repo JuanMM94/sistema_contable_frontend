@@ -1,8 +1,23 @@
 import { z } from 'zod';
 
+export const CurrencySchema = z.enum(['USD', 'ARS']); // add more: 'ARS', etc.
+export const PaymentStatusSchema = z.enum(['PAID', 'PENDING', 'UNPAID']);
+export const PaymentMethodSchema = z.enum(['CASH', 'WIRE', 'DEPOSIT']); // add more: 'CHECK', etc.
+export const MovementTypeSchema = z.enum(['INCOME', 'EGRESS']); // add more: 'EXPENSE', etc.
+
 // -- User Schema --
 export const RoleSchema = z.enum(['ADMIN', 'MEMBER']);
 export type Role = z.infer<typeof RoleSchema>;
+
+export const AccountSchema = z.object({
+  id: z.uuidv4(),
+  currency: CurrencySchema,
+  amount: z.string(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+  percentChange: z.number().optional(),
+});
+
 export const UserSchema = z.object({
   id: z.uuidv4(),
   authId: z.string(),
@@ -11,7 +26,7 @@ export const UserSchema = z.object({
   role: RoleSchema.default('MEMBER'),
   createdAt: z.iso.datetime({ offset: true }),
   updatedAt: z.iso.datetime({ offset: true }),
-  accounts: z.array(z.unknown()).optional(),
+  accounts: z.array(AccountSchema).optional(),
 });
 
 export const UserLoginSchema = z.object({
@@ -23,13 +38,6 @@ export type InputMember = Omit<
   z.infer<typeof UserSchema>,
   'id' | 'authId' | 'accounts' | 'updatedAt' | 'createdAt'
 > & { password: string };
-
-// -- Account Schema --
-
-export const CurrencySchema = z.enum(['USD', 'ARS']); // add more: 'ARS', etc.
-export const PaymentStatusSchema = z.enum(['PAID', 'PENDING', 'UNPAID']);
-export const PaymentMethodSchema = z.enum(['CASH', 'WIRE', 'DEPOSIT']); // add more: 'CHECK', etc.
-export const MovementTypeSchema = z.enum(['INCOME', 'EGRESS']); // add more: 'EXPENSE', etc.
 
 export const MovementSchema = z.object({
   id: z.uuidv4(),
@@ -52,15 +60,6 @@ export type InputMovement = Omit<
   z.infer<typeof MovementSchema>,
   'id' | 'accountId' | 'updatedAt' | 'createdAt'
 > & { member: string };
-
-export const AccountSchema = z.object({
-  id: z.uuidv4(),
-  currency: CurrencySchema,
-  amount: z.string(),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
-  percentChange: z.number(),
-});
 
 export type Movement = z.infer<typeof MovementSchema>;
 export type AccountWithMovements = z.infer<typeof AccountSchema>;

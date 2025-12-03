@@ -12,14 +12,13 @@ import styles from '../../app/page.module.css';
 import { Button } from '../ui/button';
 import { Movement } from '@/lib/schemas';
 
-export default function MovementsList({
+export default function ListMovements({
   initialMovements,
   userRole,
 }: {
   initialMovements: Movement[] | [];
   userRole: string | undefined;
 }) {
-  // pass onCreated to ButtonDrawer
   return (
     <section className={styles.table_section}>
       <Table className="w-full">
@@ -43,7 +42,6 @@ export default function MovementsList({
           {initialMovements.map((movement) => {
             return (
               <TableRow key={movement.id} className="cursor-pointer">
-                {/* Cut id only for display to make it more readable to user */}
                 <TableCell className="font-medium">{movement.id.slice(0, 8)}...</TableCell>
                 <TableCell className="font-medium">
                   {formatShortDate(new Date(movement.date))}
