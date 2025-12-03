@@ -1,5 +1,3 @@
-//Centralize endpoint resolution from this condition.
-
 const isDev = process.env.NODE_ENV === 'development';
 
 const API_BASE = isDev
