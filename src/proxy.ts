@@ -15,6 +15,9 @@ export async function proxy(request: NextRequest) {
     // next/fetch inside middleware won't forward cookies automatically,
     // so include the header above.
   });
+
+  console.log(res);
+
   if (res.ok) return NextResponse.next();
 
   const url = request.nextUrl.clone();
