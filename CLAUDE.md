@@ -27,7 +27,7 @@ npm run lint
 npm run format
 ```
 
-**Note:** All Next.js commands use `--webpack` flag for compatibility.
+**Note:** Development and build commands use `--turbopack` for faster compilation.
 
 ## High-Level Architecture
 
@@ -38,18 +38,24 @@ This project uses the App Router (not Pages Router):
 - **React Server Components (RSC)** by default - mark client components with `'use client'`
 - **Server Actions** for mutations (`/lib/actions.ts`)
 - **Server-side data fetching** in page components
-- **Middleware authentication** via `proxy.ts`
+- **Middleware authentication** via `src/proxy.ts` (exports `proxy` function and matcher config)
+
+**Middleware note:** The middleware is defined in `src/proxy.ts` and exports:
+- `proxy()` function - the middleware handler
+- `config` object with matcher pattern `/panel/:path*`
 
 ### Authentication Flow
 
 1. User logs in at `/ingresar` → POST to `${API_BASE}/users/login`
-2. Backend sets session cookie
-3. Middleware (`proxy.ts`) intercepts protected routes (`/panel/:path*`)
+2. Backend sets session cookie (`credentials: 'include'`)
+3. Middleware (`src/proxy.ts`) intercepts protected routes (`/panel/:path*`)
 4. Middleware validates session via GET `${API_BASE}/session`
-5. If invalid → redirect to `/ingresar`
+5. If invalid → redirect to `/` (root)
 6. If valid → allow access
 
 **Protected routes:** Any path starting with `/panel`
+
+**Client-side session:** `RouteFetchProvider` wraps the app and fetches session data on every route change, providing user context to all client components via `useSession()` hook.
 
 ### API Backend Integration
 
@@ -62,36 +68,49 @@ Logic in `/lib/endpoint.ts` - exports `API_BASE`.
 
 **Key endpoints:**
 
-- `POST /users/login` - Authentication
-- `GET /session` - Session validation
-- `GET /movements` - Fetch user movements
+- `POST /users/login` - Authentication (returns user and token)
+- `GET /session` - Session validation and user data (includes accounts and movements)
+- `GET /movements` - Fetch user movements (unused - session endpoint provides this)
 - `POST /movements` - Create new movement
-- `GET /users` - Get user information (currently buggy - fetches from `/movements`)
+- `GET /users` - Get user information
 
 ### Data Flow Pattern
 
-**Server Components (data fetching):**
+**Current architecture:** The app primarily uses client-side data fetching via `RouteFetchProvider` rather than server components for data fetching.
+
+**Client-side data (via context):**
+
+```typescript
+'use client';
+import { useSession } from '@/providers/RouteFetchProvider';
+
+export default function Dashboard() {
+  const { user, loading } = useSession();
+  // user includes accounts and movements
+  return <div>{user?.movements?.map(...)}</div>;
+}
+```
+
+**Server Components (minimal usage):**
 
 ```typescript
 // src/app/panel/page.tsx
 export default async function Page() {
-  const movements = await getMovements();     // Server-side fetch
-  const user = await getUserInformation();    // Server-side fetch
-  return <Dashboard movements={movements} user={user} />;
+  return <HomeClient />; // Client component handles data via context
 }
 ```
 
-**Client Components (mutations):**
+**Mutations:**
 
 ```typescript
 'use client';
-// Components use server actions for mutations
-import { createMovement } from '@/lib/actions';
-
-const handleSubmit = async (data) => {
-  await createMovement(data);
-  router.refresh(); // Revalidate server data
-};
+// Client components call backend directly or use server actions
+const res = await fetch(`${API_BASE}/movements`, {
+  method: 'POST',
+  credentials: 'include',
+  body: JSON.stringify(data)
+});
+router.refresh(); // Triggers RouteFetchProvider to refetch
 ```
 
 ## Code Organization
@@ -99,10 +118,15 @@ const handleSubmit = async (data) => {
 ### `/src/app` - App Router Structure
 
 - **`/ingresar`** - Login page (public)
-- **`/panel`** - Dashboard page (protected by middleware)
-- **`Dashboard.tsx`** - Main dashboard client component
+  - `Login.tsx` - Login form component
+- **`/panel`** - Main dashboard (protected)
+  - `page.tsx` - Server component wrapper
+  - **`/admin`** - Admin section (protected, nested routes)
+    - `page.tsx` - Admin dashboard
+    - `/nuevo-movimiento` - New movement page
+- **`Dashboard.tsx`** - Main dashboard client component (in `/src/app`)
 - **`layout.tsx`** - Root layout with metadata
-- **`RouteFetchProvider.tsx`** - Client-side session keepalive
+- **`page.tsx`** - Root page (redirects to `/ingresar` or `/panel`)
 
 ### `/src/lib` - Business Logic
 
@@ -123,10 +147,21 @@ Currently flat structure containing:
 
 - **`/ui`** - Shadcn UI primitives (button, form, input, table, etc.)
 - **`/custom`** - Business components:
-  - `DrawerNewMovement.tsx` - Form to create movements
+  - `FormNewMovement.tsx` - Form to create movements
   - `MovementsList.tsx` - Table displaying movements
+  - `CardAccount.tsx` - Account balance card
   - `CardBalance.tsx` - Balance display card
   - `InputCalendar.tsx` - Date picker
+  - `InputUser.tsx` - User selection input
+  - `ButtonLogout.tsx` - Logout button
+  - `Splitter.tsx` - Visual divider
+
+### `/src/providers`
+
+- **`RouteFetchProvider.tsx`** - Client-side session management
+  - Fetches user data on route changes
+  - Provides `useSession()` hook
+  - Shows spinner during initial load
 
 ### `/src/types`
 
@@ -156,7 +191,10 @@ const form = useForm({
 
 Zod schemas are defined in `/lib/schemas.ts` for server validation.
 
-**Currency input handling:** Custom masking logic in `DrawerNewMovement.tsx` handles Spanish number format (e.g., "1.420,50").
+**Currency input handling:** Custom masking logic in `FormNewMovement.tsx` handles Spanish number format (e.g., "1.420,50"):
+- Thousands separator: `.` (dot)
+- Decimal separator: `,` (comma)
+- Helper functions in `/lib/utils.ts`: `maskCurrencyInput()`, `parseMoneyInput()`, `toPlainAmount()`
 
 ## UI Components with Shadcn
 
@@ -203,34 +241,70 @@ import type { ServerMovement } from '@/types/movement';
 
 ## State Management
 
-**Currently:** Local React state (`useState`) only
-**Installed but unused:** Zustand (v5.0.8)
+**Currently:**
+- Local React state (`useState`) for UI state
+- Context API via `RouteFetchProvider` for global session/user state
+- **Installed but unused:** Zustand (v5.0.8)
 
-Server state is managed via:
+Data fetching pattern:
 
-- Server Components fetch on each navigation
-- `router.refresh()` to revalidate after mutations
-- Next.js caching with `revalidateTag()` in server actions
+- `RouteFetchProvider` fetches session on route changes (client-side)
+- `useSession()` hook provides user data to components
+- `router.refresh()` after mutations to trigger refetch
+- Next.js caching in server-side fetchers (`movements.ts`, `user.ts`) with `revalidateTag()`
 
 ## Known Issues
 
-**IMPORTANT:** The following bugs exist in the codebase:
+**IMPORTANT:** Be aware of the following:
 
-1. **`/lib/user.ts:5`** - `getUserInformation()` fetches from `/movements` endpoint instead of `/users`
-2. **Hardcoded Account ID** - `DrawerNewMovement.tsx:72` has hardcoded UUID that should come from authenticated user context
-3. **Unused files** - `types/invoice.ts`, `mock/invoices.ts`, `components/server/Movements.tsx` are not used
-4. **Console logs** - Multiple `console.log()` statements in production code (proxy.ts, actions.ts, movements.ts, Login.tsx)
+1. **Console logs** - Multiple `console.log()` and `console.warn()` statements in production code (`RouteFetchProvider.tsx:57`, `FormNewMovement.tsx:102`)
+2. **Unused files** - `types/invoice.ts`, `mock/invoices.ts` are not currently used
+3. **Legacy route** - `/app/(ingresar)/Login.tsx` appears to be unused duplicate of `/app/ingresar/Login.tsx`
 
 ## Environment Variables
 
 Required variables:
 
 ```bash
-# Development API endpoint
-NEXT_PUBLIC_BACKEND_API_DEV=http://localhost:4000
+# Node environment
+NODE_ENV=development
 
-# Production API endpoint
+# Development API endpoint (used when NODE_ENV=development)
+NEXT_PUBLIC_BACKEND_API_DEV=http://localhost:4000/api/v1
+
+# Production API endpoint (used when NODE_ENV=production)
 NEXT_PUBLIC_BACKEND_API=https://api.example.com
 ```
 
-**Note:** These are client-side variables (`NEXT_PUBLIC_*`) accessible in browser.
+**Note:**
+- These are client-side variables (`NEXT_PUBLIC_*`) accessible in browser
+- The `/lib/endpoint.ts` automatically selects the correct URL based on `NODE_ENV`
+- Development URL should include `/api/v1` path prefix
+
+## Important Architectural Patterns
+
+### Locale and Number Formatting
+
+This app uses **Argentine Spanish** (`es-AR`) locale:
+
+- Currency formatting: ARS (Pesos Argentinos) or USD
+- Date formatting: `dd/MM/yyyy` (via `date-fns`)
+- Number input format: `1.420,50` (dot for thousands, comma for decimal)
+- Timezone: `America/Argentina/Buenos_Aires`
+
+### Type Safety
+
+- Zod schemas in `/lib/schemas.ts` define the contract with backend
+- TypeScript types in `/types/movement.ts` extend Zod inferred types
+- Form validation uses `zodResolver` from `@hookform/resolvers/zod`
+- Server-only code uses `import 'server-only'` directive
+
+### Session Management
+
+The app uses cookie-based sessions:
+
+1. Backend sets httpOnly session cookie on login
+2. All fetch requests include `credentials: 'include'`
+3. Middleware validates session cookie for protected routes
+4. `RouteFetchProvider` maintains client-side user state
+5. No JWT tokens or localStorage - pure cookie-based auth

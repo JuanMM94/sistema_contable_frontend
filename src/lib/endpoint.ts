@@ -1,9 +1,5 @@
-const isDev = process.env.NODE_ENV === 'development';
-
-const API_BASE = isDev
-  ? process.env.NEXT_PUBLIC_BACKEND_API_DEV
-  : process.env.NEXT_PUBLIC_BACKEND_API && process.env.NEXT_PUBLIC_BACKEND_API.trim() !== ''
-    ? process.env.NEXT_PUBLIC_BACKEND_API
-    : undefined;
+// All API requests now go through Next.js API routes (/api/*)
+// which proxy to the backend. This ensures cookies stay on the same domain.
+const API_BASE = '/api';
 
 export default API_BASE;

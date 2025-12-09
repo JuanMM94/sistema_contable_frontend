@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import API_BASE from './lib/endpoint';
 
 const PROTECTED = ['/panel'];
 
@@ -7,8 +6,12 @@ export async function proxy(request: NextRequest) {
   if (!PROTECTED.some((p) => request.nextUrl.pathname.startsWith(p))) {
     return NextResponse.next();
   }
+
+  // Build the full URL to the local API proxy
+  const sessionUrl = `${request.nextUrl.origin}/api/session`;
   const cookieHeader = request.headers.get('cookie') ?? '';
-  const res = await fetch(`${API_BASE}/session`, {
+
+  const res = await fetch(sessionUrl, {
     method: 'GET',
     headers: { cookie: cookieHeader },
     credentials: 'include',
