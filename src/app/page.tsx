@@ -1,11 +1,19 @@
-import type { Metadata } from 'next';
-import LoginPage from './(ingresar)/Login';
+"use client"
 
-export const metadata: Metadata = {
-  title: 'Ingresar',
-  description: 'Accede al panel ingresando con tu usuario y contraseña.',
-};
+import { useSession } from '@/providers/RouteFetchProvider';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function Page() {
-  return <LoginPage />;
+  const router = useRouter();
+  const {user, loading} = useSession();
+  useEffect(() => {
+    if (user === undefined || loading) return;
+    if (!user) {
+      router.push('/ingresar')
+    }else{
+      router.push('/panel')
+    }
+  }, [user, router, loading]);
+  return(<></>)
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import LoginPage from './Login';
+import Login from '@/components/custom/Login';
 
 export const metadata: Metadata = {
   title: 'Ingresar',
@@ -7,5 +7,11 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <LoginPage />;
+  return (
+    <section className="flex min-h-screen items-center justify-center bg-muted/30 px-4 py-12">
+      <div className="w-full max-w-md">
+        <Login/>
+      </div>
+    </section>
+  );
 }
