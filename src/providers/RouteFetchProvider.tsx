@@ -18,7 +18,26 @@ type SessionContextValue = {
   user: ServerUser | null;
   loading: boolean;
   error: string | null;
+  exchangeRate: ExchangeData | null;
   refresh: () => Promise<void>;
+  getExchangeRates: () => Promise<void>;
+  postCurrencySwap: (data: CurrencySwapData) => Promise<void>;
+};
+
+export type CurrencySwapData = {
+  fromCurrency: string;
+  toCurrency: string;
+  amount: number;
+  clientRate: ExchangeData;
+};
+
+type ExchangeData = {
+  currency: string;
+  market: string;
+  name: string;
+  buy: number;
+  sell: number;
+  updatedAt: Date;
 };
 
 const SessionContext = createContext<SessionContextValue | undefined>(undefined);
@@ -27,6 +46,7 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
   // Use pathname to re-fetch.
   const pathname = usePathname();
   const [user, setUser] = useState<ServerUser | null>(null);
+  const [exchangeRate, setExchangeRate] = useState<ExchangeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,9 +71,7 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
         return;
       }
       if (!res.ok) throw new Error(`Failed to fetch session (${res.status})`);
-
       const payload = await res.json();
-      console.log(`SERVER USER SESSION RESPONSE: ${JSON.stringify(payload, null, 2)}`);
       setUser(payload.user);
     } catch (err) {
       console.error('Session fetch failed', err);
@@ -63,6 +81,38 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }
   }, []);
+
+  const getExchangeRates = useCallback(async () => {
+    {
+      const res = await fetch(`${API_BASE}/movements/exchange-rate`, {
+        method: 'GET',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      if (!res.ok) throw new Error('Failed to retrieve exchange rates');
+      const resData = await res.json();
+      setExchangeRate(resData);
+    }
+  }, []);
+
+  const postCurrencySwap = useCallback(
+    async (data: CurrencySwapData) => {
+      const res = await fetch(`${API_BASE}/movements/swap`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(data),
+        cache: 'no-store',
+      });
+      if (!res.ok) throw new Error('Failed to create currency swap');
+
+      // Refresh client-side session/exchange data so balances update after a successful swap.
+      await fetchSession();
+      await getExchangeRates();
+    },
+    [fetchSession, getExchangeRates],
+  );
 
   useEffect(() => {
     void fetchSession();
@@ -74,8 +124,11 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
       loading,
       error,
       refresh: fetchSession,
+      exchangeRate,
+      getExchangeRates: getExchangeRates,
+      postCurrencySwap: postCurrencySwap,
     }),
-    [user, loading, error, fetchSession],
+    [user, loading, error, fetchSession, exchangeRate, getExchangeRates, postCurrencySwap],
   );
 
   return (

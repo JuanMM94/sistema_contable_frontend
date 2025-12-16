@@ -54,9 +54,9 @@ export default function Login() {
         <CardDescription>Ingresá, maneja y mirá todas tus transacciones.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form id='login-form' onSubmit={onSubmit}>
+        <form id="login-form" onSubmit={onSubmit}>
           <div className="flex flex-col gap-6">
-            {/* User Email */}  
+            {/* User Email */}
             <div className="grid gap-2">
               <Label htmlFor="email">Correo electrónico</Label>
               <Input
@@ -86,7 +86,7 @@ export default function Login() {
         </form>
       </CardContent>
       <CardFooter className="flex flex-col gap-4">
-        <Button form='login-form' type="submit" className="w-full" disabled={loading}>
+        <Button form="login-form" type="submit" className="w-full" disabled={loading}>
           {loading ? 'Ingresando…' : 'Entrar'}
         </Button>
         <div className="flex items-center justify-between text-sm">

@@ -65,23 +65,24 @@ export function InputUser({
           <CommandList>
             <CommandEmpty>No se encontraron usuarios</CommandEmpty>
             <CommandGroup>
-              {users?.map((user) => (
-                user.id === self!.id ? null :
-                <CommandItem
-                  key={user.id}
-                  value={user.id}
-                  onSelect={(currentValue) => {
-                    const nextValue = currentValue === value ? '' : currentValue;
-                    onChange?.(nextValue);
-                    handleOpenChange(false);
-                  }}
-                >
-                  {user.name}
-                  <Check
-                    className={cn('ml-auto', value === user.id ? 'opacity-100' : 'opacity-0')}
-                  />
-                </CommandItem>
-              ))}
+              {users?.map((user) =>
+                user.id === self!.id ? null : (
+                  <CommandItem
+                    key={user.id}
+                    value={user.id}
+                    onSelect={(currentValue) => {
+                      const nextValue = currentValue === value ? '' : currentValue;
+                      onChange?.(nextValue);
+                      handleOpenChange(false);
+                    }}
+                  >
+                    {user.name}
+                    <Check
+                      className={cn('ml-auto', value === user.id ? 'opacity-100' : 'opacity-0')}
+                    />
+                  </CommandItem>
+                ),
+              )}
             </CommandGroup>
           </CommandList>
         </Command>

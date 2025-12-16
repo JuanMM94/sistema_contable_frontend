@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // Backend API URL (server-side only, not exposed to client)
 const BACKEND_URL =
-  process.env.NODE_ENV === 'development'
-    ? process.env.BACKEND_API_DEV
-    : process.env.BACKEND_API;
+  process.env.NODE_ENV === 'development' ? process.env.BACKEND_API_DEV : process.env.BACKEND_API;
 
 export async function GET(
   request: NextRequest,
@@ -91,9 +89,6 @@ async function proxyRequest(request: NextRequest, path: string[], method: string
     return response;
   } catch (error) {
     console.error('Proxy error:', error);
-    return NextResponse.json(
-      { error: 'Failed to connect to backend server' },
-      { status: 502 },
-    );
+    return NextResponse.json({ error: 'Failed to connect to backend server' }, { status: 502 });
   }
 }

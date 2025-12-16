@@ -3,10 +3,12 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import styles from '../../app/page.module.css';
 import { Button } from '../ui/button';
-import { User } from '@/lib/schemas';
-import { currencyFormatter } from '@/lib/global_variables';
+import { currencyFormatter } from '@/lib/utils';
+import { useAdminContext } from '@/providers/AdminFetchProvider';
 
-export default function ListUsers({ users }: { users: User[] | [] }) {
+export default function ListUsers() {
+  const { users } = useAdminContext();
+
   return (
     <section className={styles.table_section}>
       <Table className="w-full">
@@ -23,20 +25,24 @@ export default function ListUsers({ users }: { users: User[] | [] }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((user) => {
+          {users!.map((user) => {
             return (
               <TableRow key={user.id} className="cursor-pointer">
                 <TableCell className="font-medium">{user.id.slice(0, 8)}...</TableCell>
                 <TableCell className="font-medium">{user.name}</TableCell>
                 <TableCell className="font-medium">{user.email}</TableCell>
                 <TableCell className="text-right">
-                  {currencyFormatter('USD').format(
-                    Number(user.accounts?.find((acc) => acc.currency === 'USD')?.amount ?? 0),
+                  {currencyFormatter(
+                    user.accounts?.find((acc) => acc.currency === 'USD')?.amount ?? 0,
+                    'es-AR',
+                    'USD',
                   )}
                 </TableCell>
                 <TableCell className="text-right">
-                  {currencyFormatter('ARS').format(
-                    Number(user.accounts?.find((acc) => acc.currency === 'ARS')?.amount ?? 0),
+                  {currencyFormatter(
+                    user.accounts?.find((acc) => acc.currency === 'ARS')?.amount ?? 0,
+                    'es-AR',
+                    'ARS',
                   )}
                 </TableCell>
                 <TableCell className="text-center" colSpan={3}>

@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { currencyFormatter } from './global_variables';
 import {
+  PAYMENT_AVAILABLE_CURRENCY,
   paymentMethodLabelMap,
   paymentStatusLabelMap,
   paymentTypeLabelMap,
@@ -14,45 +14,25 @@ export function cn(...inputs: ClassValue[]) {
 export const moneyInputRegex = /^(\d{1,3}(?:\.\d{3})*|\d+)(?:,\d{0,2})?$/;
 
 type DecimalLike = { toString(): string };
+type CurrencyFormatterInput = string | number | DecimalLike | null | undefined;
 
-export function formatCurrencyValue(value: string | DecimalLike): string {
-  const raw = typeof value === 'string' ? value : value.toString();
+export const currencyFormatter = (
+  raw: CurrencyFormatterInput,
+  locale: string,
+  currency: (typeof PAYMENT_AVAILABLE_CURRENCY)[number]['value'],
+  withSymbol: boolean = true,
+) => {
+  const rawString = raw === null || raw === undefined ? '0' : raw.toString();
+  const n = Number(rawString || '0');
 
-  const m = raw.match(/^(-?)(\d+)(?:\.(\d+))?$/);
-  if (!m) return raw; // fallback: show as-is
-  const [, , intPartRaw, fracRaw = ''] = m;
-  const frac = (fracRaw + '00').slice(0, 2);
-
-  const parts = currencyFormatter('USD').formatToParts(1234567.89);
-  const groupSym = parts.find((p) => p.type === 'group')?.value ?? ',';
-  const decSym = parts.find((p) => p.type === 'decimal')?.value ?? '.';
-
-  const intPart = intPartRaw.replace(/\B(?=(\d{3})+(?!\d))/g, groupSym);
-  let integerRendered = false;
-
-  return parts
-    .map((p) => {
-      switch (p.type) {
-        case 'currency':
-          return p.value;
-        case 'integer':
-          if (integerRendered) {
-            return '';
-          }
-          integerRendered = true;
-          return intPart;
-        case 'group':
-          return '';
-        case 'decimal':
-          return decSym;
-        case 'fraction':
-          return frac;
-        default:
-          return p.value;
-      }
-    })
-    .join('');
-}
+  return new Intl.NumberFormat(locale, {
+    style: withSymbol ? 'currency' : 'decimal',
+    currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    ...(withSymbol ? { currencyDisplay: 'narrowSymbol' as const } : {}),
+  }).format(n);
+};
 
 export function parseMoneyInput(value: string): number | null {
   if (!value) {

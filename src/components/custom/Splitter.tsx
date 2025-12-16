@@ -1,9 +1,3 @@
-import styles from '../../app/page.module.css';
-
 export const Splitter = () => {
-  return (
-    <div className={styles.splitterContainer}>
-      <span className={styles.splitter}></span>
-    </div>
-  );
+  return <span className="bg-gray-700 w-full border-r h-0.5 opacity-10 my-3"></span>;
 };
