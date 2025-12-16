@@ -3,7 +3,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { formatShortDate } from '@/lib/date_utils';
 import {
-  formatCurrencyValue,
+  currencyFormatter,
   getPaymentMethodLabel,
   getPaymentStatusLabel,
   getPaymentTypeLabel,
@@ -29,7 +29,9 @@ export default function ListMovements({
             {userRole == 'ADMIN' && <TableHead>Pagador</TableHead>}
             <TableHead>Estado</TableHead>
             <TableHead>Método</TableHead>
+            <TableHead>Moneda</TableHead>
             <TableHead>Tipo</TableHead>
+            <TableHead>Nota</TableHead>
             <TableHead className="text-right">Cantidad</TableHead>
             {userRole == 'ADMIN' && (
               <TableHead className="text-center" colSpan={2}>
@@ -51,8 +53,14 @@ export default function ListMovements({
                 )}
                 <TableCell>{getPaymentStatusLabel(movement.status)}</TableCell>
                 <TableCell>{getPaymentMethodLabel(movement.method)}</TableCell>
+                <TableCell>{movement.currency}</TableCell>
                 <TableCell>{getPaymentTypeLabel(movement.type)}</TableCell>
-                <TableCell className="text-right">{formatCurrencyValue(movement.amount)}</TableCell>
+                <TableCell>{movement.concept}</TableCell>
+                <TableCell
+                  className={`text-right ${movement.type === 'EGRESS' ? 'text-red-600' : 'text-green-600'}`}
+                >
+                  {currencyFormatter(movement.amount, 'es-AR', movement.currency, true)}
+                </TableCell>
                 {userRole == 'ADMIN' && (
                   <>
                     <TableCell className="text-center text-blue-600">

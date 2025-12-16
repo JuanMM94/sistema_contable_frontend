@@ -41,6 +41,7 @@ This project uses the App Router (not Pages Router):
 - **Middleware authentication** via `src/proxy.ts` (exports `proxy` function and matcher config)
 
 **Middleware note:** The middleware is defined in `src/proxy.ts` and exports:
+
 - `proxy()` function - the middleware handler
 - `config` object with matcher pattern `/panel/:path*`
 
@@ -108,7 +109,7 @@ export default async function Page() {
 const res = await fetch(`${API_BASE}/movements`, {
   method: 'POST',
   credentials: 'include',
-  body: JSON.stringify(data)
+  body: JSON.stringify(data),
 });
 router.refresh(); // Triggers RouteFetchProvider to refetch
 ```
@@ -192,6 +193,7 @@ const form = useForm({
 Zod schemas are defined in `/lib/schemas.ts` for server validation.
 
 **Currency input handling:** Custom masking logic in `FormNewMovement.tsx` handles Spanish number format (e.g., "1.420,50"):
+
 - Thousands separator: `.` (dot)
 - Decimal separator: `,` (comma)
 - Helper functions in `/lib/utils.ts`: `maskCurrencyInput()`, `parseMoneyInput()`, `toPlainAmount()`
@@ -242,6 +244,7 @@ import type { ServerMovement } from '@/types/movement';
 ## State Management
 
 **Currently:**
+
 - Local React state (`useState`) for UI state
 - Context API via `RouteFetchProvider` for global session/user state
 - **Installed but unused:** Zustand (v5.0.8)
@@ -277,6 +280,7 @@ NEXT_PUBLIC_BACKEND_API=https://api.example.com
 ```
 
 **Note:**
+
 - These are client-side variables (`NEXT_PUBLIC_*`) accessible in browser
 - The `/lib/endpoint.ts` automatically selects the correct URL based on `NODE_ENV`
 - Development URL should include `/api/v1` path prefix

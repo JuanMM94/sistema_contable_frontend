@@ -10,7 +10,7 @@ export default function Page() {
   return (
     <section className="flex min-h-screen items-center justify-center bg-muted/30 px-4 py-12">
       <div className="w-full max-w-md">
-        <Login/>
+        <Login />
       </div>
     </section>
   );
