@@ -1,12 +1,12 @@
 'use client';
 
-import styles from './page.module.css';
+import styles from '../../app/page.module.css';
 import { Splitter } from '@/components/custom/Splitter';
 import { CardAccount } from '@/components/custom/CardAccount';
 import MovementsList from '@/components/custom/ListMovements';
 import { useSession } from '@/providers/RouteFetchProvider';
 
-export default function HomeClient() {
+export default function Home() {
   const { user, loading } = useSession();
 
   return (
