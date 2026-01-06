@@ -58,7 +58,13 @@ export const CardAccount = ({
           </section>
           <section className="flex items-center gap-2">
             <Button className="flex-1 bg-secondary text-primary">Ultimos Movimientos</Button>
-            <Link href="/panel/cambiar-moneda" className="flex-1">
+            <Link
+              href={{
+                pathname: '/panel/cambiar-moneda',
+                query: { from: accountInformation.currency },
+              }}
+              className="flex-1"
+            >
               <Button className="w-full bg-secondary text-primary">Cambiar</Button>
             </Link>
           </section>

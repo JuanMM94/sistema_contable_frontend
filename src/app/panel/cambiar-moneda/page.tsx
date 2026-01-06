@@ -10,18 +10,24 @@ import { currencyFormatter } from '@/lib/utils';
 import { CurrencySwapData, useSession } from '@/providers/RouteFetchProvider';
 import { ArrowLeftRight, MoveLeft } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+
+const deriveFromTo = (value: string | null): { from: 'ARS' | 'USD'; to: 'ARS' | 'USD' } => {
+  const from = value === 'USD' ? 'USD' : 'ARS';
+  return { from, to: from === 'ARS' ? 'USD' : 'ARS' };
+};
 
 export default function Page() {
   const { loading, user, exchangeRate, getExchangeRates, postCurrencySwap } = useSession();
+  const searchParams = useSearchParams();
 
   const [amountToTransfer, setAmountToTransfer] = useState<string>('');
   const [amountError, setAmountError] = useState<string | null>(null);
   const [rateChangeNote, setRateChangeNote] = useState<string | null>(null);
 
-  const [fromTo, setFromTo] = useState<{ from: 'ARS' | 'USD'; to: 'ARS' | 'USD' }>({
-    from: 'ARS',
-    to: 'USD',
-  });
+  const [fromTo, setFromTo] = useState<{ from: 'ARS' | 'USD'; to: 'ARS' | 'USD' }>(() =>
+    deriveFromTo(searchParams.get('from')),
+  );
 
   const lastRateRef = useRef(exchangeRate);
 
@@ -226,13 +232,13 @@ export default function Page() {
               <CardContent className="flex flex-col gap-3">
                 <h5>Resumen</h5>
                 <div className="flex flex-row justify-between">
-                  <p className="opacity-75">Desde ARS</p>
+                  <p className="opacity-75">Desde {fromTo.from}</p>
                   <p className="text-red-600 font-semibold">
                     -{currencyFormatter(transferValue, 'es-AR', fromTo.from, true)}
                   </p>
                 </div>
                 <div className="flex flex-row justify-between">
-                  <p className="opacity-75">Hacia USD</p>
+                  <p className="opacity-75">Hacia {fromTo.to}</p>
                   <p className="text-green-600 font-semibold">
                     +{currencyFormatter(convertedAmount, 'es-AR', fromTo.to, true)}
                   </p>
