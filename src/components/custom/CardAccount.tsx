@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { AccountWithMovements } from '@/lib/schemas';
 import { Badge } from '../ui/badge';
 import { TrendingDown, TrendingUp } from 'lucide-react';
-import { formatCurrencyValue } from '@/lib/utils';
+import Link from 'next/link';
+import { currencyFormatter } from '@/lib/utils';
 
 export const CardAccount = ({
   accountInformation,
@@ -21,7 +22,7 @@ export const CardAccount = ({
           <section className="flex flex-col justify-center items-start mt-2!">
             <h5>Balance disponible</h5>
             <p className="text-5xl">
-              {formatCurrencyValue(accountInformation.amount)}{' '}
+              {currencyFormatter(accountInformation.amount, 'es-AR', accountInformation.currency)}{' '}
               <span className="text-2xl opacity-80">{accountInformation.currency}</span>
             </p>
           </section>
@@ -57,7 +58,15 @@ export const CardAccount = ({
           </section>
           <section className="flex items-center gap-2">
             <Button className="flex-1 bg-secondary text-primary">Ultimos Movimientos</Button>
-            <Button className="flex-1 bg-secondary text-primary">Cambiar</Button>
+            <Link
+              href={{
+                pathname: '/panel/cambiar-moneda',
+                query: { from: accountInformation.currency },
+              }}
+              className="flex-1"
+            >
+              <Button className="w-full bg-secondary text-primary">Cambiar</Button>
+            </Link>
           </section>
         </div>
       </CardContent>

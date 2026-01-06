@@ -64,10 +64,6 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
         setLoading(false);
         return;
       }
-
-      console.log(`MOVEMENTS RESPONSE STATUS: ${movementsRes.status}`);
-      console.log(`USERS RESPONSE STATUS: ${usersRes.status}`);
-
       if (!movementsRes.ok || !usersRes.ok) {
         throw new Error(
           `Failed to fetch admin context (movements: ${movementsRes.status}, users: ${usersRes.status})`,
@@ -77,13 +73,9 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
         movementsRes.json(),
         usersRes.json(),
       ]);
-
-      console.log(movementsPayload, usersPayload);
-
       setMovements(movementsPayload.data);
       setUsers(usersPayload.data);
     } catch (err) {
-      console.error('Admin context fetch failed', err);
       setMovements(null);
       setUsers(null);
       setError(err instanceof Error ? err.message : 'Unknown admin context error');
@@ -135,7 +127,15 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       createMovement: createMovementRequest,
       refresh: fetchAdminContext,
     }),
-    [movements, users, loading, error, createMemberRequest, createMovementRequest, fetchAdminContext],
+    [
+      movements,
+      users,
+      loading,
+      error,
+      createMemberRequest,
+      createMovementRequest,
+      fetchAdminContext,
+    ],
   );
 
   return (

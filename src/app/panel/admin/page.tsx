@@ -7,7 +7,7 @@ import { useSession } from '@/providers/RouteFetchProvider';
 
 export default function Page() {
   const { user } = useSession();
-  const { movements, users } = useAdminContext();
+  const { movements } = useAdminContext();
 
   return (
     <div className="flex justify-center w-full mt-6!">
@@ -19,7 +19,7 @@ export default function Page() {
         </section>
         <section>
           <h5>Lista de usuarios</h5>
-          <ListUsers users={users ?? []}/>
+          <ListUsers />
         </section>
       </div>
     </div>
