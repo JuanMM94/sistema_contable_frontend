@@ -5,8 +5,8 @@ export const metadata: Metadata = {
   description: 'Manejá y mirá todas tus transacciones.',
 };
 
-import HomeClient from '../Dashboard';
+import Home from '../../components/screen/Home';
 
 export default async function Page() {
-  return <HomeClient />;
+  return <Home />;
 }

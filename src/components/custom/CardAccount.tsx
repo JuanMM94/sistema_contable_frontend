@@ -57,7 +57,15 @@ export const CardAccount = ({
             <p className="opacity-30">comparado al último mes</p>
           </section>
           <section className="flex items-center gap-2">
-            <Button className="flex-1 bg-secondary text-primary">Ultimos Movimientos</Button>
+            <Link
+              href={{
+                pathname: '/panel/ultimos-movimientos',
+                query: { currency: accountInformation.currency },
+              }}
+              className="flex-1"
+            >
+              <Button className="w-full bg-secondary text-primary">Ultimos Movimientos</Button>
+            </Link>
             <Link
               href={{
                 pathname: '/panel/cambiar-moneda',

@@ -1,6 +1,6 @@
 'use client';
 
-export default function ExchangeCurrencyLayout({
+export default function LastMovementLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
