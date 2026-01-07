@@ -48,7 +48,7 @@ export default function PanelLayout({
             <DropdownMenuContent className="w-40" align="end">
               <DropdownMenuLabel>Mi cuenta</DropdownMenuLabel>
               <DropdownMenuGroup>
-                <DropdownMenuItem className='cursor-pointer'>
+                <DropdownMenuItem className='cursor-pointer' onClick={() => router.push('/panel/perfil')}>
                   Perfil
                 </DropdownMenuItem>
               </DropdownMenuGroup>
