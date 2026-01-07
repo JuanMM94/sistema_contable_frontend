@@ -1,7 +1,7 @@
 'use client';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { formatShortDate } from '@/lib/date_utils';
+import { formatShortDate, formatToLocaleDate } from '@/lib/date_utils';
 import {
   currencyFormatter,
   getPaymentMethodLabel,
@@ -46,7 +46,7 @@ export default function ListMovements({
               <TableRow key={movement.id} className="cursor-pointer">
                 <TableCell className="font-medium">{movement.id.slice(0, 8)}...</TableCell>
                 <TableCell className="font-medium">
-                  {formatShortDate(new Date(movement.date))}
+                  {formatToLocaleDate(new Date(movement.date))}
                 </TableCell>
                 {userRole == 'ADMIN' && (
                   <TableCell className="font-medium">{movement.payer}</TableCell>

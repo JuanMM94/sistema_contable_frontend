@@ -171,7 +171,7 @@ export function FormNewMovement({
               <FormItem className="md:col-span-1">
                 <FormLabel>Nombre del cliente</FormLabel>
                 <FormControl>
-                  <Input placeholder="ej. Cobranza / Compra dolar a 1.420" {...field} />
+                  <Input placeholder="ej. Natalia Natalia" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -360,7 +360,7 @@ export function FormNewMovement({
             control={form.control}
             name="concept"
             render={({ field }) => (
-              <FormItem className="md:col-span-2">
+              <FormItem className="md:col-span-1">
                 <FormLabel>Concepto</FormLabel>
                 <FormControl>
                   <Input placeholder="ej. Cobranza / Compra dolar a 1.420" {...field} />
