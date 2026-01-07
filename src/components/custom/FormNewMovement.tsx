@@ -171,7 +171,7 @@ export function FormNewMovement({
               <FormItem className="md:col-span-1">
                 <FormLabel>Nombre del cliente</FormLabel>
                 <FormControl>
-                  <Input placeholder="ej. Natalia Natalia" {...field} />
+                  <Input placeholder="ej. Juan Lopez" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
