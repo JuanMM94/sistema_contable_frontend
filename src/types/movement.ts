@@ -2,6 +2,13 @@ import type { AccountWithMovements, Movement as MovementRecord } from '@/lib/sch
 
 export type Movement = MovementRecord;
 
+// export interface ServerMovement extends Movement {
+//   id: string;
+//   note?: string;
+//   accountId?: string;
+//   account?: object;
+// }
+
 export type User = {
   name: string;
   email: string;

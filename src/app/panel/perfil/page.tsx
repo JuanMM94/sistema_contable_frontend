@@ -3,7 +3,7 @@
 import styles from '../../page.module.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSession } from '@/providers/RouteFetchProvider';
-import { MoveLeft } from 'lucide-react';
+import { Eye, EyeOff, MoveLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -16,9 +16,24 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useState } from 'react';
 
 export default function Page() {
-  const { user, loading } = useSession();
+  const { user, loading, changePassword } = useSession();
+  const [bothPasswords, setBothPassword] = useState({currentPassword: '', newPassword: ''});
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordVisibility, setPasswordVisibility] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
+  const passwordsMatch =
+    bothPasswords.newPassword.length > 0 &&
+    bothPasswords.newPassword === confirmPassword;
+  const showMismatch = confirmPassword.length > 0 && !passwordsMatch;
+  const toggleVisibility = (field: keyof typeof passwordVisibility) => {
+    setPasswordVisibility((prev) => ({ ...prev, [field]: !prev[field] }));
+  };
 
   const infoRows = [
     { label: 'ID', value: user?.id ?? '-' },
@@ -26,10 +41,6 @@ export default function Page() {
     { label: 'Email', value: user?.email ?? '-' },
     { label: 'Movimientos', value: String(user?.movements?.length ?? 0) },
   ];
-
-  const changePassword = async (currentPassword: string, newPassword: string) => {
-
-  }
 
   return (
     <div className={styles.dashboard}>
@@ -92,30 +103,108 @@ export default function Page() {
               </DialogHeader>
               <form
                 className="grid gap-4"
-                onSubmit={(event) => {
+                onSubmit={ async (event) => {
                   event.preventDefault();
+                  if (!passwordsMatch) {
+                    return;
+                  }
+                  const response = await changePassword(bothPasswords);
+                  console.log(response);
+                  // TOAST HERE LATER
                 }}
               >
                 <div className="grid gap-2">
                   <Label htmlFor="current-password">Contraseña actual</Label>
-                  <Input
-                    id="current-password"
-                    name="currentPassword"
-                    type="password"
-                    autoComplete="current-password"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="current-password"
+                      name="currentPassword"
+                      type={passwordVisibility.current ? 'text' : 'password'}
+                      autoComplete="current-password"
+                      value={bothPasswords.currentPassword}
+                      onChange={(e) => setBothPassword({...bothPasswords, currentPassword: e.target.value})}
+                      className="pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      className="absolute right-1 top-1/2 -translate-y-1/2"
+                      onClick={() => toggleVisibility('current')}
+                      aria-label={
+                        passwordVisibility.current
+                          ? 'Ocultar contraseña actual'
+                          : 'Mostrar contraseña actual'
+                      }
+                    >
+                      {passwordVisibility.new ? <Eye /> : <EyeOff />}
+                    </Button>
+                  </div>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="new-password">Nueva contraseña</Label>
-                  <Input
-                    id="new-password"
-                    name="newPassword"
-                    type="password"
-                    autoComplete="new-password"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="new-password"
+                      name="newPassword"
+                      type={passwordVisibility.new ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      value={bothPasswords.newPassword}
+                      onChange={(e) => setBothPassword({...bothPasswords, newPassword: e.target.value})}
+                      className="pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      className="absolute right-1 top-1/2 -translate-y-1/2"
+                      onClick={() => toggleVisibility('new')}
+                      aria-label={
+                        passwordVisibility.new
+                          ? 'Ocultar nueva contraseña'
+                          : 'Mostrar nueva contraseña'
+                      }
+                    >
+                      {passwordVisibility.new ? <Eye /> : <EyeOff />}
+                    </Button>
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="confirm-password">Repetir nueva contraseña</Label>
+                  <div className="relative">
+                    <Input
+                      id="confirm-password"
+                      name="confirmPassword"
+                      type={passwordVisibility.confirm ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="pr-10"
+                      aria-invalid={showMismatch}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      className="absolute right-1 top-1/2 -translate-y-1/2"
+                      onClick={() => toggleVisibility('confirm')}
+                      aria-label={
+                        passwordVisibility.confirm
+                          ? 'Ocultar confirmación de contraseña'
+                          : 'Mostrar confirmación de contraseña'
+                      }
+                    >
+                      {passwordVisibility.new ? <Eye /> : <EyeOff />}
+                    </Button>
+                  </div>
+                  {showMismatch ? (
+                    <p className="text-sm text-red-600">Las contraseñas no coinciden.</p>
+                  ) : null}
                 </div>
                 <DialogFooter>
-                  <Button type="submit">Guardar</Button>
+                  <Button type="submit" disabled={!passwordsMatch}>
+                    Guardar
+                  </Button>
                 </DialogFooter>
               </form>
             </DialogContent>
