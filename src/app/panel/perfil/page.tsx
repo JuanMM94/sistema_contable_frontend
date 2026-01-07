@@ -7,6 +7,7 @@ import { Eye, EyeOff, MoveLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -19,6 +20,7 @@ import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 
 export default function Page() {
+  const [open, setOpen] = useState(false);
   const { user, loading, changePassword } = useSession();
   const [bothPasswords, setBothPassword] = useState({currentPassword: '', newPassword: ''});
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -88,7 +90,7 @@ export default function Page() {
             </Card>
           </section>
         </div>
-          <Dialog>
+          <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button className="w-[20vw]" variant="outline">
                 Cambiar contraseña
@@ -110,6 +112,10 @@ export default function Page() {
                   }
                   const response = await changePassword(bothPasswords);
                   console.log(response);
+                  if(response.success) {
+                    setOpen(false)
+                    setBothPassword({currentPassword: '', newPassword: ''});
+                  };
                   // TOAST HERE LATER
                 }}
               >
@@ -137,7 +143,7 @@ export default function Page() {
                           : 'Mostrar contraseña actual'
                       }
                     >
-                      {passwordVisibility.new ? <Eye /> : <EyeOff />}
+                      {passwordVisibility.current ? <Eye /> : <EyeOff />}
                     </Button>
                   </div>
                 </div>
@@ -194,7 +200,7 @@ export default function Page() {
                           : 'Mostrar confirmación de contraseña'
                       }
                     >
-                      {passwordVisibility.new ? <Eye /> : <EyeOff />}
+                      {passwordVisibility.confirm ? <Eye /> : <EyeOff />}
                     </Button>
                   </div>
                   {showMismatch ? (
@@ -202,6 +208,9 @@ export default function Page() {
                   ) : null}
                 </div>
                 <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="outline">Cancelar</Button>
+                  </DialogClose>
                   <Button type="submit" disabled={!passwordsMatch}>
                     Guardar
                   </Button>
