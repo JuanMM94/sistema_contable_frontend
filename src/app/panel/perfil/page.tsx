@@ -111,7 +111,6 @@ export default function Page() {
                     return;
                   }
                   const response = await changePassword(bothPasswords);
-                  console.log(response);
                   if(response.success) {
                     setOpen(false)
                     setBothPassword({currentPassword: '', newPassword: ''});
