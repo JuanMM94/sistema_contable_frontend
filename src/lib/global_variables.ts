@@ -12,8 +12,8 @@ export const PAYMENT_METHOD_OPTIONS = [
 ];
 
 export const PAYMENT_STATUS_OPTIONS = [
-  { value: 'PAID', label: 'Pago' },
-  { value: 'UNPAID', label: 'No pago' },
+  { value: 'PAID', label: 'Pagado' },
+  { value: 'UNPAID', label: 'Rechazado' },
   { value: 'PENDING', label: 'Pendiente' },
 ];
 

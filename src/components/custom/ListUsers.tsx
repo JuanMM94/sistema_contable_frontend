@@ -2,7 +2,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import styles from '../../app/page.module.css';
-import { Button } from '../ui/button';
+// import { Button } from '../ui/button';
 import { currencyFormatter } from '@/lib/utils';
 import { useAdminContext } from '@/providers/AdminFetchProvider';
 
@@ -19,9 +19,9 @@ export default function ListUsers() {
             <TableHead>Email</TableHead>
             <TableHead className="text-right">Disponible en USD</TableHead>
             <TableHead className="text-right">Disponible en ARS</TableHead>
-            <TableHead className="text-center" colSpan={3}>
+            {/* <TableHead className="text-center" colSpan={3}>
               Acciones
-            </TableHead>
+            </TableHead> */}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -45,7 +45,7 @@ export default function ListUsers() {
                     'ARS',
                   )}
                 </TableCell>
-                <TableCell className="text-center" colSpan={3}>
+                {/* <TableCell className="text-center" colSpan={3}>
                   <div className="flex justify-center gap-2">
                     <Button variant="ghost" className="cursor-pointer text-blue-600 p-1!">
                       Movimientos
@@ -57,7 +57,7 @@ export default function ListUsers() {
                       Borrar
                     </Button>
                   </div>
-                </TableCell>
+                </TableCell> */}
               </TableRow>
             );
           })}
