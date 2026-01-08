@@ -1,19 +1,25 @@
 'use client';
 
 import { InputMember } from '@/lib/schemas';
-import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { Splitter } from '@/components/custom/Splitter';
 import { useAdminContext } from '@/providers/AdminFetchProvider';
 import { FormNewMember } from '@/components/custom/FormNewMember';
 
 export default function NewMovementPage() {
-  const router = useRouter();
   const { createMember } = useAdminContext();
 
   const onCreated = async (payload: InputMember) => {
-    console.log('Creating member with payload:', payload);
-    createMember(payload);
-    router.refresh();
+    try {
+      await createMember(payload);
+      toast.success('Usuario creado exitosamente', {
+        description: `${payload.name} (${payload.email}) ha sido agregado al sistema.`,
+      });
+    } catch (error) {
+      toast.error('Error al crear usuario', {
+        description: error instanceof Error ? error.message : 'No se pudo crear el usuario',
+      });
+    }
   };
 
   return (

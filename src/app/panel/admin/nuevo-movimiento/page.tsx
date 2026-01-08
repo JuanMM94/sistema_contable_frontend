@@ -1,19 +1,27 @@
 'use client';
 
 import { InputMovement } from '@/lib/schemas';
-import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { Splitter } from '@/components/custom/Splitter';
 import { FormNewMovement } from '@/components/custom/FormNewMovement';
 import { useAdminContext } from '@/providers/AdminFetchProvider';
+import { currencyFormatter } from '@/lib/utils';
 
 export default function NewMovementPage() {
-  const router = useRouter();
   const { createMovement } = useAdminContext();
 
   const onCreated = async (payload: InputMovement) => {
-    console.log('Creating movement with payload:', payload);
-    createMovement(payload);
-    router.refresh();
+    try {
+      await createMovement(payload);
+      const formattedAmount = currencyFormatter(payload.amount, 'es-AR', payload.currency, true);
+      toast.success('Movimiento creado exitosamente', {
+        description: `${payload.payer} - ${formattedAmount} (${payload.concept})`,
+      });
+    } catch (error) {
+      toast.error('Error al crear movimiento', {
+        description: error instanceof Error ? error.message : 'No se pudo crear el movimiento',
+      });
+    }
   };
 
   return (

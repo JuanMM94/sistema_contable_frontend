@@ -40,17 +40,22 @@ This project uses the App Router (not Pages Router):
 - **Server-side data fetching** in page components
 - **Middleware authentication** via `src/proxy.ts` (exports `proxy` function and matcher config)
 
-**Middleware note:** The middleware is defined in `src/proxy.ts` and exports:
+**Middleware setup (Next.js 15+ convention):**
 
-- `proxy()` function - the middleware handler
-- `config` object with matcher pattern `/panel/:path*`
+The middleware is defined in `src/proxy.ts` (not `middleware.ts` - Next.js now supports custom middleware file locations):
+
+- Must export a function named `proxy` (the middleware handler)
+- Must export a `config` object with `matcher` pattern
+- Current matcher: `/panel/:path*` (protects all panel routes)
+
+To use this middleware, Next.js requires it to be imported in your app. The framework automatically detects the export pattern.
 
 ### Authentication Flow
 
-1. User logs in at `/ingresar` → POST to `${API_BASE}/users/login`
-2. Backend sets session cookie (`credentials: 'include'`)
+1. User logs in at `/ingresar` → POST to `/api/users/login` (proxied to backend)
+2. Backend sets httpOnly session cookie
 3. Middleware (`src/proxy.ts`) intercepts protected routes (`/panel/:path*`)
-4. Middleware validates session via GET `${API_BASE}/session`
+4. Middleware validates session via GET `/api/session` (proxied to backend)
 5. If invalid → redirect to `/` (root)
 6. If valid → allow access
 
@@ -60,20 +65,29 @@ This project uses the App Router (not Pages Router):
 
 ### API Backend Integration
 
-Backend API base URL is determined by environment:
+**API Proxy Architecture:** All client requests go through Next.js API routes (`/api/*`) which proxy to the backend. This keeps cookies on the same domain and hides backend URLs from the client.
 
-- **Development:** `NEXT_PUBLIC_BACKEND_API_DEV`
-- **Production:** `NEXT_PUBLIC_BACKEND_API`
+- **Client code** uses `API_BASE = '/api'` from `/lib/endpoint.ts`
+- **API proxy** at `/src/app/api/[...path]/route.ts` forwards requests to backend
+- **Backend URL** determined by environment (server-side only):
+  - Development: `BACKEND_API_DEV` (e.g., `http://localhost:4000/api/v1`)
+  - Production: `BACKEND_API`
 
-Logic in `/lib/endpoint.ts` - exports `API_BASE`.
+**Request flow:**
+```
+Client → /api/session → API proxy → http://localhost:4000/api/v1/session → Backend
+```
 
 **Key endpoints:**
 
-- `POST /users/login` - Authentication (returns user and token)
-- `GET /session` - Session validation and user data (includes accounts and movements)
-- `GET /movements` - Fetch user movements (unused - session endpoint provides this)
-- `POST /movements` - Create new movement
-- `GET /users` - Get user information
+- `POST /api/users/login` - Authentication (returns user and token)
+- `GET /api/session` - Session validation and user data (includes accounts and movements)
+- `POST /api/movements` - Create new movement
+- `GET /api/movements` - Fetch all movements (admin only)
+- `GET /api/users` - Get all users (admin only)
+- `POST /api/users/create` - Create new user (admin only)
+- `GET /api/movements/exchange-rate` - Get current exchange rates
+- `POST /api/movements/swap` - Create currency swap transaction
 
 ### Data Flow Pattern
 
@@ -101,11 +115,25 @@ export default async function Page() {
 }
 ```
 
-**Mutations:**
+**Mutations (via context providers):**
 
 ```typescript
 'use client';
-// Client components call backend directly or use server actions
+import { useAdminContext } from '@/providers/AdminFetchProvider';
+
+export default function NewMovementPage() {
+  const { createMovement } = useAdminContext();
+
+  const handleSubmit = async (data) => {
+    await createMovement(data); // Automatically refreshes context
+  };
+}
+```
+
+Or direct fetch for other mutations:
+
+```typescript
+'use client';
 const res = await fetch(`${API_BASE}/movements`, {
   method: 'POST',
   credentials: 'include',
@@ -119,28 +147,30 @@ router.refresh(); // Triggers RouteFetchProvider to refetch
 ### `/src/app` - App Router Structure
 
 - **`/ingresar`** - Login page (public)
-  - `Login.tsx` - Login form component
 - **`/panel`** - Main dashboard (protected)
-  - `page.tsx` - Server component wrapper
-  - **`/admin`** - Admin section (protected, nested routes)
+  - `page.tsx` - Dashboard page
+  - **`/admin`** - Admin section (protected, nested routes, uses `AdminFetchProvider`)
     - `page.tsx` - Admin dashboard
-    - `/nuevo-movimiento` - New movement page
-- **`Dashboard.tsx`** - Main dashboard client component (in `/src/app`)
-- **`layout.tsx`** - Root layout with metadata
+    - `/nuevo-movimiento` - New movement creation page
+    - `/nuevo-miembro` - New member creation page
+  - **`/cambiar-moneda`** - Currency exchange page
+  - **`/ultimos-movimientos`** - Recent movements page
+- **`/api/[...path]`** - API proxy route (forwards all requests to backend)
+- **`layout.tsx`** - Root layout with `RouteFetchProvider`
 - **`page.tsx`** - Root page (redirects to `/ingresar` or `/panel`)
 
 ### `/src/lib` - Business Logic
 
 Currently flat structure containing:
 
-- **`actions.ts`** - Server actions (mutations)
-- **`movements.ts`** - Server-side movement fetching
-- **`user.ts`** - Server-side user fetching
-- **`schemas.ts`** - Zod validation schemas
-- **`endpoint.ts`** - API base URL resolution
-- **`global_variables.ts`** - UI option constants (payment methods, statuses, types)
-- **`utils.ts`** - Currency formatting, label getters
-- **`date_utils.ts`** - Date formatting with `date-fns`
+- **`actions.ts`** - Server actions (currently minimal, only login action)
+- **`movements.ts`** - Server-side movement fetching (legacy, unused)
+- **`user.ts`** - Server-side user fetching (legacy, unused)
+- **`schemas.ts`** - Zod validation schemas and TypeScript types
+- **`endpoint.ts`** - API base URL (exports `'/api'` for client-side proxy)
+- **`global_variables.ts`** - UI option constants (payment methods, statuses, types, currencies, roles)
+- **`utils.ts`** - Currency formatting, masking, parsing, and label getter utilities
+- **`date_utils.ts`** - Date formatting and validation utilities (dd/MM/yyyy format, ISO conversion)
 
 **Important:** Files with server-only imports must include `import 'server-only'` at the top.
 
@@ -148,20 +178,31 @@ Currently flat structure containing:
 
 - **`/ui`** - Shadcn UI primitives (button, form, input, table, etc.)
 - **`/custom`** - Business components:
-  - `FormNewMovement.tsx` - Form to create movements
-  - `MovementsList.tsx` - Table displaying movements
-  - `CardAccount.tsx` - Account balance card
+  - `FormNewMovement.tsx` - Form to create movements with Spanish currency masking
+  - `FormNewMember.tsx` - Form to create new users/members
+  - `ListMovements.tsx` - Table displaying movements with edit/delete actions
+  - `ListUsers.tsx` - Table displaying users
+  - `CardAccount.tsx` - Account balance card with currency display
   - `CardBalance.tsx` - Balance display card
-  - `InputCalendar.tsx` - Date picker
-  - `InputUser.tsx` - User selection input
-  - `ButtonLogout.tsx` - Logout button
+  - `InputCalendar.tsx` - Date picker with dd/MM/yy input support
+  - `InputCurrency.tsx` - Currency input with masking
+  - `InputUser.tsx` - User selection combobox
+  - `Login.tsx` - Login form component
+  - `Loading.tsx` - Loading spinner component
   - `Splitter.tsx` - Visual divider
+- **`/screen`** - Page-level components:
+  - `Home.tsx` - Main dashboard screen
 
 ### `/src/providers`
 
-- **`RouteFetchProvider.tsx`** - Client-side session management
-  - Fetches user data on route changes
-  - Provides `useSession()` hook
+- **`RouteFetchProvider.tsx`** - Client-side session management (wraps entire app)
+  - Fetches user data on route changes via `/api/session`
+  - Provides `useSession()` hook with user, accounts, movements, and exchange rate data
+  - Provides `getExchangeRates()` and `postCurrencySwap()` methods
+  - Shows spinner during initial load
+- **`AdminFetchProvider.tsx`** - Admin context provider (wraps `/panel/admin` routes)
+  - Fetches all movements and users for admin views
+  - Provides `useAdminContext()` hook with `createMember()` and `createMovement()` methods
   - Shows spinner during initial load
 
 ### `/src/types`
@@ -260,30 +301,28 @@ Data fetching pattern:
 
 **IMPORTANT:** Be aware of the following:
 
-1. **Console logs** - Multiple `console.log()` and `console.warn()` statements in production code (`RouteFetchProvider.tsx:57`, `FormNewMovement.tsx:102`)
-2. **Unused files** - `types/invoice.ts`, `mock/invoices.ts` are not currently used
-3. **Legacy route** - `/app/(ingresar)/Login.tsx` appears to be unused duplicate of `/app/ingresar/Login.tsx`
+1. **Console logs** - Multiple `console.error()` and `console.warn()` statements in production code (`RouteFetchProvider.tsx:77`, `FormNewMovement.tsx:102`)
+2. **Unused files** - `types/invoice.ts`, `mock/invoices.ts`, `lib/movements.ts`, `lib/user.ts` are legacy and not currently used
+3. **Development mode** - `next.config.ts` disables React StrictMode in development for convenience
 
 ## Environment Variables
 
-Required variables:
+Required variables (`.env` file):
 
 ```bash
-# Node environment
-NODE_ENV=development
-
-# Development API endpoint (used when NODE_ENV=development)
-NEXT_PUBLIC_BACKEND_API_DEV=http://localhost:4000/api/v1
-
-# Production API endpoint (used when NODE_ENV=production)
-NEXT_PUBLIC_BACKEND_API=https://api.example.com
+# Backend API URLs (server-side only - used by Next.js API proxy)
+BACKEND_API_DEV=http://localhost:4000/api/v1
+BACKEND_API=https://sistema-contable-backend.onrender.com/api/v1
 ```
 
-**Note:**
+**How it works:**
 
-- These are client-side variables (`NEXT_PUBLIC_*`) accessible in browser
-- The `/lib/endpoint.ts` automatically selects the correct URL based on `NODE_ENV`
-- Development URL should include `/api/v1` path prefix
+- Next.js automatically sets `NODE_ENV` based on the command you run:
+  - `npm run dev` → `NODE_ENV=development` → uses `BACKEND_API_DEV` (localhost)
+  - `npm run build` / `npm start` → `NODE_ENV=production` → uses `BACKEND_API` (Render)
+- These are **server-side only** variables (no `NEXT_PUBLIC_` prefix) - never exposed to client
+- Backend URLs are only accessed by the API proxy at `/src/app/api/[...path]/route.ts`
+- Client code always uses `API_BASE = '/api'` which routes through the Next.js proxy
 
 ## Important Architectural Patterns
 
@@ -292,9 +331,16 @@ NEXT_PUBLIC_BACKEND_API=https://api.example.com
 This app uses **Argentine Spanish** (`es-AR`) locale:
 
 - Currency formatting: ARS (Pesos Argentinos) or USD
-- Date formatting: `dd/MM/yyyy` (via `date-fns`)
+- Date formatting: `dd/MM/yyyy` or `dd/MM/yy` (custom utilities in `date_utils.ts`)
+- Date input supports short format: `dd/MM/yy` with smart year resolution (20-year window)
 - Number input format: `1.420,50` (dot for thousands, comma for decimal)
 - Timezone: `America/Argentina/Buenos_Aires`
+
+**Date handling:**
+- `formatISODate()` - Convert Date to `yyyy-MM-dd` string
+- `formatShortDate()` - Convert Date to `dd/MM/yy` string
+- `maskShortDateInput()` - Format user input as `dd/MM/yy`
+- `shortDateToISO()` - Convert `dd/MM/yy` to ISO format with smart year resolution
 
 ### Type Safety
 
@@ -312,3 +358,13 @@ The app uses cookie-based sessions:
 3. Middleware validates session cookie for protected routes
 4. `RouteFetchProvider` maintains client-side user state
 5. No JWT tokens or localStorage - pure cookie-based auth
+
+### Currency Exchange
+
+The app supports currency swaps between ARS and USD:
+
+1. Exchange rates fetched from backend via `/api/movements/exchange-rate`
+2. Rates include `buy` and `sell` prices with metadata (market, updatedAt)
+3. Currency swaps created via `/api/movements/swap` endpoint
+4. `RouteFetchProvider` provides `getExchangeRates()` and `postCurrencySwap()` methods
+5. After a successful swap, session data refreshes automatically to update balances

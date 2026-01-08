@@ -85,30 +85,34 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const createMemberRequest = useCallback(async (data: InputMember) => {
-    {
-      const res = await fetch(`${API_BASE}/users/create`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(data),
-        cache: 'no-store',
-      });
-      if (!res.ok) throw new Error('Failed to create user');
+    const res = await fetch(`${API_BASE}/users/create`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(data),
+      cache: 'no-store',
+    });
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => null);
+      throw new Error(errorData?.message || errorData?.error || 'No se pudo crear el usuario');
     }
-  }, []);
+    await fetchAdminContext(); // Refresh data after creation
+  }, [fetchAdminContext]);
 
   const createMovementRequest = useCallback(async (data: InputMovement) => {
-    {
-      const res = await fetch(`${API_BASE}/movements`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(data),
-        cache: 'no-store',
-      });
-      if (!res.ok) throw new Error('Failed to create movement');
+    const res = await fetch(`${API_BASE}/movements`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(data),
+      cache: 'no-store',
+    });
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => null);
+      throw new Error(errorData?.message || errorData?.error || 'No se pudo crear el movimiento');
     }
-  }, []);
+    await fetchAdminContext(); // Refresh data after creation
+  }, [fetchAdminContext]);
 
   const didFetchRef = useRef(false);
   useEffect(() => {
