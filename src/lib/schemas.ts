@@ -9,16 +9,8 @@ export const MovementTypeSchema = z.enum(['INCOME', 'EGRESS']); // add more: 'EX
 export const RoleSchema = z.enum(['ADMIN', 'MEMBER']);
 export type Role = z.infer<typeof RoleSchema>;
 
-export const AccountSchema = z.object({
-  id: z.uuidv4(),
-  currency: CurrencySchema,
-  amount: z.string(),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
-  percentChange: z.number().optional(),
-});
-
-export const UserSchema = z.object({
+// Base User schema without accounts (to avoid circular reference)
+const BaseUserSchema = z.object({
   id: z.uuidv4(),
   authId: z.string(),
   name: z.string().min(1),
@@ -26,6 +18,21 @@ export const UserSchema = z.object({
   role: RoleSchema.default('MEMBER'),
   createdAt: z.iso.datetime({ offset: true }),
   updatedAt: z.iso.datetime({ offset: true }),
+});
+
+export const AccountSchema = z.object({
+  id: z.uuidv4(),
+  currency: CurrencySchema,
+  amount: z.string(),
+  userId: z.uuidv4(),
+  user: BaseUserSchema,
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+  percentChange: z.number().optional(),
+});
+
+// Full User schema with accounts
+export const UserSchema = BaseUserSchema.extend({
   accounts: z.array(AccountSchema).optional(),
 });
 
@@ -42,6 +49,7 @@ export type InputMember = Omit<
 export const MovementSchema = z.object({
   id: z.uuidv4(),
   accountId: z.uuidv4(),
+  account: AccountSchema,
   payer: z.string(),
   concept: z.string(),
   amount: z.string(), // Prisma Decimal serialized as string
@@ -58,7 +66,7 @@ export const MovementSchema = z.object({
 
 export type InputMovement = Omit<
   z.infer<typeof MovementSchema>,
-  'id' | 'accountId' | 'updatedAt' | 'createdAt'
+  'id' | 'accountId' | 'account' | 'updatedAt' | 'createdAt'
 > & { member: string };
 
 export type Movement = z.infer<typeof MovementSchema>;
