@@ -15,6 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import API_BASE from '@/lib/endpoint';
+import { isAdmin } from '@/lib/roles';
 
 export default function Login() {
   const router = useRouter();
@@ -22,7 +23,6 @@ export default function Login() {
   const [err, setErr] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    console.log('Submitting login form');
     e.preventDefault();
     setErr(null);
     setLoading(true);
@@ -45,10 +45,9 @@ export default function Login() {
 
       const { data: user } = await res.json();
 
-      if (user?.role === 'ADMIN') {
+      if (isAdmin(user?.role)) {
         router.push('/panel/admin');
-      }
-      if (user?.role === 'MEMBER') {
+      } else {
         router.push('/panel');
       }
     } catch {

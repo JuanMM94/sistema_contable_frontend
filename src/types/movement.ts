@@ -1,4 +1,4 @@
-import type { AccountWithMovements, Movement as MovementRecord } from '@/lib/schemas';
+import type { AccountWithMovements, Movement as MovementRecord, Role } from '@/lib/schemas';
 
 export type Movement = MovementRecord;
 
@@ -12,7 +12,7 @@ export type Movement = MovementRecord;
 export type User = {
   name: string;
   email: string;
-  role: string;
+  role: Role;
 };
 
 export interface ServerUser extends User {

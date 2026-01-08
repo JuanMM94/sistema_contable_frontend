@@ -30,7 +30,7 @@ export function InputUser({
   value = '',
   onChange,
   onBlur,
-  placeholder = 'Elige un usuario...',
+  placeholder = 'Elegí un usuario...',
   disabled = false,
   className,
 }: InputUserProps) {
@@ -61,7 +61,7 @@ export function InputUser({
       </PopoverTrigger>
       <PopoverContent className="w-[min(320px,90vw)] p-0" align="start">
         <Command>
-          <CommandInput placeholder="Buscando usuarios ..." className="h-9" />
+          <CommandInput placeholder="Buscá a un usuario" className="h-9" />
           <CommandList>
             <CommandEmpty>No se encontraron usuarios</CommandEmpty>
             <CommandGroup>
@@ -69,10 +69,10 @@ export function InputUser({
                 user.id === self!.id ? null : (
                   <CommandItem
                     key={user.id}
-                    value={user.id}
-                    onSelect={(currentValue) => {
-                      const nextValue = currentValue === value ? '' : currentValue;
-                      onChange?.(nextValue);
+                    value={user.name}
+                    keywords={[user.email]}
+                    onSelect={() => {
+                      onChange?.(user.id);
                       handleOpenChange(false);
                     }}
                   >

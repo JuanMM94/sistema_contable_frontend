@@ -128,7 +128,6 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify(data),
       });
-      console.log(await res.json());
       if (!res.ok) return { success: false, message: 'Failed to change password' };
       return { success: true, message: 'Password changed successfully' };
     },

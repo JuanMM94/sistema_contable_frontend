@@ -88,9 +88,9 @@ export function FormNewMovement({
       concept: '',
       note: '',
       amount: 0.0,
-      status: 'PENDING',
+      status: 'PAID',
       type: 'INCOME',
-      currency: 'USD',
+      currency: 'ARS',
     },
   });
 
@@ -150,12 +150,12 @@ export function FormNewMovement({
             name="member"
             render={({ field }) => (
               <FormItem className="md:col-span-1">
-                <FormLabel>Miembro a cobrar</FormLabel>
+                <FormLabel>Usuario</FormLabel>
                 <FormControl>
                   <InputUser
                     value={field.value}
                     onChange={field.onChange}
-                    placeholder="Elige un usuario..."
+                    placeholder="Elegí un usuario..."
                     onBlur={field.onBlur}
                   />
                 </FormControl>
@@ -363,7 +363,7 @@ export function FormNewMovement({
               <FormItem className="md:col-span-1">
                 <FormLabel>Concepto</FormLabel>
                 <FormControl>
-                  <Input placeholder="ej. Cobranza / Compra dolar a 1.420" {...field} />
+                  <Input placeholder="ej. Cobranza" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

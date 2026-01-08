@@ -14,10 +14,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from '@/components/ui/dropdown-menu';
 import { useSession } from '../../providers/RouteFetchProvider';
 import '../globals.css';
 import { navigationMenuTriggerStyle } from '@/components/ui/navigation-menu';
+import { isAdmin } from '@/lib/roles';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
@@ -41,33 +42,40 @@ export default function PanelLayout({
         <div className="flex items-center gap-4">
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-              <Avatar className='cursor-pointer'>
-                <AvatarFallback className='bg-secondary text-primary font-bold'>{user?.email.slice(0, 2)}</AvatarFallback>
+              <Avatar className="cursor-pointer">
+                <AvatarFallback className="bg-secondary text-primary font-bold">
+                  {user?.email.slice(0, 2)}
+                </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-40" align="end">
               <DropdownMenuLabel>Mi cuenta</DropdownMenuLabel>
               <DropdownMenuGroup>
-                <DropdownMenuItem className='cursor-pointer' onClick={() => router.push('/panel/perfil')}>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => router.push('/panel/perfil')}
+                >
                   Perfil
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className='cursor-pointer' onClick={async () => {
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={async () => {
                   const res = await fetch(`${API_BASE}/users/logout`, {
                     method: 'POST',
                     credentials: 'include',
                   });
-                  console.log('Sesión cerrada:', res);
-                  if(res.ok) router.refresh();
-              }}>
+                  if (res.ok) router.refresh();
+                }}
+              >
                 Cerrar sesión
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </header>
-      {user?.role == 'ADMIN' ? (
+      {isAdmin(user?.role) && (
         <nav className="w-full flex items-center justify-around border-b-secondary border-t-secondary border">
           <NavigationMenu>
             <NavigationMenuList className="flex flex-row">
@@ -78,24 +86,22 @@ export default function PanelLayout({
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), 'px-3!')}>
-                  <Link href="/panel/admin">Panel Admin</Link>
+                  <Link href="/panel/admin">Panel del Administrador</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), 'px-3!')}>
-                  <Link href="/panel/admin/nuevo-movimiento">Nuevo movimiento</Link>
+                  <Link href="/panel/admin/nuevo-movimiento">Crear movimientos</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), 'px-3!')}>
-                  <Link href="/panel/admin/nuevo-miembro">Agregar más miembros</Link>
+                  <Link href="/panel/admin/nuevo-miembro">Agregar usuarios</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
         </nav>
-      ) : (
-        ''
       )}
       {children}
     </div>

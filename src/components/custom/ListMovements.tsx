@@ -9,15 +9,15 @@ import {
   getPaymentTypeLabel,
 } from '@/lib/utils';
 import styles from '../../app/page.module.css';
-import { Button } from '../ui/button';
-import { Movement } from '@/lib/schemas';
+// import { Button } from '../ui/button';
+import { Movement, Role } from '@/lib/schemas';
 
 export default function ListMovements({
   initialMovements,
-  userRole,
+  // userRole,
 }: {
   initialMovements: Movement[] | [];
-  userRole: string | undefined;
+  userRole: Role | undefined;
 }) {
   return (
     <section className={styles.table_section}>
@@ -26,18 +26,19 @@ export default function ListMovements({
           <TableRow>
             <TableHead className="w-[100px]">Id de factura</TableHead>
             <TableHead>Fecha</TableHead>
-            {userRole == 'ADMIN' && <TableHead>Pagador</TableHead>}
+            {/* <TableHead>Usuario</TableHead> */}
+            <TableHead>Cliente</TableHead>
             <TableHead>Estado</TableHead>
             <TableHead>Método</TableHead>
             <TableHead>Moneda</TableHead>
             <TableHead>Tipo</TableHead>
             <TableHead>Nota</TableHead>
             <TableHead className="text-right">Cantidad</TableHead>
-            {userRole == 'ADMIN' && (
+            {/* {userRole == 'ADMIN' && (
               <TableHead className="text-center" colSpan={2}>
                 Acciones
               </TableHead>
-            )}
+            )} */}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -48,9 +49,8 @@ export default function ListMovements({
                 <TableCell className="font-medium">
                   {formatToLocaleDate(new Date(movement.date))}
                 </TableCell>
-                {userRole == 'ADMIN' && (
-                  <TableCell className="font-medium">{movement.payer}</TableCell>
-                )}
+                {/* <TableCell className="font-medium">Usuario</TableCell> */}
+                <TableCell className="font-medium">{movement.payer}</TableCell>
                 <TableCell>{getPaymentStatusLabel(movement.status)}</TableCell>
                 <TableCell>{getPaymentMethodLabel(movement.method)}</TableCell>
                 <TableCell>{movement.currency}</TableCell>
@@ -61,7 +61,7 @@ export default function ListMovements({
                 >
                   {currencyFormatter(movement.amount, 'es-AR', movement.currency, true)}
                 </TableCell>
-                {userRole == 'ADMIN' && (
+                {/* {userRole == 'ADMIN' && (
                   <>
                     <TableCell className="text-center text-blue-600">
                       <Button variant="ghost" className="cursor-pointer">
@@ -74,7 +74,7 @@ export default function ListMovements({
                       </Button>
                     </TableCell>
                   </>
-                )}
+                )} */}
               </TableRow>
             );
           })}

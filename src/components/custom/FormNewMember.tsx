@@ -143,15 +143,15 @@ export function FormNewMember({
             name="role"
             render={({ field }) => (
               <FormItem className="md:col-span-1">
-                <FormLabel>Estado de transacción</FormLabel>
+                <FormLabel>Rol del usuario</FormLabel>
                 <FormControl>
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
-                    <SelectTrigger id="status" className="w-full">
-                      <SelectValue placeholder="Rol del usuario" />
+                    <SelectTrigger id="role" className="w-full">
+                      <SelectValue placeholder="Miembro" />
                     </SelectTrigger>
                     <SelectContent>
                       {MEMBER_AVAILABLE_ROLES.map((opt) => (
@@ -168,7 +168,7 @@ export function FormNewMember({
           />
         </form>
         <p className="font-light text-xs">
-          Luego de la creación, podras copiar facilmente la información para enviarsela al usuario.
+          Luego de la creación, podrás copiar fácilmente la información para enviársela al usuario.
         </p>
       </Form>
 

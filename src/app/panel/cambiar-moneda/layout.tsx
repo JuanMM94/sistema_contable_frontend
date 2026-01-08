@@ -5,5 +5,5 @@ export default function ExchangeCurrencyLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <div className="flex justify-center w-full mt-6!">{children}</div>;
+  return <div className="flex justify-center w-full !mt-6">{children}</div>;
 }
