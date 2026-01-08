@@ -55,7 +55,7 @@ export default function Page() {
 
   const accountNames: Record<'ARS' | 'USD', string> = {
     ARS: 'Pesos Argentinos',
-    USD: 'Dolares Estado Unidences',
+    USD: 'Dolares Estadounidenses',
   };
 
   const fromAccount = user!.accounts!.find((acc) => acc.currency === fromTo.from)!;

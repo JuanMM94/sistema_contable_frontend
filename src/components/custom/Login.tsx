@@ -38,8 +38,19 @@ export default function Login() {
         credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
-      if (res.ok) router.replace('/panel');
-      else setErr('Credenciales inválidas');
+
+      if (!res.ok) {
+        return setErr('Credenciales inválidas');
+      }
+
+      const { data: user } = await res.json();
+
+      if (user?.role === 'ADMIN') {
+        router.push('/panel/admin');
+      }
+      if (user?.role === 'MEMBER') {
+        router.push('/panel');
+      }
     } catch {
       setErr('No se pudo conectar con el servidor.');
     } finally {
@@ -89,11 +100,11 @@ export default function Login() {
         <Button form="login-form" type="submit" className="w-full" disabled={loading}>
           {loading ? 'Ingresando…' : 'Entrar'}
         </Button>
-        <div className="flex items-center justify-between text-sm">
+        {/* <div className="flex items-center justify-between text-sm">
           <Button type="button" variant="link" size="sm" className="px-0 font-medium text-primary">
             Olvidé mi contraseña
           </Button>
-        </div>
+        </div> */}
       </CardFooter>
     </Card>
   );
