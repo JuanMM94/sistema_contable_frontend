@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <div className={styles.dashboard}>
       <div className={styles.home}>
-        <h3>Hola, {user?.username ?? 'usuario'}!</h3>
+        <h3>Hola, {user?.name ?? 'usuario'}!</h3>
         <div className={styles.information_container}>
           <section className={styles.card_section}>
             {loading ? (

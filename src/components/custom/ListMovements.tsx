@@ -1,7 +1,7 @@
 'use client';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { formatShortDate, formatToLocaleDate } from '@/lib/date_utils';
+import { formatToLocaleDate } from '@/lib/date_utils';
 import {
   currencyFormatter,
   getPaymentMethodLabel,

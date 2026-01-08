@@ -10,7 +10,7 @@ export type Movement = MovementRecord;
 // }
 
 export type User = {
-  username: string;
+  name: string;
   email: string;
   role: string;
 };
