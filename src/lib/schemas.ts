@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const CurrencySchema = z.enum(['USD', 'ARS']); // add more: 'ARS', etc.
+export const CurrencySchema = z.enum(['ARS', 'USD']); // add more: 'ARS', etc.
 export const PaymentStatusSchema = z.enum(['PAID', 'PENDING', 'UNPAID']);
 export const PaymentMethodSchema = z.enum(['CASH', 'WIRE', 'DEPOSIT']); // add more: 'CHECK', etc.
 export const MovementTypeSchema = z.enum(['INCOME', 'EGRESS']); // add more: 'EXPENSE', etc.
