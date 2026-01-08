@@ -25,7 +25,7 @@ export default function NewMovementPage() {
   };
 
   return (
-    <div className="p-4 flex flex-col gap-4 items-center mt-6!">
+    <div className="p-4 flex flex-col gap-4 items-center !mt-6">
       <div className="flex flex-row gap-4 w-[70vw]">
         <section className="flex flex-col items-center justify-center w-full gap-4 ">
           <h4>Nuevo movimiento</h4>

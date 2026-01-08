@@ -10,7 +10,7 @@ export default function Page() {
   const { movements } = useAdminContext();
 
   return (
-    <div className="flex justify-center w-full mt-6!">
+    <div className="flex justify-center w-full !mt-6">
       <div className="w-[70vw]">
         <h3>Panel de Administrador</h3>
         <section>
