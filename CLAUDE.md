@@ -74,6 +74,7 @@ To use this middleware, Next.js requires it to be imported in your app. The fram
   - Production: `BACKEND_API`
 
 **Request flow:**
+
 ```
 Client → /api/session → API proxy → http://localhost:4000/api/v1/session → Backend
 ```
@@ -337,6 +338,7 @@ This app uses **Argentine Spanish** (`es-AR`) locale:
 - Timezone: `America/Argentina/Buenos_Aires`
 
 **Date handling:**
+
 - `formatISODate()` - Convert Date to `yyyy-MM-dd` string
 - `formatShortDate()` - Convert Date to `dd/MM/yy` string
 - `maskShortDateInput()` - Format user input as `dd/MM/yy`

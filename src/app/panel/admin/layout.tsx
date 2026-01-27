@@ -7,7 +7,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className='py-6'>
+    <div className="py-6">
       <AdminFetchProvider>{children}</AdminFetchProvider>
     </div>
   );
