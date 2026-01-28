@@ -14,7 +14,7 @@ import { Movement, Role } from '@/lib/schemas';
 
 export default function ListMovements({
   initialMovements,
-  // userRole,
+  userRole,
 }: {
   initialMovements: Movement[] | [];
   userRole: Role | undefined;
@@ -26,7 +26,7 @@ export default function ListMovements({
           <TableRow>
             <TableHead className="w-[100px]">Id de factura</TableHead>
             <TableHead>Fecha</TableHead>
-            <TableHead>Usuario</TableHead>
+            {userRole == 'ADMIN' && <TableHead>Usuario</TableHead>}
             <TableHead>Cliente</TableHead>
             <TableHead>Estado</TableHead>
             <TableHead>Método</TableHead>
@@ -49,7 +49,9 @@ export default function ListMovements({
                 <TableCell className="font-medium">
                   {formatToLocaleDate(new Date(movement.date))}
                 </TableCell>
-                <TableCell className="font-medium">{movement.account.user.name}</TableCell>
+                {userRole == 'ADMIN' && (
+                  <TableCell className="font-medium">{movement.account.user.name}</TableCell>
+                )}
                 <TableCell className="font-medium">{movement.payer}</TableCell>
                 <TableCell>{getPaymentStatusLabel(movement.status)}</TableCell>
                 <TableCell>{getPaymentMethodLabel(movement.method)}</TableCell>
