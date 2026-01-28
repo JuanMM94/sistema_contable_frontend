@@ -3,7 +3,7 @@
 import styles from '../../page.module.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSession } from '@/providers/RouteFetchProvider';
-import { Eye, EyeOff, MoveLeft } from 'lucide-react';
+import { Eye, EyeOff, Loader, MoveLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -72,7 +72,7 @@ export default function Page() {
                 <div className="py-4">
                   <section className="grid gap-4 sm:grid-cols-2">
                     {loading ? (
-                      <></>
+                      <Loader/>
                     ) : user?.accounts && user.accounts.length > 0 ? (
                       user.accounts.map((acc) => (
                         <div key={acc.id} className="flex flex-col gap-1">

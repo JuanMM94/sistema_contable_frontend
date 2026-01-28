@@ -52,10 +52,6 @@ async function proxyRequest(request: NextRequest, path: string[], method: string
   const backendPath = `${path.join('/')}${request.nextUrl.searchParams.toString().length ? `?${request.nextUrl.searchParams.toString()}` : ''}`;
   const backendUrl = `${BACKEND_URL}/${backendPath}`;
 
-  console.log('NextRequest: ', request.nextUrl.searchParams.toString().length);
-  console.log('paths: ', backendPath);
-  console.log('BACKEND: ', backendUrl);
-
   try {
     // Get the request body if present
     const body = method !== 'GET' && method !== 'DELETE' ? await request.text() : undefined;

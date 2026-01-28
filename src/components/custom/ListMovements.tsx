@@ -49,7 +49,7 @@ export default function ListMovements({
                 <TableCell className="font-medium">
                   {formatToLocaleDate(new Date(movement.date))}
                 </TableCell>
-                <TableCell className="font-medium">{movement.account.user.name}</TableCell>
+                {/* <TableCell className="font-medium">{movement.account.user.name}</TableCell> */}
                 <TableCell className="font-medium">{movement.payer}</TableCell>
                 <TableCell>{getPaymentStatusLabel(movement.status)}</TableCell>
                 <TableCell>{getPaymentMethodLabel(movement.method)}</TableCell>
