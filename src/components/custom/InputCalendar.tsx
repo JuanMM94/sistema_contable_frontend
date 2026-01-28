@@ -10,11 +10,11 @@ import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   formatISODate,
-  formatShortDate,
-  isCompleteShortDate,
-  maskShortDateInput,
+  formatToLocaleDate,
+  fullDateToISO,
+  isCompleteFullDate,
+  maskFullDateInput,
   parseISODate,
-  shortDateToISO,
 } from '@/lib/date_utils';
 
 type Calendar28Props = {
@@ -33,16 +33,22 @@ export const Calendar28 = React.forwardRef<HTMLInputElement, Calendar28Props>(
     const initialDate = React.useMemo(() => parseISODate(value ?? undefined), [value]);
     const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(initialDate);
     const [displayMonth, setDisplayMonth] = React.useState<Date>(initialDate ?? new Date());
-    const [inputValue, setInputValue] = React.useState<string>(() => formatShortDate(initialDate));
+    const formatDisplayDate = React.useCallback(
+      (date?: Date) => (date ? formatToLocaleDate(date) : ''),
+      [],
+    );
+    const [inputValue, setInputValue] = React.useState<string>(() =>
+      formatDisplayDate(initialDate),
+    );
 
     React.useEffect(() => {
       const nextDate = parseISODate(value ?? undefined);
       setSelectedDate(nextDate);
-      setInputValue(formatShortDate(nextDate));
+      setInputValue(formatDisplayDate(nextDate));
       if (nextDate) {
         setDisplayMonth(nextDate);
       }
-    }, [value]);
+    }, [formatDisplayDate, value]);
 
     const inputId = id ?? name ?? 'date';
 
@@ -57,7 +63,7 @@ export const Calendar28 = React.forwardRef<HTMLInputElement, Calendar28Props>(
 
     const handleInputChange = React.useCallback(
       (event: React.ChangeEvent<HTMLInputElement>) => {
-        const maskedValue = maskShortDateInput(event.target.value);
+        const maskedValue = maskFullDateInput(event.target.value);
         setInputValue(maskedValue);
 
         if (!maskedValue) {
@@ -66,11 +72,11 @@ export const Calendar28 = React.forwardRef<HTMLInputElement, Calendar28Props>(
           return;
         }
 
-        if (!isCompleteShortDate(maskedValue)) {
+        if (!isCompleteFullDate(maskedValue)) {
           return;
         }
 
-        const isoString = shortDateToISO(maskedValue, selectedDate ?? displayMonth);
+        const isoString = fullDateToISO(maskedValue);
         if (!isoString) {
           return;
         }
@@ -82,7 +88,7 @@ export const Calendar28 = React.forwardRef<HTMLInputElement, Calendar28Props>(
         }
         emitChange(isoString);
       },
-      [displayMonth, emitChange, selectedDate],
+      [emitChange],
     );
 
     const handleCalendarSelect = React.useCallback(
@@ -96,11 +102,11 @@ export const Calendar28 = React.forwardRef<HTMLInputElement, Calendar28Props>(
 
         setSelectedDate(date);
         setDisplayMonth(date);
-        setInputValue(formatShortDate(date));
+        setInputValue(formatDisplayDate(date));
         emitChange(formatISODate(date));
         setOpen(false);
       },
-      [emitChange],
+      [emitChange, formatDisplayDate],
     );
 
     const handleBlur = React.useCallback(
@@ -115,15 +121,15 @@ export const Calendar28 = React.forwardRef<HTMLInputElement, Calendar28Props>(
           return;
         }
 
-        if (!isCompleteShortDate(inputValue)) {
-          setInputValue(formatShortDate(selectedDate));
+        if (!isCompleteFullDate(inputValue)) {
+          setInputValue(formatDisplayDate(selectedDate));
           return;
         }
 
-        const isoString = shortDateToISO(inputValue, selectedDate ?? displayMonth);
+        const isoString = fullDateToISO(inputValue);
 
         if (!isoString) {
-          setInputValue(formatShortDate(selectedDate));
+          setInputValue(formatDisplayDate(selectedDate));
           return;
         }
 
@@ -137,7 +143,7 @@ export const Calendar28 = React.forwardRef<HTMLInputElement, Calendar28Props>(
           setDisplayMonth(parsed);
         }
       },
-      [displayMonth, emitChange, inputValue, onBlur, selectedDate, value],
+      [emitChange, formatDisplayDate, inputValue, onBlur, selectedDate, value],
     );
 
     return (

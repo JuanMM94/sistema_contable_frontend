@@ -13,15 +13,17 @@ import {
 import { usePathname } from 'next/navigation';
 import API_BASE from '@/lib/endpoint';
 import { Spinner } from '@/components/ui/spinner';
-import { InputMember, InputMovement, Movement, type User } from '@/lib/schemas';
+import { Filter, InputMember, InputMovement, Movement, type User } from '@/lib/schemas';
 
 type AdminContextValue = {
   movements: Movement[] | null;
   users: User[] | null;
+  filter: Filter[] | null;
   loading: boolean;
   error: string | null;
   createMember: (data: InputMember) => Promise<void>;
   createMovement: (data: InputMovement) => Promise<void>;
+  requestMovements: (data: { target: string; from: string; to: string }) => Promise<void>;
   refresh: () => Promise<void>;
 };
 
@@ -32,6 +34,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
   // Scale context if needed from useStates.
   const [movements, setMovements] = useState<Movement[] | null>(null);
   const [users, setUsers] = useState<User[] | null>(null);
+  const [filter, setFilter] = useState<Filter[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -58,7 +61,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
         }),
       ]);
 
-      if (movementsRes.status === 401 || usersRes.status === 401) {
+      if (movementsRes.status != 200 || usersRes.status !== 200) {
         setMovements(null);
         setUsers(null);
         setLoading(false);
@@ -84,35 +87,67 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const createMemberRequest = useCallback(async (data: InputMember) => {
-    const res = await fetch(`${API_BASE}/users/create`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify(data),
-      cache: 'no-store',
-    });
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => null);
-      throw new Error(errorData?.message || errorData?.error || 'No se pudo crear el usuario');
-    }
-    await fetchAdminContext(); // Refresh data after creation
-  }, [fetchAdminContext]);
+  const createMemberRequest = useCallback(
+    async (data: InputMember) => {
+      const res = await fetch(`${API_BASE}/users/create`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(data),
+        cache: 'no-store',
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        throw new Error(errorData?.message || errorData?.error || 'No se pudo crear el usuario');
+      }
+      await fetchAdminContext(); // Refresh data after creation
+    },
+    [fetchAdminContext],
+  );
 
-  const createMovementRequest = useCallback(async (data: InputMovement) => {
-    const res = await fetch(`${API_BASE}/movements`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify(data),
-      cache: 'no-store',
-    });
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => null);
-      throw new Error(errorData?.message || errorData?.error || 'No se pudo crear el movimiento');
-    }
-    await fetchAdminContext(); // Refresh data after creation
-  }, [fetchAdminContext]);
+  const createMovementRequest = useCallback(
+    async (data: InputMovement) => {
+      const res = await fetch(`${API_BASE}/movements`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(data),
+        cache: 'no-store',
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        throw new Error(errorData?.message || errorData?.error || 'No se pudo crear el movimiento');
+      }
+      await fetchAdminContext(); // Refresh data after creation
+    },
+    [fetchAdminContext],
+  );
+
+  const getMovementFilterRequest = useCallback(
+    async (data: { target: string; from: string; to: string }) => {
+      const request = `${API_BASE}/filter/?target=${data.target}&from=${data.from}&to=${data.to}`;
+      const res = await fetch(request, {
+        method: 'GET',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        throw new Error(
+          errorData?.message || errorData?.error || 'No pudimos obtener esa información',
+        );
+      }
+      const resData = await res.json();
+      const nextFilter = Array.isArray(resData?.data) ? resData.data : resData;
+
+      console.log('Res Data:', JSON.stringify(resData, null, 2));
+      console.log('next res data:', JSON.stringify(nextFilter, null, 2));
+
+      setFilter(nextFilter ?? null);
+    },
+    [],
+  );
 
   const didFetchRef = useRef(false);
   useEffect(() => {
@@ -125,19 +160,23 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
     () => ({
       movements,
       users,
+      filter,
       loading,
       error,
       createMember: createMemberRequest,
       createMovement: createMovementRequest,
+      requestMovements: getMovementFilterRequest,
       refresh: fetchAdminContext,
     }),
     [
       movements,
       users,
+      filter,
       loading,
       error,
       createMemberRequest,
       createMovementRequest,
+      getMovementFilterRequest,
       fetchAdminContext,
     ],
   );
