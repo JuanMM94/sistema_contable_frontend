@@ -72,7 +72,7 @@ export default function Page() {
                 <div className="py-4">
                   <section className="grid gap-4 sm:grid-cols-2">
                     {loading ? (
-                      <Loader/>
+                      <Loader />
                     ) : user?.accounts && user.accounts.length > 0 ? (
                       user.accounts.map((acc) => (
                         <div key={acc.id} className="flex flex-col gap-1">
