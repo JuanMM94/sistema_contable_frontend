@@ -77,7 +77,12 @@ export default function Page() {
                       user.accounts.map((acc) => (
                         <div key={acc.id} className="flex flex-col gap-1">
                           <span className="text-sm opacity-60">Cuenta en {acc.currency}</span>
-                          <span className="text-base">{acc.amount}</span>
+                          <span className="text-base">
+                            Pagado: {acc.paidBalance} {acc.currency}
+                          </span>
+                          <span className="text-sm opacity-70">
+                            Pendiente: {acc.pendingBalance} {acc.currency}
+                          </span>
                         </div>
                       ))
                     ) : (

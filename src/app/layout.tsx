@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   description:
     'Gestiona tus movimientos financieros, cuentas y transacciones de forma simple y segura.',
   icons: {
-    icon: '/favicon.svg',
+    icon: '/favicon.svg?v=2',
   },
 };
 
