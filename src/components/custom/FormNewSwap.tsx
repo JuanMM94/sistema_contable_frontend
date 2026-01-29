@@ -301,7 +301,12 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
                           <Card>
                             <CardContent className="flex flex-row items-center justify-between">
                               <h4>
-                                {currencyFormatter(fromAcc.paidBalance, 'es-AR', fromCurrency, false)}
+                                {currencyFormatter(
+                                  fromAcc.paidBalance,
+                                  'es-AR',
+                                  fromCurrency,
+                                  false,
+                                )}
                               </h4>
                               <p className="opacity-50">{fromCurrency}</p>
                             </CardContent>
@@ -333,7 +338,9 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
                         <FormControl>
                           <Card>
                             <CardContent className="flex flex-row items-center justify-between">
-                              <h4>{currencyFormatter(toAcc.paidBalance, 'es-AR', toCurrency, false)}</h4>
+                              <h4>
+                                {currencyFormatter(toAcc.paidBalance, 'es-AR', toCurrency, false)}
+                              </h4>
                               <p className="opacity-50">{toCurrency}</p>
                             </CardContent>
                           </Card>

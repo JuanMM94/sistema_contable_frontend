@@ -14,7 +14,9 @@ export const CardAccount = ({
   return (
     <Card className="w-full gap-3 flex justify-center p-2!">
       <CardHeader className="flex flex-col justify-center items-start mt-2!">
-        <CardTitle className="text-primary text-2xl">Balance {accountInformation.currency}</CardTitle>
+        <CardTitle className="text-primary text-2xl">
+          Balance {accountInformation.currency}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-3">
@@ -24,7 +26,7 @@ export const CardAccount = ({
               {currencyFormatter(
                 accountInformation.paidBalance,
                 'es-AR',
-                accountInformation.currency
+                accountInformation.currency,
               )}{' '}
               <span className="text-2xl opacity-80">{accountInformation.currency}</span>
             </p>
@@ -35,7 +37,7 @@ export const CardAccount = ({
               {currencyFormatter(
                 accountInformation.pendingBalance,
                 'es-AR',
-                accountInformation.currency
+                accountInformation.currency,
               )}{' '}
               <span className="text-base opacity-80">{accountInformation.currency}</span>
             </p>
