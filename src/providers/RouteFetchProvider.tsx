@@ -19,8 +19,8 @@ type SessionContextValue = {
   user: ServerUser | null;
   loading: boolean;
   error: string | null;
-  movements : Movement[];
-  getMovements: ()=>Promise<void>;
+  movements: Movement[];
+  getMovements: () => Promise<void>;
   refresh: () => Promise<void>;
   changePassword: (data: {
     currentPassword: string;
@@ -86,21 +86,18 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const getMovements = useCallback(
-    async () => {
-      const res = await fetch(`${API_BASE}/movements`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      if (!res.ok) throw new Error('Failed to fetch movements');
-      const payload =  await res.json();
-      setMovements(payload.data);
-    },
-    [],
-  );
+  const getMovements = useCallback(async () => {
+    const res = await fetch(`${API_BASE}/movements`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!res.ok) throw new Error('Failed to fetch movements');
+    const payload = await res.json();
+    setMovements(payload.data);
+  }, []);
 
   useEffect(() => {
     void fetchSession();
@@ -116,15 +113,7 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
       refresh: fetchSession,
       changePassword: changePassword,
     }),
-    [
-      user,
-      loading,
-      error,
-      movements,
-      getMovements,
-      fetchSession,
-      changePassword,
-    ],
+    [user, loading, error, movements, getMovements, fetchSession, changePassword],
   );
 
   return (

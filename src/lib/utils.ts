@@ -21,7 +21,7 @@ export const currencyFormatter = (
   locale: string,
   currency: (typeof PAYMENT_AVAILABLE_CURRENCY)[number]['value'],
   withSymbol: boolean = true,
-  decimals:number = 2
+  decimals: number = 2,
 ) => {
   const rawString = raw === null || raw === undefined ? '0' : raw.toString();
   const n = Number(rawString || '0');

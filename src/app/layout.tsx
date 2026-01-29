@@ -16,10 +16,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Sistema Contable',
-  description: 'Gestiona tus movimientos financieros, cuentas y transacciones de forma simple y segura.',
+  description:
+    'Gestiona tus movimientos financieros, cuentas y transacciones de forma simple y segura.',
   icons: {
-    icon: '/favicon.svg'
-  }
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({

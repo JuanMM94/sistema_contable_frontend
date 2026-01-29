@@ -126,7 +126,6 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
   };
 
   const sendSwapRequest = async () => {
-
     console.log('sendSwapRequest called with:', { fromTo, transferValue, exchangeRate });
 
     if (!exchangeRate) {
@@ -178,14 +177,9 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
         : 0;
 
   const rateValue =
-    typeof adminRate === 'number'
-      ? adminRate
-      : adminRate
-        ? Number(adminRate)
-        : baseRate;
+    typeof adminRate === 'number' ? adminRate : adminRate ? Number(adminRate) : baseRate;
 
-  const adjustedConvertedAmount =
-    transferValue > 0 ? transferValue * rateValue : 0;
+  const adjustedConvertedAmount = transferValue > 0 ? transferValue * rateValue : 0;
   const newFromBalance = fromBalance - transferValue;
   const newToBalance = toBalance + adjustedConvertedAmount;
 
@@ -439,16 +433,16 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
                             />
                           </FormControl>
                           <Button
-                              type="button"
-                              variant={'secondary'}
-                              className="flex-1"
-                              onClick={() => {
-                                setRateChangeNote(null);
-                                getExchangeRates();
-                              }}
-                            >
-                              Actualizar cotización
-                            </Button>
+                            type="button"
+                            variant={'secondary'}
+                            className="flex-1"
+                            onClick={() => {
+                              setRateChangeNote(null);
+                              getExchangeRates();
+                            }}
+                          >
+                            Actualizar cotización
+                          </Button>
                         </div>
                         <FormMessage />
                         <div className="flex justify-between w-full mt-1">

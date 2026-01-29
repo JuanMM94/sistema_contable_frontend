@@ -13,7 +13,14 @@ import {
 import { usePathname } from 'next/navigation';
 import API_BASE from '@/lib/endpoint';
 import { Spinner } from '@/components/ui/spinner';
-import { CurrencySwapData, ExchangeRate, InputMember, InputMovement, Movement, User } from '@/lib/schemas';
+import {
+  CurrencySwapData,
+  ExchangeRate,
+  InputMember,
+  InputMovement,
+  Movement,
+  User,
+} from '@/lib/schemas';
 
 type AdminContextValue = {
   movements: Movement[] | null;
@@ -31,7 +38,6 @@ type AdminContextValue = {
   createMovement: (data: InputMovement) => Promise<void>;
   refresh: () => Promise<void>;
 };
-
 
 const AdminContext = createContext<AdminContextValue | undefined>(undefined);
 
@@ -160,7 +166,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       if (!res.ok) throw new Error('Failed to retrieve user');
 
       const payload = await res.json();
-      console.log(payload)
+      console.log(payload);
       setUserToCurrencySwap(payload?.data ?? payload);
     } catch (e) {
       setUserToCurrencySwap(null);
@@ -172,10 +178,9 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
 
   const postCurrencySwap = useCallback(
     async (data: CurrencySwapData) => {
-
       console.log('Posting currency swap with data:', data);
 
-      console.log("SWAP URL:", `${API_BASE}/movements/swap`);
+      console.log('SWAP URL:', `${API_BASE}/movements/swap`);
 
       const res = await fetch(`${API_BASE}/movements/swap`, {
         method: 'POST',
@@ -186,7 +191,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       });
       console.log(await res.json());
       if (!res.ok) throw new Error('Failed to create currency swap');
-      getUserToCurrencySwap(data.userId)
+      getUserToCurrencySwap(data.userId);
       console.log('Currency swap created successfully', res);
       // Refresh client-side session/exchange data so balances update after a successful swap.
       await fetchAdminContext();

@@ -23,7 +23,7 @@ const BaseUserSchema = z.object({
 export const AccountSchema = z.object({
   id: z.uuidv4(),
   currency: CurrencySchema,
-  user: z.object({name: z.string(), id: z.uuidv4()}),
+  user: z.object({ name: z.string(), id: z.uuidv4() }),
   amount: z.string(),
   userId: z.uuidv4(),
   createdAt: z.iso.datetime(),
@@ -91,7 +91,7 @@ export const InputSwap = z.object({
   amountTotal: z.number().positive({ message: 'El monto debe ser mayor a 0.' }),
 });
 
-export type InputSwap = z.infer<typeof InputSwap>
+export type InputSwap = z.infer<typeof InputSwap>;
 
 export type CurrencySwapData = {
   userId: string;
@@ -114,8 +114,8 @@ export type ExchangeRate = {
 export type Movement = z.infer<typeof MovementSchema>;
 export type AccountWithMovements = z.infer<typeof AccountSchema>;
 export const AccountsResponseSchema = z.array(AccountSchema);
-export type User = z.infer<typeof UserSchema>
-export type Account = z.infer<typeof AccountSchema>
+export type User = z.infer<typeof UserSchema>;
+export type Account = z.infer<typeof AccountSchema>;
 export type UserLogin = z.infer<typeof UserLoginSchema>;
 export type UserLoginResponse = {
   user: User;

@@ -15,7 +15,9 @@ export default function Page() {
   const searchParams = useSearchParams();
   const [filterBy, setFilterBy] = useState<string | null>(searchParams.get('currency'));
 
-  const filteredMovements = filterBy ? user?.movements?.filter(movement => movement.currency === filterBy) : user?.movements;
+  const filteredMovements = filterBy
+    ? user?.movements?.filter((movement) => movement.currency === filterBy)
+    : user?.movements;
 
   return (
     <div className={styles.dashboard}>
@@ -34,15 +36,15 @@ export default function Page() {
             ) : (
               <section className={styles.table_section}>
                 <h4>Últimos movimientos</h4>
-                <div className='flex justify-center'>
+                <div className="flex justify-center">
                   <ButtonGroup>
                     <Button onClick={() => setFilterBy(null)} variant="outline" size="sm">
                       Todos
                     </Button>
-                    <Button onClick={() => setFilterBy("ARS")} variant="outline" size="sm">
+                    <Button onClick={() => setFilterBy('ARS')} variant="outline" size="sm">
                       ARS
                     </Button>
-                    <Button onClick={() => setFilterBy("USD")} variant="outline" size="sm">
+                    <Button onClick={() => setFilterBy('USD')} variant="outline" size="sm">
                       USD
                     </Button>
                   </ButtonGroup>

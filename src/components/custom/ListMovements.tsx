@@ -19,8 +19,7 @@ export default function ListMovements({
   initialMovements: Movement[] | [];
   userRole: Role | undefined;
 }) {
-
-  const {movements } = useSession()
+  const { movements } = useSession();
 
   return (
     <section className={styles.table_section}>
