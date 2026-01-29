@@ -15,6 +15,7 @@ import API_BASE from '@/lib/endpoint';
 import { Spinner } from '@/components/ui/spinner';
 import {
   CurrencySwapData,
+  EditMovement,
   ExchangeRate,
   Filter,
   InputMember,
@@ -38,6 +39,9 @@ type AdminContextValue = {
   postCurrencySwap: (data: CurrencySwapData) => Promise<void>;
   createMember: (data: InputMember) => Promise<void>;
   createMovement: (data: InputMovement) => Promise<void>;
+  updateMovement: (data: EditMovement) => Promise<void>;
+  deleteMovement: (data: {movementId: string}) => Promise<void>;
+  movementsLoading: boolean;
   requestMovements: (data: { target: string; from: string; to: string }) => Promise<void>;
   refresh: () => Promise<void>;
 };
@@ -48,6 +52,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   // Scale context if needed from useStates.
   const [movements, setMovements] = useState<Movement[] | null>(null);
+  const [movementsLoading, setMovementsLoading] = useState<boolean>(false);
   const [exchangeRate, setExchangeRate] = useState<ExchangeRate | null>(null);
   const [userToCurrencySwapLoading, setUserToCurrencySwapLoading] = useState(false);
   const [userToCurrencySwapError, setUserToCurrencySwapError] = useState<string | null>(null);
@@ -57,16 +62,21 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAdminContext = useCallback(async () => {
+  const fetchAdminContext = useCallback(async (options?: { silent?: boolean }) => {
+    const silent = options?.silent ?? false;
     if (!API_BASE) {
       setError('Missing API base URL');
-      setLoading(false);
-      setMovements(null);
-      setUsers(null);
+      if (!silent) {
+        setLoading(false);
+        setMovements(null);
+        setUsers(null);
+      }
       return;
     }
 
-    setLoading(true);
+    if (!silent) {
+      setLoading(true);
+    }
     setError(null);
     try {
       const [movementsRes, usersRes] = await Promise.all([
@@ -81,9 +91,11 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       ]);
 
       if (movementsRes.status != 200 || usersRes.status !== 200) {
-        setMovements(null);
-        setUsers(null);
-        setLoading(false);
+        if (!silent) {
+          setMovements(null);
+          setUsers(null);
+          setLoading(false);
+        }
         return;
       }
       if (!movementsRes.ok || !usersRes.ok) {
@@ -95,14 +107,18 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
         movementsRes.json(),
         usersRes.json(),
       ]);
-      setMovements(movementsPayload.data);
-      setUsers(usersPayload.data);
+      setMovements(movementsPayload?.data ?? movementsPayload);
+      setUsers(usersPayload?.data ?? usersPayload);
     } catch (err) {
-      setMovements(null);
-      setUsers(null);
+      if (!silent) {
+        setMovements(null);
+        setUsers(null);
+      }
       setError(err instanceof Error ? err.message : 'Unknown admin context error');
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
   }, []);
 
@@ -191,10 +207,78 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       });
       if (!res.ok) throw new Error('Failed to create currency swap');
       getUserToCurrencySwap(data.userId);
-      // Refresh client-side session/exchange data so balances update after a successful swap.
       await fetchAdminContext();
     },
     [fetchAdminContext, getUserToCurrencySwap],
+  );
+
+  const refreshMovement = useCallback(
+    async () => {
+      const request = `${API_BASE}/movements`;
+      const res = await fetch(request, {
+        method: 'GET',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        throw new Error(
+          errorData?.message || errorData?.error || 'No pudimos obtener esa información',
+        );
+      }
+      const payload = await res.json();
+      setMovements(payload?.data ?? payload);
+    },
+    [],
+  );
+
+  const updateMovementRequest = useCallback(
+    async (data: EditMovement) => {
+      setMovementsLoading(true);
+      try {
+        const res = await fetch(`${API_BASE}/movements/update`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(data),
+          cache: "no-store",
+        });
+        if (!res.ok) {
+          const msg = await res.text().catch(() => "");
+          throw new Error(msg || "Failed to update movement");
+        }
+
+        await fetchAdminContext({ silent: true });
+      } finally {
+        setMovementsLoading(false);
+      }
+    },
+    [fetchAdminContext],
+  );
+
+  const deleteMovementRequest = useCallback(
+    async (data: { movementId: string }) => {
+      setMovementsLoading(true);
+      try {
+        const res = await fetch(`${API_BASE}/movements/delete`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(data),
+          cache: "no-store",
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to delete movement");
+        }
+
+        await fetchAdminContext({ silent: true });
+      } finally {
+        setMovementsLoading(false);
+      }
+    },
+    [fetchAdminContext],
   );
 
   const getMovementFilterRequest = useCallback(
@@ -214,9 +298,6 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       }
       const resData = await res.json();
       const nextFilter = Array.isArray(resData?.data) ? resData.data : resData;
-
-      console.log('Res Data:', JSON.stringify(resData, null, 2));
-      console.log('next res data:', JSON.stringify(nextFilter, null, 2));
 
       setFilter(nextFilter ?? null);
     },
@@ -241,11 +322,14 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       userToCurrencySwap,
       userToCurrencySwapLoading,
       userToCurrencySwapError,
+      movementsLoading,
       getExchangeRates: getExchangeRates,
       getUserToCurrencySwap: getUserToCurrencySwap,
       postCurrencySwap: postCurrencySwap,
       createMember: createMemberRequest,
       createMovement: createMovementRequest,
+      updateMovement: updateMovementRequest,
+      deleteMovement: deleteMovementRequest,
       requestMovements: getMovementFilterRequest,
       refresh: fetchAdminContext,
     }),
@@ -259,11 +343,14 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       userToCurrencySwap,
       userToCurrencySwapLoading,
       userToCurrencySwapError,
+      movementsLoading,
       getExchangeRates,
       getUserToCurrencySwap,
       postCurrencySwap,
       createMemberRequest,
       createMovementRequest,
+      updateMovementRequest,
+      deleteMovementRequest,
       getMovementFilterRequest,
       fetchAdminContext,
     ],

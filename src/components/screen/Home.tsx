@@ -3,11 +3,11 @@
 import styles from '../../app/page.module.css';
 import { Splitter } from '@/components/custom/Splitter';
 import { CardAccount } from '@/components/custom/CardAccount';
-import MovementsList from '@/components/custom/ListMovements';
 import { useSession } from '@/providers/RouteFetchProvider';
+import { ListMovementsUser } from '../custom/ListMovements';
 
 export default function Home() {
-  const { user, loading } = useSession();
+  const { user, loading, movements } = useSession();
 
   return (
     <div className={styles.dashboard}>
@@ -25,7 +25,7 @@ export default function Home() {
         <div className={styles.information_container}>
           <section className={styles.table_section}>
             <h4>Últimos movimientos</h4>
-            <MovementsList initialMovements={user?.movements ?? []} userRole={user?.role} />
+            <ListMovementsUser initialMovements={movements ?? []}/>
           </section>
         </div>
       </div>
