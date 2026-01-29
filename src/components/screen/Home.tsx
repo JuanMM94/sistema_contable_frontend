@@ -7,7 +7,7 @@ import { useSession } from '@/providers/RouteFetchProvider';
 import { ListMovementsUser } from '../custom/ListMovements';
 
 export default function Home() {
-  const { user, loading, movements } = useSession();
+  const { user, loading } = useSession();
 
   return (
     <div className={styles.dashboard}>
@@ -25,7 +25,7 @@ export default function Home() {
         <div className={styles.information_container}>
           <section className={styles.table_section}>
             <h4>Últimos movimientos</h4>
-            <ListMovementsUser initialMovements={movements ?? []} />
+            <ListMovementsUser initialMovements={user?.movements ?? []} />
           </section>
         </div>
       </div>
