@@ -11,7 +11,7 @@ export type Role = z.infer<typeof RoleSchema>;
 
 // Base User schema without accounts (to avoid circular reference)
 const BaseUserSchema = z.object({
-  id: z.uuidv4(),
+  id: z.uuid(),
   authId: z.string(),
   name: z.string().min(1),
   email: z.email(),
@@ -21,12 +21,12 @@ const BaseUserSchema = z.object({
 });
 
 export const AccountSchema = z.object({
-  id: z.uuidv4(),
+  id: z.uuid(),
   currency: CurrencySchema,
   user: z.object({ name: z.string(), id: z.uuidv4() }),
   paidBalance: z.string(),
   pendingBalance: z.string(),
-  userId: z.uuidv4(),
+  userId: z.uuid(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   percentChange: z.number().optional(),
@@ -48,8 +48,8 @@ export type InputMember = Omit<
 > & { password: string };
 
 export const MovementSchema = z.object({
-  id: z.uuidv4(),
-  accountId: z.uuidv4(),
+  id: z.uuid(),
+  accountId: z.uuid(),
   account: AccountSchema,
   payer: z.string(),
   concept: z.string(),
@@ -70,9 +70,19 @@ export type InputMovement = Omit<
   'id' | 'accountId' | 'account' | 'updatedAt' | 'createdAt'
 > & { member: string };
 
+export type EditMovement = Partial<InputMovement> & {
+  movementId: typeof z.uuid;
+  payer: string;
+  concept: string;
+  note: string;
+  status: typeof PaymentStatusSchema;
+  type: typeof MovementTypeSchema;
+  method: typeof PaymentMethodSchema;
+};
+
 export const SwapSchema = z.object({
-  id: z.uuidv4(),
-  accountId: z.uuidv4(),
+  id: z.uuid(),
+  accountId: z.uuid(),
   account: AccountSchema,
   amount: z.string(), // Prisma Decimal serialized as string
   date: z.iso.datetime(),
@@ -84,7 +94,7 @@ export const SwapSchema = z.object({
 });
 
 export const InputSwap = z.object({
-  userId: z.uuidv4(),
+  userId: z.uuid(),
   fromCurrency: CurrencySchema,
   toCurrency: CurrencySchema,
   amountChange: z.number().positive({ message: 'El monto debe ser mayor a 0.' }),

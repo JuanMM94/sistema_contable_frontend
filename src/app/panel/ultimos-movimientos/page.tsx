@@ -2,7 +2,7 @@
 
 import styles from '../../page.module.css';
 import { Splitter } from '@/components/custom/Splitter';
-import MovementsList from '@/components/custom/ListMovements';
+import { ListMovementsUser } from '@/components/custom/ListMovements';
 import { useSession } from '@/providers/RouteFetchProvider';
 import { MoveLeft } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
@@ -49,7 +49,7 @@ export default function Page() {
                     </Button>
                   </ButtonGroup>
                 </div>
-                <MovementsList initialMovements={filteredMovements ?? []} userRole={user?.role} />
+                <ListMovementsUser initialMovements={filteredMovements ?? []} />
               </section>
             )}
           </section>
