@@ -25,6 +25,7 @@ import {
 type AdminContextValue = {
   movements: Movement[] | null;
   users: User[] | null;
+  filter: Filter[] | null;
   loading: boolean;
   error: string | null;
   exchangeRate: ExchangeRate | null;
@@ -36,6 +37,7 @@ type AdminContextValue = {
   postCurrencySwap: (data: CurrencySwapData) => Promise<void>;
   createMember: (data: InputMember) => Promise<void>;
   createMovement: (data: InputMovement) => Promise<void>;
+  requestMovements: (data: { target: string; from: string; to: string }) => Promise<void>;
   refresh: () => Promise<void>;
 };
 
@@ -50,6 +52,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
   const [userToCurrencySwapError, setUserToCurrencySwapError] = useState<string | null>(null);
   const [userToCurrencySwap, setUserToCurrencySwap] = useState<User | null>(null);
   const [users, setUsers] = useState<User[] | null>(null);
+  const [filter, setFilter] = useState<Filter[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,7 +79,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
         }),
       ]);
 
-      if (movementsRes.status === 401 || usersRes.status === 401) {
+      if (movementsRes.status != 200 || usersRes.status !== 200) {
         setMovements(null);
         setUsers(null);
         setLoading(false);
@@ -204,6 +207,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
     () => ({
       movements,
       users,
+      filter,
       loading,
       error,
       exchangeRate,
@@ -215,11 +219,13 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       postCurrencySwap: postCurrencySwap,
       createMember: createMemberRequest,
       createMovement: createMovementRequest,
+      requestMovements: getMovementFilterRequest,
       refresh: fetchAdminContext,
     }),
     [
       movements,
       users,
+      filter,
       loading,
       error,
       exchangeRate,
@@ -231,6 +237,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       postCurrencySwap,
       createMemberRequest,
       createMovementRequest,
+      getMovementFilterRequest,
       fetchAdminContext,
     ],
   );

@@ -17,10 +17,15 @@ export function formatShortDate(date: Date | undefined) {
   return `${day}/${month}/${year}`;
 }
 
-export function formatToLocaleDate(date: Date) {
+export function formatToLocaleDate(date: Date, remove?: string) {
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const year = String(date.getFullYear()).padStart(4, '0');
+
+  if (remove == 'day') {
+    return `${month}/${year}`;
+  }
+
   return `${day}/${month}/${year}`;
 }
 
@@ -41,7 +46,7 @@ export function parseISODate(value: string | null | undefined) {
     return undefined;
   }
 
-  const [, year, month, day] = match;
+  const [year, month, day] = match.slice(1);
   const parsed = new Date(Number(year), Number(month) - 1, Number(day));
 
   if (!isValidDate(parsed)) {
@@ -62,6 +67,19 @@ export function maskShortDateInput(value: string) {
 
 export function isCompleteShortDate(value: string) {
   return /^\d{2}\/\d{2}\/\d{2}$/.test(value);
+}
+
+export function maskFullDateInput(value: string) {
+  const digits = value.replace(/\D/g, '').slice(0, 8);
+  const day = digits.slice(0, 2);
+  const month = digits.slice(2, 4);
+  const year = digits.slice(4, 8);
+
+  return [day, month, year].filter(Boolean).join('/');
+}
+
+export function isCompleteFullDate(value: string) {
+  return /^\d{2}\/\d{2}\/\d{4}$/.test(value);
 }
 
 export function resolveFullYear(twoDigitYear: number, contextDate?: Date) {
@@ -110,6 +128,36 @@ export function shortDateToISO(value: string, contextDate?: Date) {
 
   if (
     candidate.getFullYear() !== fullYear ||
+    candidate.getMonth() !== month - 1 ||
+    candidate.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return formatISODate(candidate);
+}
+
+export function fullDateToISO(value: string) {
+  if (!isCompleteFullDate(value)) {
+    return null;
+  }
+
+  const [dayString, monthString, yearString] = value.split('/');
+  const day = Number(dayString);
+  const month = Number(monthString);
+  const year = Number(yearString);
+
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return null;
+  }
+
+  const candidate = new Date(year, month - 1, day);
+  if (!isValidDate(candidate)) {
+    return null;
+  }
+
+  if (
+    candidate.getFullYear() !== year ||
     candidate.getMonth() !== month - 1 ||
     candidate.getDate() !== day
   ) {

@@ -121,3 +121,17 @@ export type UserLoginResponse = {
   user: User;
   token: string;
 };
+
+export const movementWithLimitSchema = z.object({
+  month: z.string(),
+  income: z.string(),
+  egress: z.string(),
+});
+
+export type MovementWithLimit = z.infer<typeof movementWithLimitSchema>;
+
+//Expand filters here-
+
+export type Filter = {
+  movementWithLimit: MovementWithLimit;
+};
