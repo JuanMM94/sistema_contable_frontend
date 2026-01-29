@@ -16,6 +16,7 @@ import { Spinner } from '@/components/ui/spinner';
 import {
   CurrencySwapData,
   ExchangeRate,
+  Filter,
   InputMember,
   InputMovement,
   Movement,
@@ -194,6 +195,32 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       await fetchAdminContext();
     },
     [fetchAdminContext, getUserToCurrencySwap],
+  );
+
+  const getMovementFilterRequest = useCallback(
+    async (data: { target: string; from: string; to: string }) => {
+      const request = `${API_BASE}/filter/?target=${data.target}&from=${data.from}&to=${data.to}`;
+      const res = await fetch(request, {
+        method: 'GET',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        throw new Error(
+          errorData?.message || errorData?.error || 'No pudimos obtener esa información',
+        );
+      }
+      const resData = await res.json();
+      const nextFilter = Array.isArray(resData?.data) ? resData.data : resData;
+
+      console.log('Res Data:', JSON.stringify(resData, null, 2));
+      console.log('next res data:', JSON.stringify(nextFilter, null, 2));
+
+      setFilter(nextFilter ?? null);
+    },
+    [],
   );
 
   const didFetchRef = useRef(false);
