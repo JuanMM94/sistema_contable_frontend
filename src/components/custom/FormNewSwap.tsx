@@ -126,7 +126,6 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
   };
 
   const sendSwapRequest = async () => {
-    console.log('sendSwapRequest called with:', { fromTo, transferValue, exchangeRate });
 
     if (!exchangeRate) {
       // TODO: surface toast for missing exchange rate.
