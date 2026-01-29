@@ -13,35 +13,19 @@ import { usePathname } from 'next/navigation';
 import API_BASE from '@/lib/endpoint';
 import type { ServerUser } from '@/types/movement';
 import { Spinner } from '@/components/ui/spinner';
+import { Movement } from '@/lib/schemas';
 
 type SessionContextValue = {
   user: ServerUser | null;
   loading: boolean;
   error: string | null;
-  exchangeRate: ExchangeData | null;
+  movements : Movement[];
+  getMovements: ()=>Promise<void>;
   refresh: () => Promise<void>;
-  getExchangeRates: () => Promise<void>;
-  postCurrencySwap: (data: CurrencySwapData) => Promise<void>;
   changePassword: (data: {
     currentPassword: string;
     newPassword: string;
   }) => Promise<{ success: boolean; message: string }>;
-};
-
-export type CurrencySwapData = {
-  fromCurrency: string;
-  toCurrency: string;
-  amount: number;
-  clientRate: ExchangeData;
-};
-
-type ExchangeData = {
-  currency: string;
-  market: string;
-  name: string;
-  buy: number;
-  sell: number;
-  updatedAt: Date;
 };
 
 const SessionContext = createContext<SessionContextValue | undefined>(undefined);
@@ -50,9 +34,9 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
   // Use pathname to re-fetch.
   const pathname = usePathname();
   const [user, setUser] = useState<ServerUser | null>(null);
-  const [exchangeRate, setExchangeRate] = useState<ExchangeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [movements, setMovements] = useState<Movement[]>([]);
 
   const fetchSession = useCallback(async () => {
     if (!API_BASE) {
@@ -86,38 +70,6 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const getExchangeRates = useCallback(async () => {
-    {
-      const res = await fetch(`${API_BASE}/movements/exchange-rate`, {
-        method: 'GET',
-        headers: { 'content-type': 'application/json' },
-        credentials: 'include',
-        cache: 'no-store',
-      });
-      if (!res.ok) throw new Error('Failed to retrieve exchange rates');
-      const resData = await res.json();
-      setExchangeRate(resData);
-    }
-  }, []);
-
-  const postCurrencySwap = useCallback(
-    async (data: CurrencySwapData) => {
-      const res = await fetch(`${API_BASE}/movements/swap`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(data),
-        cache: 'no-store',
-      });
-      if (!res.ok) throw new Error('Failed to create currency swap');
-
-      // Refresh client-side session/exchange data so balances update after a successful swap.
-      await fetchSession();
-      await getExchangeRates();
-    },
-    [fetchSession, getExchangeRates],
-  );
-
   const changePassword = useCallback(
     async (data: { currentPassword: string; newPassword: string }) => {
       const res = await fetch(`${API_BASE}/users/change-password`, {
@@ -134,6 +86,22 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const getMovements = useCallback(
+    async () => {
+      const res = await fetch(`${API_BASE}/movements`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!res.ok) throw new Error('Failed to fetch movements');
+      const payload =  await res.json();
+      setMovements(payload.data);
+    },
+    [],
+  );
+
   useEffect(() => {
     void fetchSession();
   }, [pathname, fetchSession]);
@@ -143,20 +111,18 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
       user,
       loading,
       error,
+      movements,
+      getMovements: getMovements,
       refresh: fetchSession,
-      exchangeRate,
-      getExchangeRates: getExchangeRates,
-      postCurrencySwap: postCurrencySwap,
       changePassword: changePassword,
     }),
     [
       user,
       loading,
       error,
+      movements,
+      getMovements,
       fetchSession,
-      exchangeRate,
-      getExchangeRates,
-      postCurrencySwap,
       changePassword,
     ],
   );

@@ -66,15 +66,6 @@ export const CardAccount = ({
             >
               <Button className="w-full bg-secondary text-primary">Ultimos Movimientos</Button>
             </Link>
-            <Link
-              href={{
-                pathname: '/panel/cambiar-moneda',
-                query: { from: accountInformation.currency },
-              }}
-              className="flex-1"
-            >
-              <Button className="w-full bg-secondary text-primary">Cambiar</Button>
-            </Link>
           </section>
         </div>
       </CardContent>

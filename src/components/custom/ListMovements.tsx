@@ -9,8 +9,8 @@ import {
   getPaymentTypeLabel,
 } from '@/lib/utils';
 import styles from '../../app/page.module.css';
-// import { Button } from '../ui/button';
 import { Movement, Role } from '@/lib/schemas';
+import { useSession } from '@/providers/RouteFetchProvider';
 
 export default function ListMovements({
   initialMovements,
@@ -19,6 +19,9 @@ export default function ListMovements({
   initialMovements: Movement[] | [];
   userRole: Role | undefined;
 }) {
+
+  const {movements } = useSession()
+
   return (
     <section className={styles.table_section}>
       <Table className="w-full">
@@ -34,11 +37,6 @@ export default function ListMovements({
             <TableHead>Tipo</TableHead>
             <TableHead>Nota</TableHead>
             <TableHead className="text-right">Cantidad</TableHead>
-            {/* {userRole == 'ADMIN' && (
-              <TableHead className="text-center" colSpan={2}>
-                Acciones
-              </TableHead>
-            )} */}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -63,20 +61,6 @@ export default function ListMovements({
                 >
                   {currencyFormatter(movement.amount, 'es-AR', movement.currency, true)}
                 </TableCell>
-                {/* {userRole == 'ADMIN' && (
-                  <>
-                    <TableCell className="text-center text-blue-600">
-                      <Button variant="ghost" className="cursor-pointer">
-                        Editar
-                      </Button>
-                    </TableCell>
-                    <TableCell className="text-center text-red-400">
-                      <Button variant="ghost" className="cursor-pointer">
-                        Borrar
-                      </Button>
-                    </TableCell>
-                  </>
-                )} */}
               </TableRow>
             );
           })}
