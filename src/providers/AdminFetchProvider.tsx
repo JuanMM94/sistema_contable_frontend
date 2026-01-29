@@ -40,7 +40,7 @@ type AdminContextValue = {
   createMember: (data: InputMember) => Promise<void>;
   createMovement: (data: InputMovement) => Promise<void>;
   updateMovement: (data: EditMovement) => Promise<void>;
-  deleteMovement: (data: {movementId: string}) => Promise<void>;
+  deleteMovement: (data: { movementId: string }) => Promise<void>;
   movementsLoading: boolean;
   requestMovements: (data: { target: string; from: string; to: string }) => Promise<void>;
   refresh: () => Promise<void>;
@@ -197,7 +197,6 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
 
   const postCurrencySwap = useCallback(
     async (data: CurrencySwapData) => {
-
       const res = await fetch(`${API_BASE}/movements/swap`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -212,41 +211,20 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
     [fetchAdminContext, getUserToCurrencySwap],
   );
 
-  const refreshMovement = useCallback(
-    async () => {
-      const request = `${API_BASE}/movements`;
-      const res = await fetch(request, {
-        method: 'GET',
-        headers: { 'content-type': 'application/json' },
-        credentials: 'include',
-        cache: 'no-store',
-      });
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => null);
-        throw new Error(
-          errorData?.message || errorData?.error || 'No pudimos obtener esa información',
-        );
-      }
-      const payload = await res.json();
-      setMovements(payload?.data ?? payload);
-    },
-    [],
-  );
-
   const updateMovementRequest = useCallback(
     async (data: EditMovement) => {
       setMovementsLoading(true);
       try {
         const res = await fetch(`${API_BASE}/movements/update`, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          credentials: "include",
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify(data),
-          cache: "no-store",
+          cache: 'no-store',
         });
         if (!res.ok) {
-          const msg = await res.text().catch(() => "");
-          throw new Error(msg || "Failed to update movement");
+          const msg = await res.text().catch(() => '');
+          throw new Error(msg || 'Failed to update movement');
         }
 
         await fetchAdminContext({ silent: true });
@@ -262,15 +240,15 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       setMovementsLoading(true);
       try {
         const res = await fetch(`${API_BASE}/movements/delete`, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          credentials: "include",
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify(data),
-          cache: "no-store",
+          cache: 'no-store',
         });
 
         if (!res.ok) {
-          throw new Error("Failed to delete movement");
+          throw new Error('Failed to delete movement');
         }
 
         await fetchAdminContext({ silent: true });

@@ -69,7 +69,15 @@ export type InputMovement = Omit<
   'id' | 'accountId' | 'account' | 'updatedAt' | 'createdAt'
 > & { member: string };
 
-export type EditMovement = Partial<InputMovement> & { movementId: typeof z.uuid, payer: string, concept: string, note:string, status:typeof PaymentStatusSchema, type: typeof MovementTypeSchema, method: typeof PaymentMethodSchema };
+export type EditMovement = Partial<InputMovement> & {
+  movementId: typeof z.uuid;
+  payer: string;
+  concept: string;
+  note: string;
+  status: typeof PaymentStatusSchema;
+  type: typeof MovementTypeSchema;
+  method: typeof PaymentMethodSchema;
+};
 
 export const SwapSchema = z.object({
   id: z.uuid(),

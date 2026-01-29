@@ -25,7 +25,7 @@ export default function Home() {
         <div className={styles.information_container}>
           <section className={styles.table_section}>
             <h4>Últimos movimientos</h4>
-            <ListMovementsUser initialMovements={movements ?? []}/>
+            <ListMovementsUser initialMovements={movements ?? []} />
           </section>
         </div>
       </div>
