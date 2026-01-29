@@ -96,6 +96,11 @@ export default function PanelLayout({
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), 'px-3!')}>
+                  <Link href="/panel/admin/cambiar-moneda">Cambiar moneda</Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), 'px-3!')}>
                   <Link href="/panel/admin/nuevo-miembro">Agregar usuarios</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>

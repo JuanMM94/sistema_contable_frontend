@@ -12,7 +12,7 @@ type InputCurrencyProps = Omit<
   currency: Currency;
   value: string; // canonical/raw (recommended: "1234.56")
   onValueChange: (nextRaw: string) => void;
-  formatCurrencyValue: (raw: string, currency: Currency) => string;
+  formatCurrencyValue: (raw: string, currency: Currency, decimals: number) => string;
   decimals?: number; // default 2
 };
 
@@ -56,7 +56,7 @@ export function InputCurrency({
       {...props}
       type="text"
       inputMode="decimal"
-      value={editing ? draft : formatCurrencyValue(value, currency)}
+      value={editing ? draft : formatCurrencyValue(value, currency, decimals)}
       onFocus={(e) => {
         setEditing(true);
         setDraft(value); // start from canonical; change to formatted if you prefer

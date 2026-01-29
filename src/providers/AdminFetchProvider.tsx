@@ -13,7 +13,15 @@ import {
 import { usePathname } from 'next/navigation';
 import API_BASE from '@/lib/endpoint';
 import { Spinner } from '@/components/ui/spinner';
-import { Filter, InputMember, InputMovement, Movement, type User } from '@/lib/schemas';
+import {
+  CurrencySwapData,
+  ExchangeRate,
+  Filter,
+  InputMember,
+  InputMovement,
+  Movement,
+  User,
+} from '@/lib/schemas';
 
 type AdminContextValue = {
   movements: Movement[] | null;
@@ -21,6 +29,13 @@ type AdminContextValue = {
   filter: Filter[] | null;
   loading: boolean;
   error: string | null;
+  exchangeRate: ExchangeRate | null;
+  getExchangeRates: () => Promise<void>;
+  getUserToCurrencySwap: (userId: string) => Promise<void>;
+  userToCurrencySwap: User | null;
+  userToCurrencySwapLoading: boolean;
+  userToCurrencySwapError: string | null;
+  postCurrencySwap: (data: CurrencySwapData) => Promise<void>;
   createMember: (data: InputMember) => Promise<void>;
   createMovement: (data: InputMovement) => Promise<void>;
   requestMovements: (data: { target: string; from: string; to: string }) => Promise<void>;
@@ -33,6 +48,10 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   // Scale context if needed from useStates.
   const [movements, setMovements] = useState<Movement[] | null>(null);
+  const [exchangeRate, setExchangeRate] = useState<ExchangeRate | null>(null);
+  const [userToCurrencySwapLoading, setUserToCurrencySwapLoading] = useState(false);
+  const [userToCurrencySwapError, setUserToCurrencySwapError] = useState<string | null>(null);
+  const [userToCurrencySwap, setUserToCurrencySwap] = useState<User | null>(null);
   const [users, setUsers] = useState<User[] | null>(null);
   const [filter, setFilter] = useState<Filter[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -123,6 +142,61 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
     [fetchAdminContext],
   );
 
+  const getExchangeRates = useCallback(async () => {
+    {
+      const res = await fetch(`${API_BASE}/movements/exchange-rate`, {
+        method: 'GET',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      if (!res.ok) throw new Error('Failed to retrieve exchange rates');
+      const resData = await res.json();
+      setExchangeRate(resData);
+    }
+  }, []);
+
+  const getUserToCurrencySwap = useCallback(async (userId: string) => {
+    try {
+      setUserToCurrencySwapLoading(true);
+      setUserToCurrencySwapError(null);
+
+      const res = await fetch(`${API_BASE}/users/${userId}`, {
+        method: 'GET',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      if (!res.ok) throw new Error('Failed to retrieve user');
+
+      const payload = await res.json();
+      setUserToCurrencySwap(payload?.data ?? payload);
+    } catch (e) {
+      setUserToCurrencySwap(null);
+      setUserToCurrencySwapError(e instanceof Error ? e.message : 'Unknown error');
+    } finally {
+      setUserToCurrencySwapLoading(false);
+    }
+  }, []);
+
+  const postCurrencySwap = useCallback(
+    async (data: CurrencySwapData) => {
+
+      const res = await fetch(`${API_BASE}/movements/swap`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(data),
+        cache: 'no-store',
+      });
+      if (!res.ok) throw new Error('Failed to create currency swap');
+      getUserToCurrencySwap(data.userId);
+      // Refresh client-side session/exchange data so balances update after a successful swap.
+      await fetchAdminContext();
+    },
+    [fetchAdminContext, getUserToCurrencySwap],
+  );
+
   const getMovementFilterRequest = useCallback(
     async (data: { target: string; from: string; to: string }) => {
       const request = `${API_BASE}/filter/?target=${data.target}&from=${data.from}&to=${data.to}`;
@@ -163,6 +237,13 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       filter,
       loading,
       error,
+      exchangeRate,
+      userToCurrencySwap,
+      userToCurrencySwapLoading,
+      userToCurrencySwapError,
+      getExchangeRates: getExchangeRates,
+      getUserToCurrencySwap: getUserToCurrencySwap,
+      postCurrencySwap: postCurrencySwap,
       createMember: createMemberRequest,
       createMovement: createMovementRequest,
       requestMovements: getMovementFilterRequest,
@@ -174,6 +255,13 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       filter,
       loading,
       error,
+      exchangeRate,
+      userToCurrencySwap,
+      userToCurrencySwapLoading,
+      userToCurrencySwapError,
+      getExchangeRates,
+      getUserToCurrencySwap,
+      postCurrencySwap,
       createMemberRequest,
       createMovementRequest,
       getMovementFilterRequest,

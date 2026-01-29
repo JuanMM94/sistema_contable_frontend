@@ -23,9 +23,9 @@ const BaseUserSchema = z.object({
 export const AccountSchema = z.object({
   id: z.uuidv4(),
   currency: CurrencySchema,
+  user: z.object({ name: z.string(), id: z.uuidv4() }),
   amount: z.string(),
   userId: z.uuidv4(),
-  user: BaseUserSchema,
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   percentChange: z.number().optional(),
@@ -33,7 +33,7 @@ export const AccountSchema = z.object({
 
 // Full User schema with accounts
 export const UserSchema = BaseUserSchema.extend({
-  accounts: z.array(AccountSchema).optional(),
+  accounts: z.array(AccountSchema),
 });
 
 export const UserLoginSchema = z.object({
@@ -69,10 +69,53 @@ export type InputMovement = Omit<
   'id' | 'accountId' | 'account' | 'updatedAt' | 'createdAt'
 > & { member: string };
 
+export const SwapSchema = z.object({
+  id: z.uuidv4(),
+  accountId: z.uuidv4(),
+  account: AccountSchema,
+  amount: z.string(), // Prisma Decimal serialized as string
+  date: z.iso.datetime(),
+  exchangeRate: z.string().optional(), // "0" or other decimal-as-string
+  currency: CurrencySchema,
+  type: MovementTypeSchema,
+  updatedAt: z.iso.datetime(),
+  createdAt: z.iso.datetime(),
+});
+
+export const InputSwap = z.object({
+  userId: z.uuidv4(),
+  fromCurrency: CurrencySchema,
+  toCurrency: CurrencySchema,
+  amountChange: z.number().positive({ message: 'El monto debe ser mayor a 0.' }),
+  adminRate: z.any().optional(),
+  amountTotal: z.number().positive({ message: 'El monto debe ser mayor a 0.' }),
+});
+
+export type InputSwap = z.infer<typeof InputSwap>;
+
+export type CurrencySwapData = {
+  userId: string;
+  fromCurrency: string;
+  toCurrency: string;
+  amountChange: number;
+  adminRate: number;
+  amountTotal: number;
+};
+
+export type ExchangeRate = {
+  currency: string;
+  market: string;
+  name: string;
+  buy: number;
+  sell: number;
+  updatedAt: Date;
+};
+
 export type Movement = z.infer<typeof MovementSchema>;
 export type AccountWithMovements = z.infer<typeof AccountSchema>;
 export const AccountsResponseSchema = z.array(AccountSchema);
 export type User = z.infer<typeof UserSchema>;
+export type Account = z.infer<typeof AccountSchema>;
 export type UserLogin = z.infer<typeof UserLoginSchema>;
 export type UserLoginResponse = {
   user: User;
