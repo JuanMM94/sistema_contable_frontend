@@ -82,13 +82,18 @@ Client → /api/session → API proxy → http://localhost:4000/api/v1/session �
 **Key endpoints:**
 
 - `POST /api/users/login` - Authentication (returns user and token)
-- `GET /api/session` - Session validation and user data (includes accounts and movements)
+- `GET /api/session` - Session validation and user data (includes accounts)
+- `POST /api/users/change-password` - Change user password
 - `POST /api/movements` - Create new movement
 - `GET /api/movements` - Fetch all movements (admin only)
+- `POST /api/movements/update` - Update existing movement
+- `POST /api/movements/delete` - Delete movement
 - `GET /api/users` - Get all users (admin only)
+- `GET /api/users/{userId}` - Get specific user with accounts
 - `POST /api/users/create` - Create new user (admin only)
 - `GET /api/movements/exchange-rate` - Get current exchange rates
 - `POST /api/movements/swap` - Create currency swap transaction
+- `GET /api/filter?target={userId}&from={date}&to={date}` - Get filtered movements for date range
 
 ### Data Flow Pattern
 
@@ -150,11 +155,12 @@ router.refresh(); // Triggers RouteFetchProvider to refetch
 - **`/ingresar`** - Login page (public)
 - **`/panel`** - Main dashboard (protected)
   - `page.tsx` - Dashboard page
+  - `/perfil` - User profile page
   - **`/admin`** - Admin section (protected, nested routes, uses `AdminFetchProvider`)
     - `page.tsx` - Admin dashboard
     - `/nuevo-movimiento` - New movement creation page
     - `/nuevo-miembro` - New member creation page
-  - **`/cambiar-moneda`** - Currency exchange page
+    - `/cambiar-moneda` - Currency exchange page (admin only)
   - **`/ultimos-movimientos`** - Recent movements page
 - **`/api/[...path]`** - API proxy route (forwards all requests to backend)
 - **`layout.tsx`** - Root layout with `RouteFetchProvider`
@@ -169,9 +175,10 @@ Currently flat structure containing:
 - **`user.ts`** - Server-side user fetching (legacy, unused)
 - **`schemas.ts`** - Zod validation schemas and TypeScript types
 - **`endpoint.ts`** - API base URL (exports `'/api'` for client-side proxy)
-- **`global_variables.ts`** - UI option constants (payment methods, statuses, types, currencies, roles)
+- **`global_variables.ts`** - UI option constants (payment methods, statuses, types, currencies, roles, locale settings)
 - **`utils.ts`** - Currency formatting, masking, parsing, and label getter utilities
 - **`date_utils.ts`** - Date formatting and validation utilities (dd/MM/yyyy format, ISO conversion)
+- **`roles.ts`** - Role-related utilities and constants
 
 **Important:** Files with server-only imports must include `import 'server-only'` at the top.
 
@@ -181,10 +188,12 @@ Currently flat structure containing:
 - **`/custom`** - Business components:
   - `FormNewMovement.tsx` - Form to create movements with Spanish currency masking
   - `FormNewMember.tsx` - Form to create new users/members
+  - `FormNewSwap.tsx` - Form to create currency swaps
   - `ListMovements.tsx` - Table displaying movements with edit/delete actions
   - `ListUsers.tsx` - Table displaying users
   - `CardAccount.tsx` - Account balance card with currency display
   - `CardBalance.tsx` - Balance display card
+  - `ChartBar.tsx` - Bar chart component for movement visualization
   - `InputCalendar.tsx` - Date picker with dd/MM/yy input support
   - `InputCurrency.tsx` - Currency input with masking
   - `InputUser.tsx` - User selection combobox
@@ -198,18 +207,22 @@ Currently flat structure containing:
 
 - **`RouteFetchProvider.tsx`** - Client-side session management (wraps entire app)
   - Fetches user data on route changes via `/api/session`
-  - Provides `useSession()` hook with user, accounts, movements, and exchange rate data
-  - Provides `getExchangeRates()` and `postCurrencySwap()` methods
+  - Provides `useSession()` hook with user, movements data, and loading/error states
+  - Provides `getMovements()`, `refresh()`, and `changePassword()` methods
   - Shows spinner during initial load
 - **`AdminFetchProvider.tsx`** - Admin context provider (wraps `/panel/admin` routes)
   - Fetches all movements and users for admin views
-  - Provides `useAdminContext()` hook with `createMember()` and `createMovement()` methods
+  - Provides `useAdminContext()` hook with:
+    - `createMember()`, `createMovement()`, `updateMovement()`, `deleteMovement()` methods
+    - `getExchangeRates()`, `getUserToCurrencySwap()`, `postCurrencySwap()` methods
+    - `requestMovements()` for filtered movement queries
+    - `refresh()` to manually refetch all data
   - Shows spinner during initial load
 
 ### `/src/types`
 
-- **`movement.ts`** - Movement and User TypeScript types
-- **`invoice.ts`** - Unused legacy type
+- **`movement.ts`** - TypeScript types for Movement and User entities (extends Zod schemas from `/lib/schemas.ts`)
+- **`invoice.ts`** - Unused legacy type (can be safely removed)
 
 ## Form Handling with React Hook Form + Zod
 
@@ -302,9 +315,10 @@ Data fetching pattern:
 
 **IMPORTANT:** Be aware of the following:
 
-1. **Console logs** - Multiple `console.error()` and `console.warn()` statements in production code (`RouteFetchProvider.tsx:77`, `FormNewMovement.tsx:102`)
-2. **Unused files** - `types/invoice.ts`, `mock/invoices.ts`, `lib/movements.ts`, `lib/user.ts` are legacy and not currently used
+1. **Console logs** - Multiple `console.error()` statements in production code (primarily in providers and API proxy)
+2. **Unused files** - `types/invoice.ts`, `mock/invoices.ts`, `lib/movements.ts`, `lib/user.ts` are legacy and not currently used (can be safely removed)
 3. **Development mode** - `next.config.ts` disables React StrictMode in development for convenience
+4. **Zustand not in use** - The project has Zustand installed but doesn't use it; all state is managed via Context API
 
 ## Environment Variables
 
@@ -368,5 +382,5 @@ The app supports currency swaps between ARS and USD:
 1. Exchange rates fetched from backend via `/api/movements/exchange-rate`
 2. Rates include `buy` and `sell` prices with metadata (market, updatedAt)
 3. Currency swaps created via `/api/movements/swap` endpoint
-4. `RouteFetchProvider` provides `getExchangeRates()` and `postCurrencySwap()` methods
-5. After a successful swap, session data refreshes automatically to update balances
+4. `AdminFetchProvider` provides `getExchangeRates()`, `getUserToCurrencySwap()`, and `postCurrencySwap()` methods
+5. After a successful swap, both admin context and user-specific data refresh automatically to update balances
