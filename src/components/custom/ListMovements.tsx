@@ -227,9 +227,7 @@ function ListMovementsUser({ initialMovements }: { initialMovements: Movement[] 
             return (
               <TableRow key={movement.id}>
                 <TableCell className="font-medium">{movement.id.slice(0, 8)}...</TableCell>
-                <TableCell className="font-medium">
-                  {formatDateFromISO(movement.date)}
-                </TableCell>
+                <TableCell className="font-medium">{formatDateFromISO(movement.date)}</TableCell>
                 <TableCell className="font-medium">{movement.payer}</TableCell>
                 <TableCell>{getPaymentStatusLabel(movement.status)}</TableCell>
                 <TableCell>{getPaymentMethodLabel(movement.method)}</TableCell>
@@ -277,9 +275,7 @@ function ListMovementsAdmin() {
             return (
               <TableRow key={movement.id}>
                 <TableCell className="font-medium">{movement.id.slice(0, 8)}...</TableCell>
-                <TableCell className="font-medium">
-                  {formatDateFromISO(movement.date)}
-                </TableCell>
+                <TableCell className="font-medium">{formatDateFromISO(movement.date)}</TableCell>
                 <TableCell className="font-medium">{movement.account.user.name}</TableCell>
                 <TableCell className="font-medium">{movement.payer}</TableCell>
                 <TableCell>{getPaymentStatusLabel(movement.status)}</TableCell>

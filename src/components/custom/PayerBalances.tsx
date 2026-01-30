@@ -4,8 +4,20 @@ import { useState, useMemo } from 'react';
 import { Movement } from '@/lib/schemas';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { currencyFormatter, getPaymentMethodLabel, getPaymentStatusLabel, getPaymentTypeLabel } from '@/lib/utils';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  currencyFormatter,
+  getPaymentMethodLabel,
+  getPaymentStatusLabel,
+  getPaymentTypeLabel,
+} from '@/lib/utils';
 import { formatDateFromISO } from '@/lib/date_utils';
 import { Badge } from '@/components/ui/badge';
 
@@ -30,12 +42,22 @@ const formatBalances = (balances: Record<string, number>) => {
   }
 
   return currencies
-    .map((currency) => currencyFormatter(balances[currency], 'es-AR', currency as 'ARS' | 'USD', true))
+    .map((currency) =>
+      currencyFormatter(balances[currency], 'es-AR', currency as 'ARS' | 'USD', true),
+    )
     .join(' | ');
 };
 
 // Balance display component
-function BalanceDisplay({ label, balance, colorClass }: { label: string; balance: string; colorClass: string }) {
+function BalanceDisplay({
+  label,
+  balance,
+  colorClass,
+}: {
+  label: string;
+  balance: string;
+  colorClass: string;
+}) {
   return (
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
@@ -47,10 +69,7 @@ function BalanceDisplay({ label, balance, colorClass }: { label: string; balance
 // Payer card component
 function PayerCard({ data, onClick }: { data: PayerData; onClick: () => void }) {
   return (
-    <Card
-      className="cursor-pointer transition-colors hover:bg-accent"
-      onClick={onClick}
-    >
+    <Card className="cursor-pointer transition-colors hover:bg-accent" onClick={onClick}>
       <CardHeader className="pb-3">
         <CardTitle className="text-base font-medium">{data.payer}</CardTitle>
       </CardHeader>
@@ -99,7 +118,13 @@ function MovementRow({ movement }: { movement: Movement }) {
 }
 
 // Balance summary cards in dialog
-function BalanceSummary({ paidBalance, pendingBalance }: { paidBalance: Record<string, number>; pendingBalance: Record<string, number> }) {
+function BalanceSummary({
+  paidBalance,
+  pendingBalance,
+}: {
+  paidBalance: Record<string, number>;
+  pendingBalance: Record<string, number>;
+}) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <Card>
@@ -107,9 +132,7 @@ function BalanceSummary({ paidBalance, pendingBalance }: { paidBalance: Record<s
           <CardTitle className="text-sm font-medium">Saldo pagado</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-lg font-semibold text-green-600">
-            {formatBalances(paidBalance)}
-          </p>
+          <p className="text-lg font-semibold text-green-600">{formatBalances(paidBalance)}</p>
         </CardContent>
       </Card>
       <Card>
@@ -117,9 +140,7 @@ function BalanceSummary({ paidBalance, pendingBalance }: { paidBalance: Record<s
           <CardTitle className="text-sm font-medium">Saldo pendiente</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-lg font-semibold text-orange-600">
-            {formatBalances(pendingBalance)}
-          </p>
+          <p className="text-lg font-semibold text-orange-600">{formatBalances(pendingBalance)}</p>
         </CardContent>
       </Card>
     </div>
@@ -202,19 +223,22 @@ function MovementTable({ movements }: { movements: Movement[] }) {
               className="whitespace-nowrap cursor-pointer hover:bg-accent"
               onClick={() => handleSort('concept')}
             >
-              Concepto <SortIcon column="concept" currentColumn={sortColumn} direction={sortDirection} />
+              Concepto{' '}
+              <SortIcon column="concept" currentColumn={sortColumn} direction={sortDirection} />
             </TableHead>
             <TableHead
               className="whitespace-nowrap cursor-pointer hover:bg-accent"
               onClick={() => handleSort('status')}
             >
-              Estado <SortIcon column="status" currentColumn={sortColumn} direction={sortDirection} />
+              Estado{' '}
+              <SortIcon column="status" currentColumn={sortColumn} direction={sortDirection} />
             </TableHead>
             <TableHead
               className="whitespace-nowrap cursor-pointer hover:bg-accent"
               onClick={() => handleSort('method')}
             >
-              Método <SortIcon column="method" currentColumn={sortColumn} direction={sortDirection} />
+              Método{' '}
+              <SortIcon column="method" currentColumn={sortColumn} direction={sortDirection} />
             </TableHead>
             <TableHead
               className="whitespace-nowrap cursor-pointer hover:bg-accent"
@@ -226,13 +250,15 @@ function MovementTable({ movements }: { movements: Movement[] }) {
               className="whitespace-nowrap cursor-pointer hover:bg-accent"
               onClick={() => handleSort('currency')}
             >
-              Moneda <SortIcon column="currency" currentColumn={sortColumn} direction={sortDirection} />
+              Moneda{' '}
+              <SortIcon column="currency" currentColumn={sortColumn} direction={sortDirection} />
             </TableHead>
             <TableHead
               className="text-right whitespace-nowrap cursor-pointer hover:bg-accent"
               onClick={() => handleSort('amount')}
             >
-              Cantidad <SortIcon column="amount" currentColumn={sortColumn} direction={sortDirection} />
+              Cantidad{' '}
+              <SortIcon column="amount" currentColumn={sortColumn} direction={sortDirection} />
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -247,13 +273,22 @@ function MovementTable({ movements }: { movements: Movement[] }) {
 }
 
 // Payer grid component
-function PayerGrid({ payerData, onPayerClick }: { payerData: PayerData[]; onPayerClick: (payer: PayerData) => void }) {
+function PayerGrid({
+  payerData,
+  onPayerClick,
+}: {
+  payerData: PayerData[];
+  onPayerClick: (payer: PayerData) => void;
+}) {
   if (payerData.length === 0) {
     return <p className="text-muted-foreground">No hay movimientos disponibles</p>;
   }
 
   return (
-    <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))' }}>
+    <div
+      className="grid gap-4"
+      style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))' }}
+    >
       {payerData.map((data) => (
         <PayerCard key={data.payer} data={data} onClick={() => onPayerClick(data)} />
       ))}
@@ -281,7 +316,10 @@ function PayerDetailsDialog({
         </DialogHeader>
 
         <div className="space-y-4 overflow-y-auto flex-1">
-          <BalanceSummary paidBalance={payerData.paidBalance} pendingBalance={payerData.pendingBalance} />
+          <BalanceSummary
+            paidBalance={payerData.paidBalance}
+            pendingBalance={payerData.pendingBalance}
+          />
           <MovementTable movements={payerData.movements} />
         </div>
       </DialogContent>
@@ -343,7 +381,11 @@ export function PayerBalances({ movements, userName }: PayerBalancesProps) {
   return (
     <div className="space-y-4">
       <PayerGrid payerData={payerData} onPayerClick={handlePayerClick} />
-      <PayerDetailsDialog isOpen={isDialogOpen} onOpenChange={setIsDialogOpen} payerData={selectedPayer} />
+      <PayerDetailsDialog
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        payerData={selectedPayer}
+      />
     </div>
   );
 }
