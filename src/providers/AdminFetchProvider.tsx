@@ -36,6 +36,7 @@ type AdminContextValue = {
   userToCurrencySwap: User | null;
   userToCurrencySwapLoading: boolean;
   userToCurrencySwapError: string | null;
+  movementById: Map<string, Movement>;
   postCurrencySwap: (data: CurrencySwapData) => Promise<void>;
   createMember: (data: InputMember) => Promise<void>;
   createMovement: (data: InputMovement) => Promise<void>;
@@ -282,6 +283,12 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const movementById = useMemo(() => {
+    const map = new Map<string, Movement>();
+    for (const m of movements ?? []) map.set(m.id, m);
+    return map;
+  }, [movements]);
+
   const didFetchRef = useRef(false);
   useEffect(() => {
     if (didFetchRef.current) return;
@@ -301,6 +308,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       userToCurrencySwapLoading,
       userToCurrencySwapError,
       movementsLoading,
+      movementById: movementById,
       getExchangeRates: getExchangeRates,
       getUserToCurrencySwap: getUserToCurrencySwap,
       postCurrencySwap: postCurrencySwap,
@@ -322,6 +330,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       userToCurrencySwapLoading,
       userToCurrencySwapError,
       movementsLoading,
+      movementById,
       getExchangeRates,
       getUserToCurrencySwap,
       postCurrencySwap,
