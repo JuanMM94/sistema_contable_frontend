@@ -17,8 +17,10 @@ export default function ListUsers() {
             <TableHead className="w-[100px]">Id</TableHead>
             <TableHead>Nombre</TableHead>
             <TableHead>Email</TableHead>
-            <TableHead className="text-right">Disponible en USD</TableHead>
-            <TableHead className="text-right">Disponible en ARS</TableHead>
+            <TableHead className="text-right">USD Pagado</TableHead>
+            <TableHead className="text-right">USD Pendiente</TableHead>
+            <TableHead className="text-right">ARS Pagado</TableHead>
+            <TableHead className="text-right">ARS Pendiente</TableHead>
             {/* <TableHead className="text-center" colSpan={3}>
               Acciones
             </TableHead> */}
@@ -33,14 +35,28 @@ export default function ListUsers() {
                 <TableCell className="font-medium">{user.email}</TableCell>
                 <TableCell className="text-right">
                   {currencyFormatter(
-                    user.accounts?.find((acc) => acc.currency === 'USD')?.amount ?? 0,
+                    user.accounts?.find((acc) => acc.currency === 'USD')?.paidBalance ?? 0,
                     'es-AR',
                     'USD',
                   )}
                 </TableCell>
                 <TableCell className="text-right">
                   {currencyFormatter(
-                    user.accounts?.find((acc) => acc.currency === 'ARS')?.amount ?? 0,
+                    user.accounts?.find((acc) => acc.currency === 'USD')?.pendingBalance ?? 0,
+                    'es-AR',
+                    'USD',
+                  )}
+                </TableCell>
+                <TableCell className="text-right">
+                  {currencyFormatter(
+                    user.accounts?.find((acc) => acc.currency === 'ARS')?.paidBalance ?? 0,
+                    'es-AR',
+                    'ARS',
+                  )}
+                </TableCell>
+                <TableCell className="text-right">
+                  {currencyFormatter(
+                    user.accounts?.find((acc) => acc.currency === 'ARS')?.pendingBalance ?? 0,
                     'es-AR',
                     'ARS',
                   )}

@@ -8,5 +8,9 @@ export const metadata: Metadata = {
 import Home from '../../components/screen/Home';
 
 export default async function Page() {
-  return <Home />;
+  return (
+    <main>
+      <Home />
+    </main>
+  );
 }

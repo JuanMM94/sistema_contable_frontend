@@ -113,11 +113,11 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
       return;
     }
 
-    const balance = Number(acc.amount) || 0;
+    const balance = Number(acc.paidBalance) || 0;
 
     if (parsed > balance) {
       setAmountToTransfer(balance.toFixed(2));
-      setAmountError('El monto excede el saldo disponible en esta cuenta.');
+      setAmountError('El monto excede el saldo pagado disponible en esta cuenta.');
       return;
     }
 
@@ -301,7 +301,12 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
                           <Card>
                             <CardContent className="flex flex-row items-center justify-between">
                               <h4>
-                                {currencyFormatter(fromAcc.amount, 'es-AR', fromCurrency, false)}
+                                {currencyFormatter(
+                                  fromAcc.paidBalance,
+                                  'es-AR',
+                                  fromCurrency,
+                                  false,
+                                )}
                               </h4>
                               <p className="opacity-50">{fromCurrency}</p>
                             </CardContent>
@@ -333,7 +338,9 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
                         <FormControl>
                           <Card>
                             <CardContent className="flex flex-row items-center justify-between">
-                              <h4>{currencyFormatter(toAcc.amount, 'es-AR', toCurrency, false)}</h4>
+                              <h4>
+                                {currencyFormatter(toAcc.paidBalance, 'es-AR', toCurrency, false)}
+                              </h4>
                               <p className="opacity-50">{toCurrency}</p>
                             </CardContent>
                           </Card>
@@ -381,8 +388,8 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
                         <FormMessage />
                         <div className="flex justify-between w-full mt-1">
                           <Label htmlFor="amount" className="opacity-50">
-                            Cantidad disponible de {fromCurrency}:{' '}
-                            {currencyFormatter(fromAcc.amount, 'es-AR', fromCurrency)}
+                            Cantidad pagada disponible de {fromCurrency}:{' '}
+                            {currencyFormatter(fromAcc.paidBalance, 'es-AR', fromCurrency)}
                           </Label>
 
                           <button
@@ -390,7 +397,7 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
                             className="text-primary cursor-pointer"
                             onClick={() => {
                               setAmountError(null);
-                              const max = Number(fromAcc.amount) || 0;
+                              const max = Number(fromAcc.paidBalance) || 0;
                               setAmountToTransfer(max.toFixed(2));
                               field.onChange(max);
                             }}

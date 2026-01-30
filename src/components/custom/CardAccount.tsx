@@ -14,16 +14,32 @@ export const CardAccount = ({
   return (
     <Card className="w-full gap-3 flex justify-center p-2!">
       <CardHeader className="flex flex-col justify-center items-start mt-2!">
-        <CardTitle className="text-primary text-2xl">Balance</CardTitle>
-        <p className="opacity-50">{accountInformation.id}</p>
+        <CardTitle className="text-primary text-2xl">
+          Balance {accountInformation.currency}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-3">
           <section className="flex flex-col justify-center items-start mt-2!">
             <h5>Balance disponible</h5>
             <p className="text-5xl">
-              {currencyFormatter(accountInformation.amount, 'es-AR', accountInformation.currency)}{' '}
+              {currencyFormatter(
+                accountInformation.paidBalance,
+                'es-AR',
+                accountInformation.currency,
+              )}{' '}
               <span className="text-2xl opacity-80">{accountInformation.currency}</span>
+            </p>
+          </section>
+          <section className="flex flex-col justify-center items-start">
+            <h5 className="text-sm opacity-70">Balance pendiente</h5>
+            <p className="text-2xl">
+              {currencyFormatter(
+                accountInformation.pendingBalance,
+                'es-AR',
+                accountInformation.currency,
+              )}{' '}
+              <span className="text-base opacity-80">{accountInformation.currency}</span>
             </p>
           </section>
           <section className="flex gap-3">
