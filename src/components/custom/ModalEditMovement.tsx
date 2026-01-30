@@ -25,7 +25,7 @@ import { EditMovement, Movement } from '@/lib/schemas';
 import { useAdminContext } from '@/providers/AdminFetchProvider';
 
 export default function EditMovementDialog({ movement }: { movement: Movement }) {
-  const { updateMovement } = useAdminContext();
+  const { patchMovementRequest } = useAdminContext();
   const [isOpen, setIsOpen] = useState(false);
   const [editMovementArray] = useState<Movement[]>([]);
 
@@ -60,7 +60,7 @@ export default function EditMovementDialog({ movement }: { movement: Movement })
 
   const onSubmit = async (values: { movements: EditMovement[] }) => {
     try {
-      await Promise.all(values.movements.map((item) => updateMovement(item)));
+      await Promise.all(values.movements.map((item) => patchMovementRequest(item)));
       toast.success('Movimientos actualizados exitosamente', {
         description: `${values.movements.length} movimiento(s) actualizado(s).`,
       });

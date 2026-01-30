@@ -52,7 +52,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function ChartBarMultiple() {
-  const { requestMovements, filter } = useAdminContext();
+  const { getMovementFilter, filter } = useAdminContext();
   const [from, setFrom] = React.useState('');
   const [to, setTo] = React.useState('');
   const [isFiltering, setIsFiltering] = React.useState(false);
@@ -116,14 +116,14 @@ export function ChartBarMultiple() {
     setTo(initialTo);
     didInitialFetch.current = true;
     setIsFiltering(true);
-    void requestMovements({ target: 'movements', from: initialFrom, to: initialTo })
+    void getMovementFilter({ target: 'movements', from: initialFrom, to: initialTo })
       .catch((error) => {
         setFilterError(error instanceof Error ? error.message : 'No se pudo cargar el filtro.');
       })
       .finally(() => {
         setIsFiltering(false);
       });
-  }, [filter, requestMovements]);
+  }, [filter, getMovementFilter]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -134,7 +134,7 @@ export function ChartBarMultiple() {
     setFilterError(null);
     setIsFiltering(true);
     try {
-      await requestMovements({ target: 'movements', from, to });
+      await getMovementFilter({ target: 'movements', from, to });
     } catch (error) {
       setFilterError(error instanceof Error ? error.message : 'No se pudo cargar el filtro.');
     } finally {

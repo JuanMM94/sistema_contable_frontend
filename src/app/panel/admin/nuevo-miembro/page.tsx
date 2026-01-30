@@ -7,11 +7,11 @@ import { useAdminContext } from '@/providers/AdminFetchProvider';
 import { FormNewMember } from '@/components/custom/FormNewMember';
 
 export default function NewMovementPage() {
-  const { createMember } = useAdminContext();
+  const { postNewMember } = useAdminContext();
 
   const onCreated = async (payload: InputMember) => {
     try {
-      await createMember(payload);
+      await postNewMember(payload);
       toast.success('Usuario creado exitosamente', {
         description: `${payload.name} (${payload.email}) ha sido agregado al sistema.`,
       });
