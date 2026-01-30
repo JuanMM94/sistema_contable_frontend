@@ -68,6 +68,15 @@ async function proxyRequest(request: NextRequest, path: string[], method: string
       credentials: 'include',
     });
 
+    if (backendResponse.status === 204 || backendResponse.status === 304) {
+      const response = new NextResponse(null, { status: backendResponse.status });
+      // forward set-cookie if any
+      backendResponse.headers
+        .getSetCookie()
+        .forEach((c) => response.headers.append('Set-Cookie', c));
+      return response;
+    }
+
     // Get response body
     const responseBody = await backendResponse.text();
 

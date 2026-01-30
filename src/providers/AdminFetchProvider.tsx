@@ -65,6 +65,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
 
   const fetchAdminContext = useCallback(async (options?: { silent?: boolean }) => {
     const silent = options?.silent ?? false;
+    console.log('fetchAdminContext called');
     if (!API_BASE) {
       setError('Missing API base URL');
       if (!silent) {
@@ -91,25 +92,24 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
         }),
       ]);
 
-      if (movementsRes.status != 200 || usersRes.status !== 200) {
-        if (!silent) {
-          setMovements(null);
-          setUsers(null);
-          setLoading(false);
-        }
-        return;
-      }
       if (!movementsRes.ok || !usersRes.ok) {
+        setMovements(null);
+        setUsers(null);
         throw new Error(
           `Failed to fetch admin context (movements: ${movementsRes.status}, users: ${usersRes.status})`,
         );
       }
+
       const [movementsPayload, usersPayload] = await Promise.all([
         movementsRes.json(),
         usersRes.json(),
       ]);
-      setMovements(movementsPayload?.data ?? movementsPayload);
-      setUsers(usersPayload?.data ?? usersPayload);
+
+      const nextMovements = movementsPayload?.data ?? movementsPayload;
+      const nextUsers = usersPayload?.data ?? usersPayload;
+
+      setMovements(Array.isArray(nextMovements) ? [...nextMovements] : nextMovements);
+      setUsers(Array.isArray(nextUsers) ? [...nextUsers] : nextUsers);
     } catch (err) {
       if (!silent) {
         setMovements(null);
@@ -240,18 +240,16 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
     async (data: { movementId: string }) => {
       setMovementsLoading(true);
       try {
-        const res = await fetch(`${API_BASE}/movements/delete`, {
-          method: 'POST',
+        const res = await fetch(`${API_BASE}/movements/delete/${data.movementId}`, {
+          method: 'DELETE',
           headers: { 'content-type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify(data),
           cache: 'no-store',
         });
-
         if (!res.ok) {
           throw new Error('Failed to delete movement');
         }
-
+        console.log('status: ', res.status);
         await fetchAdminContext({ silent: true });
       } finally {
         setMovementsLoading(false);
