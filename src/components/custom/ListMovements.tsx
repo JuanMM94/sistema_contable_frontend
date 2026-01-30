@@ -1,7 +1,7 @@
 'use client';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { formatDateFromISO } from '@/lib/date_utils';
+import { formatDateFromISO, formatToLocaleDate } from '@/lib/date_utils';
 import {
   currencyFormatter,
   getPaymentMethodLabel,

@@ -8,7 +8,7 @@ import { ListMovementsUser } from '../custom/ListMovements';
 import { PayerBalances } from '@/components/custom/PayerBalances';
 
 export default function Home() {
-  const { user, loading, movements } = useSession();
+  const { user, loading } = useSession();
 
   return (
     <div className={styles.dashboard}>
