@@ -1,7 +1,7 @@
 'use client';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { formatToLocaleDate } from '@/lib/date_utils';
+import { formatDateFromISO } from '@/lib/date_utils';
 import {
   currencyFormatter,
   getPaymentMethodLabel,
@@ -228,7 +228,7 @@ function ListMovementsUser({ initialMovements }: { initialMovements: Movement[] 
               <TableRow key={movement.id}>
                 <TableCell className="font-medium">{movement.id.slice(0, 8)}...</TableCell>
                 <TableCell className="font-medium">
-                  {formatToLocaleDate(new Date(movement.date))}
+                  {formatDateFromISO(movement.date)}
                 </TableCell>
                 <TableCell className="font-medium">{movement.payer}</TableCell>
                 <TableCell>{getPaymentStatusLabel(movement.status)}</TableCell>
@@ -278,7 +278,7 @@ function ListMovementsAdmin() {
               <TableRow key={movement.id}>
                 <TableCell className="font-medium">{movement.id.slice(0, 8)}...</TableCell>
                 <TableCell className="font-medium">
-                  {formatToLocaleDate(new Date(movement.date))}
+                  {formatDateFromISO(movement.date)}
                 </TableCell>
                 <TableCell className="font-medium">{movement.account.user.name}</TableCell>
                 <TableCell className="font-medium">{movement.payer}</TableCell>

@@ -29,6 +29,18 @@ export function formatToLocaleDate(date: Date, remove?: string) {
   return `${day}/${month}/${year}`;
 }
 
+export function formatDateFromISO(isoString: string, remove?: string) {
+  // Extract just the date part (yyyy-MM-dd) to avoid timezone issues
+  const datePart = isoString.split('T')[0];
+  const [year, month, day] = datePart.split('-');
+
+  if (remove == 'day') {
+    return `${month}/${year}`;
+  }
+
+  return `${day}/${month}/${year}`;
+}
+
 export function formatISODate(date: Date) {
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
