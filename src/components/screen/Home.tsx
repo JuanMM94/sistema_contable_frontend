@@ -14,7 +14,6 @@ export default function Home() {
     <div className={styles.dashboard}>
       <div className={styles.home}>
         <h3>Hola, {user?.name ?? 'usuario'}!</h3>
-
         <section className={styles.card_section}>
           {loading ? (
             <></>

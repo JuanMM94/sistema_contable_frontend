@@ -31,19 +31,20 @@ type AdminContextValue = {
   loading: boolean;
   error: string | null;
   exchangeRate: ExchangeRate | null;
-  getExchangeRates: () => Promise<void>;
-  getUserToCurrencySwap: (userId: string) => Promise<void>;
   userToCurrencySwap: User | null;
   userToCurrencySwapLoading: boolean;
   userToCurrencySwapError: string | null;
-  postCurrencySwap: (data: CurrencySwapData) => Promise<void>;
-  createMember: (data: InputMember) => Promise<void>;
-  createMovement: (data: InputMovement) => Promise<void>;
-  updateMovement: (data: EditMovement) => Promise<void>;
-  deleteMovement: (data: { movementId: string }) => Promise<void>;
   movementsLoading: boolean;
-  requestMovements: (data: { target: string; from: string; to: string }) => Promise<void>;
-  refresh: () => Promise<void>;
+  movementById: Map<string, Movement>;
+  getExchangeRates: () => Promise<void>;
+  getUserToCurrencySwap: (userId: string) => Promise<void>;
+  postCurrencySwap: (data: CurrencySwapData) => Promise<void>;
+  postNewMember: (data: InputMember) => Promise<void>;
+  postNewMovement: (data: InputMovement) => Promise<void>;
+  patchMovementRequest: (data: EditMovement) => Promise<void>;
+  deleteMovement: (data: { movementId: string }) => Promise<void>;
+  getMovementFilter: (data: { target: string; from: string; to: string }) => Promise<void>;
+  fetchAdminContext: () => Promise<void>;
 };
 
 const AdminContext = createContext<AdminContextValue | undefined>(undefined);
@@ -122,7 +123,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const createMemberRequest = useCallback(
+  const postNewMember = useCallback(
     async (data: InputMember) => {
       const res = await fetch(`${API_BASE}/users/create`, {
         method: 'POST',
@@ -140,7 +141,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
     [fetchAdminContext],
   );
 
-  const createMovementRequest = useCallback(
+  const postNewMovement = useCallback(
     async (data: InputMovement) => {
       const res = await fetch(`${API_BASE}/movements`, {
         method: 'POST',
@@ -211,12 +212,12 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
     [fetchAdminContext, getUserToCurrencySwap],
   );
 
-  const updateMovementRequest = useCallback(
+  const patchMovementRequest = useCallback(
     async (data: EditMovement) => {
       setMovementsLoading(true);
       try {
         const res = await fetch(`${API_BASE}/movements/update`, {
-          method: 'POST',
+          method: 'PATCH',
           headers: { 'content-type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify(data),
@@ -235,7 +236,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
     [fetchAdminContext],
   );
 
-  const deleteMovementRequest = useCallback(
+  const deleteMovement = useCallback(
     async (data: { movementId: string }) => {
       setMovementsLoading(true);
       try {
@@ -259,7 +260,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
     [fetchAdminContext],
   );
 
-  const getMovementFilterRequest = useCallback(
+  const getMovementFilter = useCallback(
     async (data: { target: string; from: string; to: string }) => {
       const request = `${API_BASE}/filter/?target=${data.target}&from=${data.from}&to=${data.to}`;
       const res = await fetch(request, {
@@ -282,6 +283,12 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const movementById = useMemo(() => {
+    const map = new Map<string, Movement>();
+    for (const m of movements ?? []) map.set(m.id, m);
+    return map;
+  }, [movements]);
+
   const didFetchRef = useRef(false);
   useEffect(() => {
     if (didFetchRef.current) return;
@@ -301,15 +308,16 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       userToCurrencySwapLoading,
       userToCurrencySwapError,
       movementsLoading,
-      getExchangeRates: getExchangeRates,
-      getUserToCurrencySwap: getUserToCurrencySwap,
-      postCurrencySwap: postCurrencySwap,
-      createMember: createMemberRequest,
-      createMovement: createMovementRequest,
-      updateMovement: updateMovementRequest,
-      deleteMovement: deleteMovementRequest,
-      requestMovements: getMovementFilterRequest,
-      refresh: fetchAdminContext,
+      movementById,
+      getExchangeRates,
+      getUserToCurrencySwap,
+      getMovementFilter,
+      postCurrencySwap,
+      postNewMember,
+      postNewMovement,
+      patchMovementRequest,
+      deleteMovement,
+      fetchAdminContext,
     }),
     [
       movements,
@@ -322,14 +330,15 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
       userToCurrencySwapLoading,
       userToCurrencySwapError,
       movementsLoading,
+      movementById,
       getExchangeRates,
       getUserToCurrencySwap,
       postCurrencySwap,
-      createMemberRequest,
-      createMovementRequest,
-      updateMovementRequest,
-      deleteMovementRequest,
-      getMovementFilterRequest,
+      postNewMember,
+      postNewMovement,
+      patchMovementRequest,
+      deleteMovement,
+      getMovementFilter,
       fetchAdminContext,
     ],
   );

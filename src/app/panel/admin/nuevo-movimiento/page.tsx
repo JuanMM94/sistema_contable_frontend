@@ -8,11 +8,11 @@ import { useAdminContext } from '@/providers/AdminFetchProvider';
 import { currencyFormatter } from '@/lib/utils';
 
 export default function NewMovementPage() {
-  const { createMovement } = useAdminContext();
+  const { postNewMovement } = useAdminContext();
 
   const onCreated = async (payload: InputMovement) => {
     try {
-      await createMovement(payload);
+      await postNewMovement(payload);
       const formattedAmount = currencyFormatter(payload.amount, 'es-AR', payload.currency, true);
       toast.success('Movimiento creado exitosamente', {
         description: `${payload.payer} - ${formattedAmount} (${payload.concept})`,
