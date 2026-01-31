@@ -248,7 +248,6 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
         if (!res.ok) {
           throw new Error('Failed to delete movement');
         }
-        console.log('status: ', res.status);
         await fetchAdminContext({ silent: true });
       } finally {
         setMovementsLoading(false);
