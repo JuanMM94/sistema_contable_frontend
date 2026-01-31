@@ -55,6 +55,7 @@ export const MovementSchema = z.object({
   concept: z.string(),
   amount: z.string(), // Prisma Decimal serialized as string
   note: z.string().optional(),
+  counterpartId: z.uuid().optional(),
   date: z.iso.datetime(),
   exchangeRate: z.string().optional(), // "0" or other decimal-as-string
   currency: CurrencySchema,
@@ -70,14 +71,21 @@ export type InputMovement = Omit<
   'id' | 'accountId' | 'account' | 'updatedAt' | 'createdAt'
 > & { member: string };
 
-export type EditMovement = Partial<InputMovement> & {
-  movementId: typeof z.uuid;
-  payer: string;
-  concept: string;
-  note: string;
-  status: typeof PaymentStatusSchema;
-  type: typeof MovementTypeSchema;
-  method: typeof PaymentMethodSchema;
+export type EditMovement = Omit<
+  z.infer<typeof MovementSchema>,
+  | 'accountId'
+  | 'account'
+  | 'amount'
+  | 'date'
+  | 'exchangeRate'
+  | 'currency'
+  | 'updatedAt'
+  | 'createdAt'
+> & { member: string };
+
+export type MovementEditFormSchema = {
+  firstmovement: EditMovement;
+  secondmovement?: EditMovement;
 };
 
 export const SwapSchema = z.object({

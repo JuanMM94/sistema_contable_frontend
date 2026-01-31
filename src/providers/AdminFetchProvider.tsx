@@ -15,12 +15,12 @@ import API_BASE from '@/lib/endpoint';
 import { Spinner } from '@/components/ui/spinner';
 import {
   CurrencySwapData,
-  EditMovement,
   ExchangeRate,
   Filter,
   InputMember,
   InputMovement,
   Movement,
+  MovementEditFormSchema,
   User,
 } from '@/lib/schemas';
 
@@ -41,7 +41,7 @@ type AdminContextValue = {
   postCurrencySwap: (data: CurrencySwapData) => Promise<void>;
   postNewMember: (data: InputMember) => Promise<void>;
   postNewMovement: (data: InputMovement) => Promise<void>;
-  patchMovementRequest: (data: EditMovement) => Promise<void>;
+  patchMovementRequest: (data: MovementEditFormSchema) => Promise<void>;
   deleteMovement: (data: { movementId: string }) => Promise<void>;
   getMovementFilter: (data: { target: string; from: string; to: string }) => Promise<void>;
   fetchAdminContext: () => Promise<void>;
@@ -212,7 +212,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
   );
 
   const patchMovementRequest = useCallback(
-    async (data: EditMovement) => {
+    async (data: MovementEditFormSchema) => {
       setMovementsLoading(true);
       try {
         const res = await fetch(`${API_BASE}/movements/update`, {
