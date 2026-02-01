@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect, useMemo, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -21,48 +21,141 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { EditMovement, Movement } from '@/lib/schemas';
+import { Movement, MovementEditFormSchema, MovementTypeSchema } from '@/lib/schemas';
 import { useAdminContext } from '@/providers/AdminFetchProvider';
+import z from 'zod';
+import { Switch } from '../ui/switch';
+import { Label } from '../ui/label';
 
 export default function EditMovementDialog({ movement }: { movement: Movement }) {
-  const { patchMovementRequest } = useAdminContext();
+  const { patchMovementRequest, movementById } = useAdminContext();
   const [isOpen, setIsOpen] = useState(false);
-  const [editMovementArray] = useState<Movement[]>([]);
+  const [globalLink, setGlobalLink] = useState(false);
 
   const formId = `edit-movement-${movement.id}`;
-  const form = useForm<{ movements: EditMovement[] }>({
-    defaultValues: { movements: [] },
+  const form = useForm<MovementEditFormSchema>({
+    defaultValues: {
+      firstmovement: {
+        id: movement.id,
+        payer: movement.payer ?? '',
+        concept: movement.concept ?? '',
+        note: movement.note ?? '',
+        status: movement.status,
+        method: movement.method,
+        type: movement.type,
+        member: movement.account?.user?.id ?? '',
+      },
+      secondmovement: undefined,
+    },
   });
 
-  // useEffect(() => {
-  //   if (!isOpen) return;
+  const counterpart = movement.counterpartId ? movementById.get(movement.counterpartId) : undefined;
 
-  //   const nextMovements: Movement[] = [movement];
+  const editMovementArray = useMemo(() => {
+    if (!isOpen) return [];
+    const nextMovements: Array<{ key: 'firstmovement' | 'secondmovement'; movement: Movement }> = [
+      { key: 'firstmovement', movement },
+    ];
+    if (counterpart) nextMovements.push({ key: 'secondmovement', movement: counterpart });
+    return nextMovements;
+  }, [isOpen, movement, counterpart]);
 
-  //   if (movement.counterpartId) {
-  //     const cp = movementById.get(movement.counterpartId);
-  //     if (cp) nextMovements.push(cp);
-  //   }
+  useEffect(() => {
+    if (!isOpen) return;
+    form.reset({
+      firstmovement: {
+        id: movement.id,
+        payer: movement.payer ?? '',
+        concept: movement.concept ?? '',
+        note: movement.note ?? '',
+        status: movement.status,
+        method: movement.method,
+        type: movement.type,
+        member: movement.account?.user?.id ?? '',
+      },
+      secondmovement: counterpart
+        ? {
+            id: counterpart.id,
+            payer: counterpart.payer ?? '',
+            concept: counterpart.concept ?? '',
+            note: counterpart.note ?? '',
+            status: counterpart.status,
+            method: counterpart.method,
+            type: counterpart.type,
+            member: counterpart.account?.user?.id ?? '',
+          }
+        : undefined,
+    });
+  }, [isOpen, movement, counterpart, form]);
 
-  //   setEditMovementArray(nextMovements);
-  //   form.reset({
-  //     movements: nextMovements.map((item) => ({
-  //       movementId: item.id,
-  //       payer: item.payer ?? '',
-  //       concept: item.concept ?? '',
-  //       note: item.note ?? '',
-  //       status: item.status,
-  //       method: item.method,
-  //       type: item.type,
-  //     })),
-  //   });
-  // }, [isOpen, movement, movementById, form]);
+  const firstWatch = useWatch({ control: form.control, name: 'firstmovement' });
 
-  const onSubmit = async (values: { movements: EditMovement[] }) => {
+  const firstPayer = firstWatch.payer;
+  const firstMethod = firstWatch.method;
+  const firstStatus = firstWatch.status;
+  const firstConcept = firstWatch.concept;
+  const firstType = firstWatch.type;
+  const firstNote = firstWatch.note;
+
+  useEffect(() => {
+    if (!globalLink) return;
+    const hasSecond = editMovementArray.some((entry) => entry.key === 'secondmovement');
+    if (!hasSecond) return;
+    const currentSecondPayer = form.getValues('secondmovement.payer');
+    const currentSecondMethod = form.getValues('secondmovement.method');
+    const currentSecondStatus = form.getValues('secondmovement.status');
+    const currentSecondConcept = form.getValues('secondmovement.concept');
+    const currentSecondType = form.getValues('secondmovement.type');
+    const currentSecondNote = form.getValues('secondmovement.note');
+
+    const oppositeType = (t: z.infer<typeof MovementTypeSchema>) =>
+      t === 'EGRESS' ? 'INCOME' : 'EGRESS';
+
+    if (currentSecondPayer !== firstPayer) {
+      form.setValue('secondmovement.payer', firstPayer, { shouldDirty: true });
+    }
+    if (currentSecondMethod !== firstMethod) {
+      form.setValue('secondmovement.method', firstMethod, { shouldDirty: true });
+    }
+    if (currentSecondStatus !== firstStatus) {
+      form.setValue('secondmovement.status', firstStatus, { shouldDirty: true });
+    }
+    if (currentSecondConcept !== firstConcept) {
+      form.setValue('secondmovement.concept', firstConcept, { shouldDirty: true });
+    }
+    const nextSecondType = oppositeType(firstType as z.infer<typeof MovementTypeSchema>);
+    if (currentSecondType !== nextSecondType) {
+      form.setValue('secondmovement.type', nextSecondType, { shouldDirty: true });
+    }
+    if (currentSecondNote !== firstNote) {
+      form.setValue('secondmovement.note', firstNote, { shouldDirty: true });
+    }
+  }, [
+    globalLink,
+    firstPayer,
+    firstMethod,
+    firstStatus,
+    firstConcept,
+    firstType,
+    firstNote,
+    editMovementArray,
+    form,
+  ]);
+
+  const onSubmit = async () => {
     try {
-      await Promise.all(values.movements.map((item) => patchMovementRequest(item)));
+      // Send payload as disabled fields are not included in values
+      const payload = {
+        firstmovement: form.getValues('firstmovement'),
+        secondmovement: editMovementArray.some((entry) => entry.key === 'secondmovement')
+          ? form.getValues('secondmovement')
+          : undefined,
+        hasCounterpart: globalLink,
+      } as MovementEditFormSchema;
+      await patchMovementRequest(payload);
+      setIsOpen(false);
       toast.success('Movimientos actualizados exitosamente', {
-        description: `${values.movements.length} movimiento(s) actualizado(s).`,
+        description: `${editMovementArray.length > 1 ? 'movimientos actualizados.' : 'movimiento actualizado.'}`,
       });
     } catch (error) {
       toast.error('Error al editar movimiento', {
@@ -72,15 +165,23 @@ export default function EditMovementDialog({ movement }: { movement: Movement })
   };
 
   const isSubmitting = form.formState.isSubmitting;
+  const handleOpenChange = (nextOpen: boolean) => {
+    setIsOpen(nextOpen);
+    if (nextOpen) {
+      setGlobalLink(Boolean(counterpart));
+    } else {
+      setGlobalLink(false);
+    }
+  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <button type="button" className="text-blue-600 hover:underline cursor-pointer">
           Editar
         </button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Editar movimiento</DialogTitle>
           <DialogDescription>Actualiza los datos del movimiento seleccionado.</DialogDescription>
@@ -91,9 +192,10 @@ export default function EditMovementDialog({ movement }: { movement: Movement })
             onSubmit={form.handleSubmit(onSubmit)}
             className="grid gap-4 sm:grid-cols-2"
           >
-            {editMovementArray.map((item, index) => (
+            <input type="hidden" />
+            {editMovementArray.map((entry, index) => (
               <div
-                key={item.id}
+                key={entry.movement.id}
                 className="sm:col-span-2 grid gap-4 sm:grid-cols-2 rounded border p-4"
               >
                 {editMovementArray.length > 1 ? (
@@ -101,10 +203,22 @@ export default function EditMovementDialog({ movement }: { movement: Movement })
                     Movimiento {index + 1}
                   </div>
                 ) : null}
-                <input type="hidden" {...form.register(`movements.${index}.movementId`)} />
+                <input type="hidden" {...form.register(`${entry.key}.id`)} />
+                <input type="hidden" {...form.register(`${entry.key}.member`)} />
+                {entry.key === 'firstmovement' && editMovementArray.length > 1 ? (
+                  <div className="flex items-center space-x-2 sm:col-span-2 text-xs text-muted-foreground">
+                    <Switch
+                      checked={globalLink}
+                      onCheckedChange={setGlobalLink}
+                      id="airplane-mode"
+                    />
+                    <Label htmlFor="airplane-mode">Cliente vinculado entre movimientos</Label>
+                  </div>
+                ) : null}
                 <FormField
                   control={form.control}
-                  name={`movements.${index}.payer`}
+                  name={`${entry.key}.payer`}
+                  disabled={entry.key === 'secondmovement' && globalLink}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Cliente</FormLabel>
@@ -117,7 +231,8 @@ export default function EditMovementDialog({ movement }: { movement: Movement })
                 />
                 <FormField
                   control={form.control}
-                  name={`movements.${index}.concept`}
+                  name={`${entry.key}.concept`}
+                  disabled={entry.key === 'secondmovement' && globalLink}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Concepto</FormLabel>
@@ -130,12 +245,16 @@ export default function EditMovementDialog({ movement }: { movement: Movement })
                 />
                 <FormField
                   control={form.control}
-                  name={`movements.${index}.status`}
+                  name={`${entry.key}.status`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Estado</FormLabel>
                       <FormControl>
-                        <Select value={field.value} onValueChange={field.onChange}>
+                        <Select
+                          disabled={entry.key === 'secondmovement' && globalLink}
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Selecciona un estado" />
                           </SelectTrigger>
@@ -154,14 +273,18 @@ export default function EditMovementDialog({ movement }: { movement: Movement })
                 />
                 <FormField
                   control={form.control}
-                  name={`movements.${index}.method`}
+                  name={`${entry.key}.method`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{'M\u00e9todo'}</FormLabel>
+                      <FormLabel>{'Método'}</FormLabel>
                       <FormControl>
-                        <Select value={field.value} onValueChange={field.onChange}>
+                        <Select
+                          disabled={entry.key === 'secondmovement' && globalLink}
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
                           <SelectTrigger>
-                            <SelectValue placeholder="Selecciona un m\u00e9todo" />
+                            <SelectValue placeholder="Selecciona un método" />
                           </SelectTrigger>
                           <SelectContent>
                             {PAYMENT_METHOD_OPTIONS.map((opt) => (
@@ -178,12 +301,16 @@ export default function EditMovementDialog({ movement }: { movement: Movement })
                 />
                 <FormField
                   control={form.control}
-                  name={`movements.${index}.type`}
+                  name={`${entry.key}.type`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Tipo</FormLabel>
                       <FormControl>
-                        <Select value={field.value} onValueChange={field.onChange}>
+                        <Select
+                          disabled={entry.key === 'secondmovement' && globalLink}
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Selecciona un tipo" />
                           </SelectTrigger>
@@ -202,7 +329,8 @@ export default function EditMovementDialog({ movement }: { movement: Movement })
                 />
                 <FormField
                   control={form.control}
-                  name={`movements.${index}.note`}
+                  name={`${entry.key}.note`}
+                  disabled={entry.key === 'secondmovement' && globalLink}
                   render={({ field }) => (
                     <FormItem className="sm:col-span-2">
                       <FormLabel>Nota</FormLabel>
