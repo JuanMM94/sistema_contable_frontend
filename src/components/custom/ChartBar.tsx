@@ -18,9 +18,12 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from '@/components/ui/chart';
+import { Button } from '@/components/ui/button';
+import { ButtonGroup } from '@/components/ui/button-group';
 import { Calendar28 } from '@/components/custom/InputCalendar';
 import { formatISODate, formatToLocaleDate, parseISODate } from '@/lib/date_utils';
 import { useAdminContext } from '@/providers/AdminFetchProvider';
+import { Label } from '../ui/label';
 
 export const description = 'A multiple bar chart';
 
@@ -55,9 +58,11 @@ export function ChartBarMultiple() {
   const { getMovementFilter, filter } = useAdminContext();
   const [from, setFrom] = React.useState('');
   const [to, setTo] = React.useState('');
+  const [currency, setCurrency] = React.useState<'ARS' | 'USD'>('ARS');
   const [isFiltering, setIsFiltering] = React.useState(false);
   const [filterError, setFilterError] = React.useState<string | null>(null);
   const didInitialFetch = React.useRef(false);
+  const didCurrencyRefetch = React.useRef(false);
 
   const fallbackChartData = React.useMemo(getFallbackChartData, []);
 
@@ -96,9 +101,24 @@ export function ChartBarMultiple() {
         )}`
       : 'Sin filtros aplicados';
 
-  const currencyFormatter = React.useMemo(
-    () => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }),
-    [],
+  const currencyFormatter = React.useMemo(() => {
+    const locale = currency === 'USD' ? 'en-US' : 'es-AR';
+    return new Intl.NumberFormat(locale, { style: 'currency', currency });
+  }, [currency]);
+
+  const requestFilter = React.useCallback(
+    async (params: { from: string; to: string; currency: 'ARS' | 'USD' }) => {
+      setFilterError(null);
+      setIsFiltering(true);
+      try {
+        await getMovementFilter(params);
+      } catch (error) {
+        setFilterError(error instanceof Error ? error.message : 'No se pudo cargar el filtro.');
+      } finally {
+        setIsFiltering(false);
+      }
+    },
+    [getMovementFilter],
   );
 
   React.useEffect(() => {
@@ -115,31 +135,26 @@ export function ChartBarMultiple() {
     setFrom(initialFrom);
     setTo(initialTo);
     didInitialFetch.current = true;
-    setIsFiltering(true);
-    void getMovementFilter({ target: 'movements', from: initialFrom, to: initialTo })
-      .catch((error) => {
-        setFilterError(error instanceof Error ? error.message : 'No se pudo cargar el filtro.');
-      })
-      .finally(() => {
-        setIsFiltering(false);
-      });
-  }, [filter, getMovementFilter]);
+    void requestFilter({ from: initialFrom, to: initialTo, currency });
+  }, [filter, currency, requestFilter]);
+
+  React.useEffect(() => {
+    if (!from || !to) return;
+    if (!didInitialFetch.current) return;
+    if (!didCurrencyRefetch.current) {
+      didCurrencyRefetch.current = true;
+      return;
+    }
+    void requestFilter({ from, to, currency });
+  }, [currency, from, to, requestFilter]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!from || !to) {
-      setFilterError('Completa target, from y to para aplicar el filtro.');
+      setFilterError('Completa desde y hasta para aplicar el filtro.');
       return;
     }
-    setFilterError(null);
-    setIsFiltering(true);
-    try {
-      await getMovementFilter({ target: 'movements', from, to });
-    } catch (error) {
-      setFilterError(error instanceof Error ? error.message : 'No se pudo cargar el filtro.');
-    } finally {
-      setIsFiltering(false);
-    }
+    await requestFilter({ from, to, currency });
   };
 
   return (
@@ -147,15 +162,43 @@ export function ChartBarMultiple() {
       <CardHeader>
         <CardTitle>Ingresos - Egresos (Totales por mes)</CardTitle>
         <CardDescription>{filterSummary}</CardDescription>
-        <form className="mt-4 flex flex-wrap items-end gap-3" onSubmit={handleSubmit}>
-          <div className="min-w-[180px]">
+        <form
+          className="mt-4 grid w-full gap-3 sm:flex sm:flex-wrap sm:items-end"
+          onSubmit={handleSubmit}
+        >
+          <div className="flex flex-col gap-1 sm:min-w-[140px]">
+            <Label className="px-1">Moneda</Label>
+            <ButtonGroup className="h-9">
+              <Button
+                type="button"
+                variant={currency === 'ARS' ? 'secondary' : 'outline'}
+                size="sm"
+                aria-pressed={currency === 'ARS'}
+                onClick={() => setCurrency('ARS')}
+                className="h-auto"
+              >
+                ARS
+              </Button>
+              <Button
+                type="button"
+                variant={currency === 'USD' ? 'secondary' : 'outline'}
+                size="sm"
+                aria-pressed={currency === 'USD'}
+                onClick={() => setCurrency('USD')}
+                className="h-auto"
+              >
+                USD
+              </Button>
+            </ButtonGroup>
+          </div>
+          <div className="w-full sm:min-w-[180px] sm:flex-1">
             <Calendar28 label="Desde" value={from} onChange={setFrom} />
           </div>
-          <div className="min-w-[180px]">
+          <div className="w-full sm:min-w-[180px] sm:flex-1">
             <Calendar28 label="Hasta" value={to} onChange={setTo} />
           </div>
           <button
-            className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90"
+            className="inline-flex h-9 w-full items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 sm:w-auto"
             type="submit"
             disabled={isFiltering}
           >
@@ -174,7 +217,11 @@ export function ChartBarMultiple() {
       <CardContent>
         <div className="relative">
           <ChartContainer config={chartConfig}>
-            <BarChart accessibilityLayer data={chartData}>
+            <BarChart
+              accessibilityLayer
+              data={chartData}
+              margin={{ top: 24, right: 0, left: 0, bottom: 0 }}
+            >
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="month"
@@ -228,9 +275,6 @@ export function ChartBarMultiple() {
         </div>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
-        {/* <div className="flex gap-2 leading-none font-medium">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div> */}
         <div className="text-muted-foreground leading-none">
           Muestra los ingresos y egresos del rango ingresado
         </div>

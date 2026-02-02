@@ -43,7 +43,7 @@ type AdminContextValue = {
   postNewMovement: (data: InputMovement) => Promise<void>;
   patchMovementRequest: (data: MovementEditFormSchema) => Promise<void>;
   deleteMovement: (data: { movementId: string }) => Promise<void>;
-  getMovementFilter: (data: { target: string; from: string; to: string }) => Promise<void>;
+  getMovementFilter: (data: { from: string; to: string; currency: string }) => Promise<void>;
   fetchAdminContext: () => Promise<void>;
 };
 
@@ -257,8 +257,8 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
   );
 
   const getMovementFilter = useCallback(
-    async (data: { target: string; from: string; to: string }) => {
-      const request = `${API_BASE}/filter/?target=${data.target}&from=${data.from}&to=${data.to}`;
+    async (data: { from: string; to: string; currency: string }) => {
+      const request = `${API_BASE}/movements/filter/?from=${data.from}&to=${data.to}&currency=${data.currency}`;
       const res = await fetch(request, {
         method: 'GET',
         headers: { 'content-type': 'application/json' },
