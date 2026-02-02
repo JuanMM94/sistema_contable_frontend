@@ -1,6 +1,5 @@
 'use client';
 
-import styles from '../../app/page.module.css';
 import { Splitter } from '@/components/custom/Splitter';
 import { CardAccount } from '@/components/custom/CardAccount';
 import { useSession } from '@/providers/RouteFetchProvider';
@@ -11,31 +10,29 @@ export default function Home() {
   const { user, loading } = useSession();
 
   return (
-    <div className={styles.dashboard}>
-      <div className={styles.home}>
-        <h3>Hola, {user?.name ?? 'usuario'}!</h3>
-        <section className={styles.card_section}>
-          {loading ? (
-            <></>
-          ) : (
-            user?.accounts?.map((acc) => <CardAccount key={acc.id} accountInformation={acc} />)
-          )}
-        </section>
+    <div className="lg:w-[70vw] w-[90vw] flex flex-col gap-6 m-auto">
+      <h3>Hola, {user?.name ?? 'usuario'}!</h3>
+      <section className="flex flex-col lg:flex-row gap-4">
+        {loading ? (
+          <></>
+        ) : (
+          user?.accounts?.map((acc) => <CardAccount key={acc.id} accountInformation={acc} />)
+        )}
+      </section>
 
-        <Splitter />
+      <Splitter />
 
-        <section>
-          <h4 className="text-lg font-semibold">Saldos por cliente</h4>
-          <PayerBalances movements={user?.movements ?? []} userName={user?.name} />
-        </section>
+      <section>
+        <h4 className="text-lg font-semibold">Saldos por cliente</h4>
+        <PayerBalances movements={user?.movements ?? []} userName={user?.name} />
+      </section>
 
-        <Splitter />
+      <Splitter />
 
-        <section>
-          <h4>Últimos movimientos</h4>
-          <ListMovementsUser initialMovements={user?.movements ?? []} />
-        </section>
-      </div>
+      <section>
+        <h4>Últimos movimientos</h4>
+        <ListMovementsUser initialMovements={user?.movements ?? []} />
+      </section>
     </div>
   );
 }

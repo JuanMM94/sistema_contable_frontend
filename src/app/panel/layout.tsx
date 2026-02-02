@@ -34,7 +34,7 @@ export default function PanelLayout({
   const router = useRouter();
 
   return (
-    <div>
+    <div className="w-[100vw]">
       <header className="w-[70vw] m-auto py-4! flex items-center justify-between">
         <div>
           <h1 className="text-primary">Sistema Contable</h1>

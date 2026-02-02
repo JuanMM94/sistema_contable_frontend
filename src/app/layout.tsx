@@ -29,8 +29,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="es" className="w-[100vw]">
+      <body className={`${geistSans.variable} ${geistMono.variable} h-screen`}>
         <RouteFetchProvider>{children}</RouteFetchProvider>
         <Toaster theme="light" />
       </body>
