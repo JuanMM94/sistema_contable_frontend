@@ -24,7 +24,7 @@ export default function Home() {
 
       <section>
         <h4 className="text-lg font-semibold">Saldos por cliente</h4>
-        <PayerBalances movements={user?.movements ?? []} userName={user?.name} />
+        <PayerBalances />
       </section>
 
       <Splitter />

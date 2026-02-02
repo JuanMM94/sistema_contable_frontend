@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Movement } from '@/lib/schemas';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -20,17 +20,14 @@ import {
 } from '@/lib/utils';
 import { formatDateFromISO } from '@/lib/date_utils';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { useSession } from '@/providers/RouteFetchProvider';
 
 type PayerData = {
   payer: string;
   paidBalance: Record<string, number>; // currency -> amount
   pendingBalance: Record<string, number>; // currency -> amount
   movements: Movement[];
-};
-
-type PayerBalancesProps = {
-  movements: Movement[];
-  userName?: string;
 };
 
 // Helper function to format balances
@@ -328,15 +325,25 @@ function PayerDetailsDialog({
 }
 
 // Main component
-export function PayerBalances({ movements, userName }: PayerBalancesProps) {
+export function PayerBalances() {
   const [selectedPayer, setSelectedPayer] = useState<PayerData | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [payerFilter, setPayerFilter] = useState('');
+  const { user, movements } = useSession();
+  const userName = user?.name;
 
   // Group movements by payer and calculate balances
   const payerData = useMemo(() => {
+    const normalizedFilter = payerFilter.trim().toLowerCase();
+    const filteredMovements =
+      normalizedFilter.length === 0
+        ? movements
+        : movements.filter((movement) =>
+            (movement.payer ?? '').toLowerCase().includes(normalizedFilter),
+          );
     const grouped = new Map<string, PayerData>();
 
-    movements.forEach((movement) => {
+    filteredMovements.forEach((movement) => {
       const payerName = movement.payer || 'Sin cliente';
 
       // Filter out movements where payer is the user themselves (e.g., currency swaps)
@@ -371,7 +378,7 @@ export function PayerBalances({ movements, userName }: PayerBalancesProps) {
     });
 
     return Array.from(grouped.values()).sort((a, b) => a.payer.localeCompare(b.payer));
-  }, [movements, userName]);
+  }, [movements, payerFilter, userName]);
 
   const handlePayerClick = (payer: PayerData) => {
     setSelectedPayer(payer);
@@ -380,6 +387,11 @@ export function PayerBalances({ movements, userName }: PayerBalancesProps) {
 
   return (
     <div className="space-y-4">
+      <Input
+        placeholder="Buscar por cliente..."
+        value={payerFilter}
+        onChange={(event) => setPayerFilter(event.target.value)}
+      />
       <PayerGrid payerData={payerData} onPayerClick={handlePayerClick} />
       <PayerDetailsDialog
         isOpen={isDialogOpen}

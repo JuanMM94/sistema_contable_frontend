@@ -61,9 +61,11 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
       if (!res.ok) throw new Error(`Failed to fetch session (${res.status})`);
       const payload = await res.json();
       setUser(payload.user);
+      setMovements(payload.user.movements || []);
     } catch (err) {
       console.error('Session fetch failed', err);
       setUser(null);
+      setMovements([]);
       setError(err instanceof Error ? err.message : 'Unknown session error');
     } finally {
       setLoading(false);
