@@ -4,24 +4,11 @@ import { useMemo, useState } from 'react';
 import { Movement } from '@/lib/schemas';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  currencyFormatter,
-  getPaymentMethodLabel,
-  getPaymentStatusLabel,
-  getPaymentTypeLabel,
-} from '@/lib/utils';
-import { formatDateFromISO } from '@/lib/date_utils';
+import { currencyFormatter } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useSession } from '@/providers/RouteFetchProvider';
+import { Column, MovementTable } from './MovementTable';
 
 type PayerData = {
   payer: string;
@@ -91,29 +78,6 @@ function PayerCard({ data, onClick }: { data: PayerData; onClick: () => void }) 
   );
 }
 
-// Movement table row component
-function MovementRow({ movement }: { movement: Movement }) {
-  return (
-    <TableRow>
-      <TableCell className="font-medium whitespace-nowrap">
-        {formatDateFromISO(movement.date)}
-      </TableCell>
-      <TableCell className="whitespace-nowrap">{movement.concept}</TableCell>
-      <TableCell className="whitespace-nowrap">{getPaymentStatusLabel(movement.status)}</TableCell>
-      <TableCell className="whitespace-nowrap">{getPaymentMethodLabel(movement.method)}</TableCell>
-      <TableCell className="whitespace-nowrap">{getPaymentTypeLabel(movement.type)}</TableCell>
-      <TableCell className="whitespace-nowrap">{movement.currency}</TableCell>
-      <TableCell
-        className={`text-right font-medium whitespace-nowrap ${
-          movement.type === 'EGRESS' ? 'text-red-600' : 'text-green-600'
-        }`}
-      >
-        {currencyFormatter(movement.amount, 'es-AR', movement.currency, true)}
-      </TableCell>
-    </TableRow>
-  );
-}
-
 // Balance summary cards in dialog
 function BalanceSummary({
   paidBalance,
@@ -140,131 +104,6 @@ function BalanceSummary({
           <p className="text-lg font-semibold text-orange-600">{formatBalances(pendingBalance)}</p>
         </CardContent>
       </Card>
-    </div>
-  );
-}
-
-// Sort icon component
-type SortColumn = 'date' | 'concept' | 'status' | 'method' | 'type' | 'currency' | 'amount';
-type SortDirection = 'asc' | 'desc';
-
-function SortIcon({
-  column,
-  currentColumn,
-  direction,
-}: {
-  column: SortColumn;
-  currentColumn: SortColumn;
-  direction: SortDirection;
-}) {
-  if (currentColumn !== column) return <span className="ml-1 text-muted-foreground">↕</span>;
-  return <span className="ml-1">{direction === 'asc' ? '↑' : '↓'}</span>;
-}
-
-// Movement table component with sorting
-function MovementTable({ movements }: { movements: Movement[] }) {
-  const [sortColumn, setSortColumn] = useState<SortColumn>('date');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-
-  const handleSort = (column: SortColumn) => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortColumn(column);
-      setSortDirection('desc');
-    }
-  };
-
-  const sortedMovements = [...movements].sort((a, b) => {
-    let compareValue = 0;
-
-    switch (sortColumn) {
-      case 'date':
-        compareValue = new Date(a.date).getTime() - new Date(b.date).getTime();
-        break;
-      case 'concept':
-        compareValue = a.concept.localeCompare(b.concept);
-        break;
-      case 'status':
-        compareValue = a.status.localeCompare(b.status);
-        break;
-      case 'method':
-        compareValue = a.method.localeCompare(b.method);
-        break;
-      case 'type':
-        compareValue = a.type.localeCompare(b.type);
-        break;
-      case 'currency':
-        compareValue = a.currency.localeCompare(b.currency);
-        break;
-      case 'amount':
-        compareValue = parseFloat(a.amount) - parseFloat(b.amount);
-        break;
-    }
-
-    return sortDirection === 'asc' ? compareValue : -compareValue;
-  });
-
-  return (
-    <div className="rounded-md border overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead
-              className="whitespace-nowrap cursor-pointer hover:bg-accent"
-              onClick={() => handleSort('date')}
-            >
-              Fecha <SortIcon column="date" currentColumn={sortColumn} direction={sortDirection} />
-            </TableHead>
-            <TableHead
-              className="whitespace-nowrap cursor-pointer hover:bg-accent"
-              onClick={() => handleSort('concept')}
-            >
-              Concepto{' '}
-              <SortIcon column="concept" currentColumn={sortColumn} direction={sortDirection} />
-            </TableHead>
-            <TableHead
-              className="whitespace-nowrap cursor-pointer hover:bg-accent"
-              onClick={() => handleSort('status')}
-            >
-              Estado{' '}
-              <SortIcon column="status" currentColumn={sortColumn} direction={sortDirection} />
-            </TableHead>
-            <TableHead
-              className="whitespace-nowrap cursor-pointer hover:bg-accent"
-              onClick={() => handleSort('method')}
-            >
-              Método{' '}
-              <SortIcon column="method" currentColumn={sortColumn} direction={sortDirection} />
-            </TableHead>
-            <TableHead
-              className="whitespace-nowrap cursor-pointer hover:bg-accent"
-              onClick={() => handleSort('type')}
-            >
-              Tipo <SortIcon column="type" currentColumn={sortColumn} direction={sortDirection} />
-            </TableHead>
-            <TableHead
-              className="whitespace-nowrap cursor-pointer hover:bg-accent"
-              onClick={() => handleSort('currency')}
-            >
-              Moneda{' '}
-              <SortIcon column="currency" currentColumn={sortColumn} direction={sortDirection} />
-            </TableHead>
-            <TableHead
-              className="text-right whitespace-nowrap cursor-pointer hover:bg-accent"
-              onClick={() => handleSort('amount')}
-            >
-              Cantidad{' '}
-              <SortIcon column="amount" currentColumn={sortColumn} direction={sortDirection} />
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sortedMovements.map((movement) => (
-            <MovementRow key={movement.id} movement={movement} />
-          ))}
-        </TableBody>
-      </Table>
     </div>
   );
 }
@@ -305,6 +144,16 @@ function PayerDetailsDialog({
 }) {
   if (!payerData) return null;
 
+  const displayColumns = [
+    { key: 'date', label: 'Fecha', allowFilter: true },
+    { key: 'concept', label: 'Concepto', allowFilter: true },
+    { key: 'status', label: 'Estado', allowFilter: true },
+    { key: 'method', label: 'Método', allowFilter: true },
+    { key: 'type', label: 'Tipo', allowFilter: true },
+    { key: 'currency', label: 'Moneda', allowFilter: true },
+    { key: 'amount', label: 'Cantidad', allowFilter: true },
+  ] as Column<Movement>[];
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[95vw] sm:max-w-3xl lg:max-w-5xl max-h-[90vh] flex flex-col">
@@ -317,7 +166,7 @@ function PayerDetailsDialog({
             paidBalance={payerData.paidBalance}
             pendingBalance={payerData.pendingBalance}
           />
-          <MovementTable movements={payerData.movements} />
+          <MovementTable movements={payerData.movements} columns={displayColumns} />
         </div>
       </DialogContent>
     </Dialog>

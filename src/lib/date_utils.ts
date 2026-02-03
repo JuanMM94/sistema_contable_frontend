@@ -5,18 +5,6 @@ export function isValidDate(date: Date | undefined) {
   return !isNaN(date.getTime());
 }
 
-export function formatShortDate(date: Date | undefined) {
-  if (!isValidDate(date)) {
-    return '';
-  }
-
-  const day = String(date!.getUTCDate()).padStart(2, '0');
-  const month = String(date!.getUTCMonth() + 1).padStart(2, '0');
-  const year = String(date!.getUTCFullYear()).slice(-2);
-
-  return `${day}/${month}/${year}`;
-}
-
 export function formatToLocaleDate(date: Date, remove?: string) {
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -29,16 +17,47 @@ export function formatToLocaleDate(date: Date, remove?: string) {
   return `${day}/${month}/${year}`;
 }
 
-export function formatDateFromISO(isoString: string, remove?: string) {
-  // Extract just the date part (yyyy-MM-dd) to avoid timezone issues
-  const datePart = isoString.split('T')[0];
-  const [year, month, day] = datePart.split('-');
+export function formatDateFromISO(iso: string, remove?: 'day') {
+  const datePart = iso.split('T')[0]; // YYYY-MM-DD
+  const [y, m, d] = datePart.split('-');
+  if (!y || !m || !d) return '';
 
-  if (remove == 'day') {
-    return `${month}/${year}`;
-  }
+  return remove === 'day' ? `${m}/${y}` : `${d}/${m}/${y}`;
+}
 
-  return `${day}/${month}/${year}`;
+export function formatDateTimeFromISO(
+  isoString: string,
+  locale: string = 'es-AR',
+  opts?: {
+    useLocalTimeZone?: boolean;
+    // default: 2-digit time
+    hour12?: boolean;
+    // default: show seconds
+    showSeconds?: boolean;
+  },
+) {
+  if (!isoString) return '';
+
+  const date = new Date(isoString);
+  if (Number.isNaN(date.getTime())) return '';
+
+  const useLocalTimeZone = opts?.useLocalTimeZone ?? true;
+  const showSeconds = opts?.showSeconds ?? true;
+  const hour12 = opts?.hour12 ?? false;
+
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: showSeconds ? '2-digit' : undefined,
+    hour12,
+    timeZone: useLocalTimeZone ? 'America/Argentina/Buenos_Aires' : 'UTC',
+  };
+
+  // es-AR => "31/01/2026 14:27:31" (depending on TZ)
+  return new Intl.DateTimeFormat(locale, options).format(date);
 }
 
 export function formatISODate(date: Date) {
