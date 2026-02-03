@@ -10,13 +10,9 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function Page() {
-  const { user, loading } = useSession();
+  const { loading } = useSession();
   const searchParams = useSearchParams();
   const [filterBy, setFilterBy] = useState<string | null>(searchParams.get('currency'));
-
-  const filteredMovements = filterBy
-    ? user?.movements?.filter((movement) => movement.currency === filterBy)
-    : user?.movements;
 
   return (
     <div className="lg:w-[70vw] w-[90vw] p-4 flex flex-col gap-8 m-auto">
@@ -63,7 +59,7 @@ export default function Page() {
                 </Button>
               </ButtonGroup>
             </div>
-            <ListMovementsUser initialMovements={filteredMovements ?? []} />
+            <ListMovementsUser />
           </CardContent>
         </Card>
       )}

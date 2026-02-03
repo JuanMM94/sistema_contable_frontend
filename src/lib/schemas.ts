@@ -131,6 +131,23 @@ export type ExchangeRate = {
 };
 
 export type Movement = z.infer<typeof MovementSchema>;
+export type MovementContent =
+  | 'id'
+  | 'accountId'
+  | 'account'
+  | 'payer'
+  | 'concept'
+  | 'amount'
+  | 'note'
+  | 'counterpartId'
+  | 'date'
+  | 'exchangeRate'
+  | 'currency'
+  | 'status'
+  | 'method'
+  | 'type'
+  | 'updatedAt'
+  | 'createdAt';
 export type AccountWithMovements = z.infer<typeof AccountSchema>;
 export const AccountsResponseSchema = z.array(AccountSchema);
 export type User = z.infer<typeof UserSchema>;

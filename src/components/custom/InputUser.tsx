@@ -15,7 +15,6 @@ import {
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAdminContext } from '@/providers/AdminFetchProvider';
-import { useSession } from '@/providers/RouteFetchProvider';
 
 type InputUserProps = {
   value?: string;
@@ -35,7 +34,6 @@ export function InputUser({
   className,
 }: InputUserProps) {
   const { users } = useAdminContext();
-  const { user: self } = useSession();
   const [open, setOpen] = React.useState(false);
 
   const selectedName = users?.find((user) => user.id === value)?.name ?? '';
@@ -65,24 +63,22 @@ export function InputUser({
           <CommandList>
             <CommandEmpty>No se encontraron usuarios</CommandEmpty>
             <CommandGroup>
-              {users?.map((user) =>
-                user.id === self!.id ? null : (
-                  <CommandItem
-                    key={user.id}
-                    value={user.name}
-                    keywords={[user.email]}
-                    onSelect={() => {
-                      onChange?.(user.id);
-                      handleOpenChange(false);
-                    }}
-                  >
-                    {user.name}
-                    <Check
-                      className={cn('ml-auto', value === user.id ? 'opacity-100' : 'opacity-0')}
-                    />
-                  </CommandItem>
-                ),
-              )}
+              {users?.map((user) => (
+                <CommandItem
+                  key={user.id}
+                  value={user.name}
+                  keywords={[user.email]}
+                  onSelect={() => {
+                    onChange?.(user.id);
+                    handleOpenChange(false);
+                  }}
+                >
+                  {user.name}
+                  <Check
+                    className={cn('ml-auto', value === user.id ? 'opacity-100' : 'opacity-0')}
+                  />
+                </CommandItem>
+              ))}
             </CommandGroup>
           </CommandList>
         </Command>
