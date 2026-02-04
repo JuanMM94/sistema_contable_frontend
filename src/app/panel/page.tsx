@@ -5,6 +5,7 @@ import { CardAccount } from '@/components/custom/CardAccount';
 import { useSession } from '@/providers/RouteFetchProvider';
 import { ListMovementsUser } from '@/components/custom/ListMovements';
 import { PayerBalances } from '@/components/custom/GridPayer';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function Page() {
   const { user, loading } = useSession();
@@ -20,15 +21,19 @@ export default function Page() {
           )}
         </section>
         <Splitter />
-        <section>
-          <h4 className="text-lg font-semibold">Saldos por cliente</h4>
-          <PayerBalances />
-        </section>
-        <Splitter />
-        <section>
-          <h4>Últimos movimientos</h4>
-          <ListMovementsUser />
-        </section>
+
+        <Tabs defaultValue='last-movements'>
+          <TabsList variant="line">
+            <TabsTrigger value='last-movements'>Últimos movimientos</TabsTrigger>
+            <TabsTrigger value='client-balance'>Saldos por cliente</TabsTrigger>
+          </TabsList>
+          <TabsContent value='last-movements'>
+            <ListMovementsUser />
+          </TabsContent>
+          <TabsContent value='client-balance'>
+            <PayerBalances />
+          </TabsContent>
+        </Tabs>
       </div>
     </main>
   );
