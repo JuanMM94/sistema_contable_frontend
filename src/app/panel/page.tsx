@@ -3,8 +3,8 @@
 import { Splitter } from '@/components/custom/Splitter';
 import { CardAccount } from '@/components/custom/CardAccount';
 import { useSession } from '@/providers/RouteFetchProvider';
-import { PayerBalances } from '@/components/custom/PayerBalances';
 import { ListMovementsUser } from '@/components/custom/ListMovements';
+import { PayerBalances } from '@/components/custom/GridPayer';
 
 export default function Page() {
   const { user, loading } = useSession();

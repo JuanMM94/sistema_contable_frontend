@@ -159,3 +159,17 @@ export function toPlainAmount(value?: number) {
 export const getPaymentMethodLabel = (value: string) => paymentMethodLabelMap.get(value) ?? value;
 export const getPaymentStatusLabel = (value: string) => paymentStatusLabelMap.get(value) ?? value;
 export const getPaymentTypeLabel = (value: string) => paymentTypeLabelMap.get(value) ?? value;
+
+export const formatBalances = (balances: Record<string, number>) => {
+  const currencies = Object.keys(balances);
+  if (currencies.length === 0) {
+    // Default to ARS with 0
+    return currencyFormatter(0, 'es-AR', 'ARS', true);
+  }
+
+  return currencies
+    .map((currency) =>
+      currencyFormatter(balances[currency], 'es-AR', currency as 'ARS' | 'USD', true),
+    )
+    .join(' | ');
+};
