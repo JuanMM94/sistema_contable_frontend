@@ -171,3 +171,10 @@ export type MovementWithLimit = z.infer<typeof movementWithLimitSchema>;
 export type Filter = {
   movementWithLimit: MovementWithLimit;
 };
+
+export type PayerData = {
+  payer: string;
+  paidBalance: Record<string, number>; // currency -> amount
+  pendingBalance: Record<string, number>; // currency -> amount
+  movements: Movement[];
+};

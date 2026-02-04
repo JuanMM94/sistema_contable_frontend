@@ -94,15 +94,12 @@ function getFilterValue(movement: Movement, column: MovementContent) {
   }
 }
 
-// Movement table component with sorting
 export function MovementTable({ movements, columns }: MovementTableProps) {
   const defaultSortColumn = columns[0]?.key ?? 'date';
   const [sortColumn, setSortColumn] = useState<SortColumn>(defaultSortColumn);
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [filters, setFilters] = useState<Record<string, string>>({});
   const columnKeys = useMemo(() => columns.map((column) => column.key), [columns]);
-
-  console.log(movements[1]);
 
   const effectiveSortColumn = useMemo<SortColumn>(() => {
     return columnKeys.includes(sortColumn) ? sortColumn : defaultSortColumn;

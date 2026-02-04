@@ -20,13 +20,28 @@ type SessionContextValue = {
   loading: boolean;
   error: string | null;
   movements: Movement[];
+  payerMovement: Record<string, PayerMovement | undefined>;
+  payerMovementStatus: Record<string, Status>;
+  payerMovementError: Record<string, string | undefined>;
+  getMovementByPayer: (payerName: string, opts?: { force: boolean }) => Promise<void>;
   getMovements: () => Promise<void>;
-  refresh: () => Promise<void>;
   changePassword: (data: {
     currentPassword: string;
     newPassword: string;
   }) => Promise<{ success: boolean; message: string }>;
+  fetchUserContext: () => Promise<void>;
 };
+
+type PayerMovement = {
+  accounts: [
+    {
+      movements: Movement;
+      currency: Movement['currency'];
+    },
+  ];
+};
+
+type Status = 'idle' | 'loading' | 'success' | 'error';
 
 const SessionContext = createContext<SessionContextValue | undefined>(undefined);
 
@@ -37,8 +52,13 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [movements, setMovements] = useState<Movement[]>([]);
+  const [payerMovement, setPayerMovement] = useState<Record<string, PayerMovement | undefined>>({});
+  const [payerMovementStatus, setPayerMovementStatus] = useState<Record<string, Status>>({});
+  const [payerMovementError, setPayerMovementError] = useState<Record<string, string | undefined>>(
+    {},
+  );
 
-  const fetchSession = useCallback(async () => {
+  const fetchUserContext = useCallback(async () => {
     if (!API_BASE) {
       setError('Missing API base URL');
       setLoading(false);
@@ -101,9 +121,42 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
     setMovements(payload.data);
   }, []);
 
+  const getMovementByPayer = useCallback(
+    async (payerName: string, opts?: { force: boolean }) => {
+      setPayerMovementStatus((p) => ({ ...p, [payerName]: 'loading' }));
+      setPayerMovementError((p) => ({ ...p, [payerName]: undefined }));
+
+      const force = opts?.force ?? false;
+
+      const cached = payerMovement[payerName];
+      if (cached && !force) return cached;
+
+      const res = await fetch(`${API_BASE}/movements/byPayer/${payerName}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!res.ok) {
+        const msg = `Failed to fetch movements by payer (${res.status})`;
+        setPayerMovementStatus((p) => ({ ...p, [payerName]: 'error' }));
+        setPayerMovementError((p) => ({ ...p, [payerName]: msg }));
+        throw new Error(msg);
+      }
+      const payload = await res.json();
+
+      setPayerMovement((p) => ({ ...p, [payerName]: payload.data }));
+      setPayerMovementStatus((p) => ({ ...p, [payerName]: 'success' }));
+
+      return payload;
+    },
+    [payerMovement],
+  );
+
   useEffect(() => {
-    void fetchSession();
-  }, [pathname, fetchSession]);
+    void fetchUserContext();
+  }, [pathname, fetchUserContext]);
 
   const value = useMemo(
     () => ({
@@ -111,11 +164,27 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
       loading,
       error,
       movements,
-      getMovements: getMovements,
-      refresh: fetchSession,
-      changePassword: changePassword,
+      payerMovement,
+      payerMovementStatus,
+      payerMovementError,
+      getMovementByPayer,
+      getMovements,
+      changePassword,
+      fetchUserContext,
     }),
-    [user, loading, error, movements, getMovements, fetchSession, changePassword],
+    [
+      user,
+      loading,
+      error,
+      movements,
+      payerMovement,
+      payerMovementStatus,
+      payerMovementError,
+      getMovementByPayer,
+      getMovements,
+      fetchUserContext,
+      changePassword,
+    ],
   );
 
   return (
