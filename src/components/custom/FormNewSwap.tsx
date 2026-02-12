@@ -167,14 +167,22 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
   const rateValue =
     typeof adminRate === 'number' ? adminRate : adminRate ? Number(adminRate) : baseRate;
 
-  const adjustedConvertedAmount =
-    transferValue > 0 && rateValue > 0
-      ? fromCurrency === 'ARS'
-        ? transferValue / rateValue
-        : transferValue * rateValue
-      : 0;
-  const newFromBalance = fromBalance - transferValue;
-  const newToBalance = toBalance + adjustedConvertedAmount;
+  const isPositive = (n: number) => n > 0;
+  let adjustedConvertedAmount = 0;
+  
+  const canConvert = isPositive(transferValue) && isPositive(rateValue);
+  if (!canConvert) {
+    adjustedConvertedAmount = 0;
+  } else {
+    const convertingFromARS = fromCurrency === 'ARS';
+
+    const convertArsToUsd = () => transferValue / rateValue;
+    const convertUsdToArs = () => transferValue * rateValue;
+
+    adjustedConvertedAmount = convertingFromARS ? convertArsToUsd() : convertUsdToArs();
+  }
+    const newFromBalance = fromBalance - transferValue;
+    const newToBalance = toBalance + adjustedConvertedAmount;
 
   useEffect(() => {
     if (!exchangeRate) return;
