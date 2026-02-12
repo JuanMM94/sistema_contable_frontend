@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { currencyFormatter } from '@/lib/utils';
-import { ArrowLeftRight, MoveLeft } from 'lucide-react';
+import { ArrowLeftRight, BadgeDollarSignIcon, MoveLeft } from 'lucide-react';
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAdminContext } from '@/providers/AdminFetchProvider';
@@ -83,12 +83,7 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
   const fromBalance = 0;
   const toBalance = 0;
 
-  const rateLabel =
-    exchangeRate && fromTo.from === 'USD'
-      ? `1 USD = ${exchangeRate.sell} ARS`
-      : exchangeRate
-        ? `1 ARS = ${(1 / exchangeRate.sell).toFixed(6)} USD`
-        : 'Cargando...';
+  const rateLabel = exchangeRate ? `1 USD = ${exchangeRate.sell} ARS` : 'Cargando...';
 
   const transferValue = Number(amountToTransfer) || 0;
 
@@ -167,17 +162,17 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
   const adminRate = useWatch({ control: form.control, name: 'adminRate' });
   const isAdminRateDirty = form.formState.dirtyFields.adminRate;
 
-  const baseRate =
-    exchangeRate && toCurrency === 'ARS'
-      ? exchangeRate.sell
-      : exchangeRate
-        ? 1 / exchangeRate.sell
-        : 0;
+  const baseRate = exchangeRate ? exchangeRate.sell : 0;
 
   const rateValue =
     typeof adminRate === 'number' ? adminRate : adminRate ? Number(adminRate) : baseRate;
 
-  const adjustedConvertedAmount = transferValue > 0 ? transferValue * rateValue : 0;
+  const adjustedConvertedAmount =
+    transferValue > 0 && rateValue > 0
+      ? fromCurrency === 'ARS'
+        ? transferValue / rateValue
+        : transferValue * rateValue
+      : 0;
   const newFromBalance = fromBalance - transferValue;
   const newToBalance = toBalance + adjustedConvertedAmount;
 
@@ -228,12 +223,6 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
     setAmountToTransfer('');
     setAmountError(null);
     form.setValue('amountChange', 0, { shouldDirty: true });
-    if (exchangeRate) {
-      const nextBaseRate = from === 'ARS' ? exchangeRate.sell : 1 / exchangeRate.sell;
-      form.resetField('adminRate', { defaultValue: nextBaseRate });
-    } else {
-      form.resetField('adminRate');
-    }
   };
 
   useEffect(() => {
@@ -417,12 +406,12 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
                         <FormLabel className="opacity-50">Tipo de cambio</FormLabel>
                         <div className="flex items-center">
                           <div className="flex h-10 items-center rounded-l-md border border-r-0 bg-muted px-3 text-sm text-muted-foreground">
-                            {toCurrency}
+                            <BadgeDollarSignIcon size={18}/>
                           </div>
                           <FormControl>
                             <InputCurrency
                               id="amount"
-                              currency={toCurrency}
+                              currency="ARS"
                               placeholder="0.00"
                               className="rounded-none flex-1 h-10 mr-2"
                               formatCurrencyValue={(raw, currency, decimals) =>
@@ -434,7 +423,7 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
                                 field.onChange(Number.isFinite(n) ? n : undefined);
                               }}
                               onBlur={field.onBlur}
-                              decimals={toCurrency === 'USD' ? 6 : 2}
+                              decimals={2}
                             />
                           </FormControl>
                           <Button
