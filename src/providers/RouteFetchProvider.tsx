@@ -14,6 +14,7 @@ import API_BASE from '@/lib/endpoint';
 import type { ServerUser } from '@/types/movement';
 import { Spinner } from '@/components/ui/spinner';
 import { Movement } from '@/lib/schemas';
+import { ForcePasswordChange } from '@/components/custom/ForcePasswordChange';
 
 type SessionContextValue = {
   user: ServerUser | null;
@@ -60,7 +61,7 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
 
   const fetchUserContext = useCallback(async () => {
     if (!API_BASE) {
-      setError('Missing API base URL');
+      setError('Falta la URL base de la API');
       setLoading(false);
       setUser(null);
       return;
@@ -78,7 +79,7 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
         setLoading(false);
         return;
       }
-      if (!res.ok) throw new Error(`Failed to fetch session (${res.status})`);
+      if (!res.ok) throw new Error(`Error al obtener la sesión (${res.status})`);
       const payload = await res.json();
       setUser(payload.user);
       setMovements(payload.user.movements || []);
@@ -86,7 +87,7 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
       console.error('Session fetch failed', err);
       setUser(null);
       setMovements([]);
-      setError(err instanceof Error ? err.message : 'Unknown session error');
+      setError(err instanceof Error ? err.message : 'Error desconocido de sesión');
     } finally {
       setLoading(false);
     }
@@ -102,8 +103,8 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify(data),
       });
-      if (!res.ok) return { success: false, message: 'Failed to change password' };
-      return { success: true, message: 'Password changed successfully' };
+      if (!res.ok) return { success: false, message: 'Error al cambiar la contraseña' };
+      return { success: true, message: 'Contraseña cambiada exitosamente' };
     },
     [],
   );
@@ -116,7 +117,7 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
         'Content-Type': 'application/json',
       },
     });
-    if (!res.ok) throw new Error('Failed to fetch movements');
+    if (!res.ok) throw new Error('Error al obtener los movimientos');
     const payload = await res.json();
     setMovements(payload.data);
   }, []);
@@ -139,7 +140,7 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
         },
       });
       if (!res.ok) {
-        const msg = `Failed to fetch movements by payer (${res.status})`;
+        const msg = `Error al obtener movimientos por pagador (${res.status})`;
         setPayerMovementStatus((p) => ({ ...p, [payerName]: 'error' }));
         setPayerMovementError((p) => ({ ...p, [payerName]: msg }));
         throw new Error(msg);
@@ -187,6 +188,15 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
     ],
   );
 
+  const handleForcePasswordChange = async (currentPassword: string, newPassword: string) => {
+    const result = await changePassword({ currentPassword, newPassword });
+    if (result.success) {
+      // Refresh user context to get updated passwordChangeRequired status
+      await fetchUserContext();
+    }
+    return result;
+  };
+
   return (
     <SessionContext.Provider value={value}>
       {loading ? (
@@ -194,7 +204,13 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
           <Spinner className="size-12 text-foreground" />
         </div>
       ) : (
-        children
+        <>
+          <ForcePasswordChange
+            open={user?.passwordChangeRequired === true}
+            onPasswordChanged={handleForcePasswordChange}
+          />
+          {children}
+        </>
       )}
     </SessionContext.Provider>
   );

@@ -11,26 +11,29 @@ export type Role = z.infer<typeof RoleSchema>;
 
 // Base User schema without accounts (to avoid circular reference)
 const BaseUserSchema = z.object({
-  id: z.uuid(),
-  authId: z.string(),
-  name: z.string().min(1),
-  email: z.email(),
-  passwordChangeRequired: z.boolean(),
+  id: z.uuid({ message: 'ID de usuario inválido' }),
+  authId: z.string({ message: 'ID de autenticación requerido' }),
+  name: z.string({ message: 'Nombre requerido' }).min(1, 'El nombre no puede estar vacío'),
+  email: z.email({ message: 'Email inválido' }),
   role: RoleSchema.default('MEMBER'),
-  createdAt: z.iso.datetime({ offset: true }),
-  updatedAt: z.iso.datetime({ offset: true }),
+  passwordChangeRequired: z.boolean().optional(),
+  createdAt: z.iso.datetime({ offset: true, message: 'Fecha de creación inválida' }),
+  updatedAt: z.iso.datetime({ offset: true, message: 'Fecha de actualización inválida' }),
 });
 
 export const AccountSchema = z.object({
-  id: z.uuid(),
+  id: z.uuid({ message: 'ID de cuenta inválido' }),
   currency: CurrencySchema,
-  user: z.object({ name: z.string(), id: z.uuidv4() }),
-  paidBalance: z.string(),
-  pendingBalance: z.string(),
-  userId: z.uuid(),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
-  percentChange: z.number().optional(),
+  user: z.object({
+    name: z.string({ message: 'Nombre de usuario requerido' }),
+    id: z.uuidv4({ message: 'ID de usuario inválido' }),
+  }),
+  paidBalance: z.string({ message: 'Saldo pagado requerido' }),
+  pendingBalance: z.string({ message: 'Saldo pendiente requerido' }),
+  userId: z.uuid({ message: 'ID de usuario inválido' }),
+  createdAt: z.iso.datetime({ message: 'Fecha de creación inválida' }),
+  updatedAt: z.iso.datetime({ message: 'Fecha de actualización inválida' }),
+  percentChange: z.number({ message: 'Porcentaje de cambio inválido' }).optional(),
 });
 
 // Full User schema with accounts
@@ -39,8 +42,8 @@ export const UserSchema = BaseUserSchema.extend({
 });
 
 export const UserLoginSchema = z.object({
-  email: z.email(),
-  password: z.string().min(8),
+  email: z.email({ message: 'Email inválido' }),
+  password: z.string({ message: 'Contraseña requerida' }).min(8, 'La contraseña debe tener al menos 8 caracteres'),
 });
 
 export type InputMember = Omit<
@@ -49,22 +52,22 @@ export type InputMember = Omit<
 > & { password: string };
 
 export const MovementSchema = z.object({
-  id: z.uuid(),
-  accountId: z.uuid(),
+  id: z.uuid({ message: 'ID de movimiento inválido' }),
+  accountId: z.uuid({ message: 'ID de cuenta inválido' }),
   account: AccountSchema,
-  payer: z.string(),
-  concept: z.string(),
-  amount: z.string(), // Prisma Decimal serialized as string
-  note: z.string().optional(),
-  counterpartId: z.uuid().optional(),
-  date: z.iso.datetime(),
-  exchangeRate: z.string().optional(), // "0" or other decimal-as-string
+  payer: z.string({ message: 'Nombre del pagador requerido' }),
+  concept: z.string({ message: 'Concepto requerido' }),
+  amount: z.string({ message: 'Monto requerido' }), // Prisma Decimal serialized as string
+  note: z.string({ message: 'Nota inválida' }).optional(),
+  counterpartId: z.uuid({ message: 'ID de contraparte inválido' }).optional(),
+  date: z.iso.datetime({ message: 'Fecha inválida' }),
+  exchangeRate: z.string({ message: 'Tasa de cambio inválida' }).optional(), // "0" or other decimal-as-string
   currency: CurrencySchema,
   status: PaymentStatusSchema,
   method: PaymentMethodSchema,
   type: MovementTypeSchema,
-  updatedAt: z.iso.datetime(),
-  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime({ message: 'Fecha de actualización inválida' }),
+  createdAt: z.iso.datetime({ message: 'Fecha de creación inválida' }),
 });
 
 export type InputMovement = Omit<
@@ -90,25 +93,25 @@ export type MovementEditFormSchema = {
 };
 
 export const SwapSchema = z.object({
-  id: z.uuid(),
-  accountId: z.uuid(),
+  id: z.uuid({ message: 'ID de intercambio inválido' }),
+  accountId: z.uuid({ message: 'ID de cuenta inválido' }),
   account: AccountSchema,
-  amount: z.string(), // Prisma Decimal serialized as string
-  date: z.iso.datetime(),
-  exchangeRate: z.string().optional(), // "0" or other decimal-as-string
+  amount: z.string({ message: 'Monto requerido' }), // Prisma Decimal serialized as string
+  date: z.iso.datetime({ message: 'Fecha inválida' }),
+  exchangeRate: z.string({ message: 'Tasa de cambio inválida' }).optional(), // "0" or other decimal-as-string
   currency: CurrencySchema,
   type: MovementTypeSchema,
-  updatedAt: z.iso.datetime(),
-  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime({ message: 'Fecha de actualización inválida' }),
+  createdAt: z.iso.datetime({ message: 'Fecha de creación inválida' }),
 });
 
 export const InputSwap = z.object({
-  userId: z.uuid(),
+  userId: z.uuid({ message: 'ID de usuario inválido' }),
   fromCurrency: CurrencySchema,
   toCurrency: CurrencySchema,
-  amountChange: z.number().positive({ message: 'El monto debe ser mayor a 0.' }),
+  amountChange: z.number({ message: 'Monto de cambio requerido' }).positive({ message: 'El monto debe ser mayor a 0' }),
   adminRate: z.any().optional(),
-  amountTotal: z.number().positive({ message: 'El monto debe ser mayor a 0.' }),
+  amountTotal: z.number({ message: 'Monto total requerido' }).positive({ message: 'El monto debe ser mayor a 0' }),
 });
 
 export type InputSwap = z.infer<typeof InputSwap>;
@@ -170,9 +173,9 @@ export type UserLoginResponse = {
 };
 
 export const movementWithLimitSchema = z.object({
-  month: z.string(),
-  income: z.string(),
-  egress: z.string(),
+  month: z.string({ message: 'Mes requerido' }),
+  income: z.string({ message: 'Ingreso requerido' }),
+  egress: z.string({ message: 'Egreso requerido' }),
 });
 
 export type MovementWithLimit = z.infer<typeof movementWithLimitSchema>;
