@@ -20,4 +20,5 @@ export interface ServerUser extends User {
   accounts?: AccountWithMovements[];
   sessions?: object[];
   movements?: Movement[];
+  passwordChangeRequired?: boolean;
 }

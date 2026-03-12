@@ -16,6 +16,7 @@ const BaseUserSchema = z.object({
   name: z.string({ message: 'Nombre requerido' }).min(1, 'El nombre no puede estar vacío'),
   email: z.email({ message: 'Email inválido' }),
   role: RoleSchema.default('MEMBER'),
+  passwordChangeRequired: z.boolean().optional(),
   createdAt: z.iso.datetime({ offset: true, message: 'Fecha de creación inválida' }),
   updatedAt: z.iso.datetime({ offset: true, message: 'Fecha de actualización inválida' }),
 });

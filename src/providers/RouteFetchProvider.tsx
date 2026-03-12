@@ -14,6 +14,7 @@ import API_BASE from '@/lib/endpoint';
 import type { ServerUser } from '@/types/movement';
 import { Spinner } from '@/components/ui/spinner';
 import { Movement } from '@/lib/schemas';
+import { ForcePasswordChange } from '@/components/custom/ForcePasswordChange';
 
 type SessionContextValue = {
   user: ServerUser | null;
@@ -187,6 +188,15 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
     ],
   );
 
+  const handleForcePasswordChange = async (currentPassword: string, newPassword: string) => {
+    const result = await changePassword({ currentPassword, newPassword });
+    if (result.success) {
+      // Refresh user context to get updated passwordChangeRequired status
+      await fetchUserContext();
+    }
+    return result;
+  };
+
   return (
     <SessionContext.Provider value={value}>
       {loading ? (
@@ -194,7 +204,13 @@ export function RouteFetchProvider({ children }: { children: ReactNode }) {
           <Spinner className="size-12 text-foreground" />
         </div>
       ) : (
-        children
+        <>
+          <ForcePasswordChange
+            open={user?.passwordChangeRequired === true}
+            onPasswordChanged={handleForcePasswordChange}
+          />
+          {children}
+        </>
       )}
     </SessionContext.Provider>
   );
