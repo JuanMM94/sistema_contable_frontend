@@ -16,7 +16,10 @@ import { Label } from '@/components/ui/label';
 
 type ForcePasswordChangeProps = {
   open: boolean;
-  onPasswordChanged: (currentPassword: string, newPassword: string) => Promise<{
+  onPasswordChanged: (
+    currentPassword: string,
+    newPassword: string,
+  ) => Promise<{
     success: boolean;
     message: string;
   }>;

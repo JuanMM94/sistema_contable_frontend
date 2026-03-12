@@ -114,7 +114,9 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
         setMovements(null);
         setUsers(null);
       }
-      setError(err instanceof Error ? err.message : 'Error desconocido del contexto de administrador');
+      setError(
+        err instanceof Error ? err.message : 'Error desconocido del contexto de administrador',
+      );
     } finally {
       if (!silent) {
         setLoading(false);

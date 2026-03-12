@@ -3,12 +3,12 @@
 import { Splitter } from '@/components/custom/Splitter';
 import { CardAccount } from '@/components/custom/CardAccount';
 import { useSession } from '@/providers/RouteFetchProvider';
-import { ListMovementsUser } from '@/components/custom/ListMovements';
 import { PayerBalances } from '@/components/custom/GridPayer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MovementTable } from '@/components/custom/Tables';
 
 export default function Page() {
-  const { user, loading } = useSession();
+  const { user, movements, loading } = useSession();
   return (
     <main>
       <div className="lg:w-[70vw] w-[90vw] flex flex-col gap-6 m-auto">
@@ -28,7 +28,7 @@ export default function Page() {
             <TabsTrigger value="client-balance">Saldos por cliente</TabsTrigger>
           </TabsList>
           <TabsContent value="last-movements">
-            <ListMovementsUser />
+            <MovementTable movements={movements ?? []} />
           </TabsContent>
           <TabsContent value="client-balance">
             <PayerBalances />

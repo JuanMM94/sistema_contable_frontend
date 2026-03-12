@@ -6,19 +6,8 @@ import { useSession } from '@/providers/RouteFetchProvider';
 import { MoveLeft } from 'lucide-react';
 import { Loading } from '@/components/custom/Loading';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Column, MovementTable } from '@/components/custom/MovementTable';
-import { Movement } from '@/lib/schemas';
 import { formatBalances } from '@/lib/utils';
-
-const displayColumns = [
-  { key: 'date', label: 'Fecha', allowFilter: true },
-  { key: 'concept', label: 'Concepto', allowFilter: true },
-  { key: 'status', label: 'Estado', allowFilter: true },
-  { key: 'method', label: 'Método', allowFilter: true },
-  { key: 'type', label: 'Tipo', allowFilter: true },
-  { key: 'currency', label: 'Moneda', allowFilter: true },
-  { key: 'amount', label: 'Cantidad', allowFilter: true },
-] as Column<Movement>[];
+import { MovementTable } from '@/components/custom/Tables';
 
 export default function ByPayerPage() {
   const { payerName } = useParams<{ payerName: string }>();
@@ -92,7 +81,7 @@ export default function ByPayerPage() {
             </CardContent>
           </Card>
         </div>
-        <MovementTable movements={movementsFlat} columns={displayColumns} />
+        <MovementTable movements={movementsFlat ?? []} />
       </div>
     </div>
   );

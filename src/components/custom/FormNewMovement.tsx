@@ -53,7 +53,9 @@ const formSchema = z.object({
   date: z
     .string({ message: 'Fecha requerida' })
     .refine((v) => !Number.isNaN(Date.parse(v)), { message: 'Formato ISO8601 inválido' }),
-  payer: z.string({ message: 'Nombre del cliente requerido' }).min(1, 'El nombre del cliente no puede estar vacío'),
+  payer: z
+    .string({ message: 'Nombre del cliente requerido' })
+    .min(1, 'El nombre del cliente no puede estar vacío'),
   member: z.uuidv4({ message: 'Debe seleccionar un usuario' }),
   concept: z.string({ message: 'Concepto requerido' }).min(1, 'El concepto no puede estar vacío'),
   note: z.string({ message: 'Nota inválida' }).optional(),
