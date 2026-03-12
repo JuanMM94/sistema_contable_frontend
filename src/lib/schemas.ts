@@ -15,6 +15,7 @@ const BaseUserSchema = z.object({
   authId: z.string(),
   name: z.string().min(1),
   email: z.email(),
+  passwordChangeRequired: z.boolean(),
   role: RoleSchema.default('MEMBER'),
   createdAt: z.iso.datetime({ offset: true }),
   updatedAt: z.iso.datetime({ offset: true }),
@@ -146,6 +147,16 @@ export type MovementContent =
   | 'status'
   | 'method'
   | 'type'
+  | 'updatedAt'
+  | 'createdAt';
+export type UsersContent =
+  | 'id'
+  | 'authId'
+  | 'name'
+  | 'email'
+  | 'passwordChangeRequired'
+  | 'role'
+  | 'accounts'
   | 'updatedAt'
   | 'createdAt';
 export type AccountWithMovements = z.infer<typeof AccountSchema>;

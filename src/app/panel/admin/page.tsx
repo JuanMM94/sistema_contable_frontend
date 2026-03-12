@@ -2,12 +2,12 @@
 
 import { ChartBarMultiple } from '@/components/custom/ChartBar';
 import { useAdminContext } from '@/providers/AdminFetchProvider';
-import { ListMovementsAdmin } from '@/components/custom/ListMovements';
 import { Loading } from '@/components/custom/Loading';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { MovementTableAdmin, UsersTable } from '@/components/custom/Tables';
 
 export default function Page() {
-  const { loading } = useAdminContext();
+  const { loading, users, movements } = useAdminContext();
 
   return (
     <div className="flex justify-center w-full">
@@ -22,7 +22,15 @@ export default function Page() {
               <CardTitle>Movimientos totales</CardTitle>
             </CardHeader>
             <CardContent>
-              <ListMovementsAdmin />
+              <MovementTableAdmin movements={movements ?? []} />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Usuarios</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UsersTable users={users ?? []} />
             </CardContent>
           </Card>
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { ListMovementsUser } from '@/components/custom/ListMovements';
+import { ListMovementsUser } from '@/components/custom/Tables';
 import { useSession } from '@/providers/RouteFetchProvider';
 import { MoveLeft } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
