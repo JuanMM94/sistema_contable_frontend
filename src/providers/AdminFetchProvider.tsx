@@ -66,7 +66,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
   const fetchAdminContext = useCallback(async (options?: { silent?: boolean }) => {
     const silent = options?.silent ?? false;
     if (!API_BASE) {
-      setError('Missing API base URL');
+      setError('Falta la URL base de la API');
       if (!silent) {
         setLoading(false);
         setMovements(null);
@@ -95,7 +95,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
         setMovements(null);
         setUsers(null);
         throw new Error(
-          `Failed to fetch admin context (movements: ${movementsRes.status}, users: ${usersRes.status})`,
+          `Error al obtener el contexto de administrador (movimientos: ${movementsRes.status}, usuarios: ${usersRes.status})`,
         );
       }
 
@@ -114,7 +114,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
         setMovements(null);
         setUsers(null);
       }
-      setError(err instanceof Error ? err.message : 'Unknown admin context error');
+      setError(err instanceof Error ? err.message : 'Error desconocido del contexto de administrador');
     } finally {
       if (!silent) {
         setLoading(false);
@@ -166,7 +166,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
         credentials: 'include',
         cache: 'no-store',
       });
-      if (!res.ok) throw new Error('Failed to retrieve exchange rates');
+      if (!res.ok) throw new Error('Error al obtener las tasas de cambio');
       const resData = await res.json();
       setExchangeRate(resData);
     }
@@ -183,13 +183,13 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
         credentials: 'include',
         cache: 'no-store',
       });
-      if (!res.ok) throw new Error('Failed to retrieve user');
+      if (!res.ok) throw new Error('Error al obtener el usuario');
 
       const payload = await res.json();
       setUserToCurrencySwap(payload?.data ?? payload);
     } catch (e) {
       setUserToCurrencySwap(null);
-      setUserToCurrencySwapError(e instanceof Error ? e.message : 'Unknown error');
+      setUserToCurrencySwapError(e instanceof Error ? e.message : 'Error desconocido');
     } finally {
       setUserToCurrencySwapLoading(false);
     }
@@ -204,7 +204,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify(data),
         cache: 'no-store',
       });
-      if (!res.ok) throw new Error('Failed to create currency swap');
+      if (!res.ok) throw new Error('Error al crear el intercambio de moneda');
       getUserToCurrencySwap(data.userId);
       await fetchAdminContext();
     },
@@ -224,7 +224,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
         });
         if (!res.ok) {
           const msg = await res.text().catch(() => '');
-          throw new Error(msg || 'Failed to update movement');
+          throw new Error(msg || 'Error al actualizar el movimiento');
         }
 
         await fetchAdminContext({ silent: true });
@@ -246,7 +246,7 @@ export function AdminFetchProvider({ children }: { children: ReactNode }) {
           cache: 'no-store',
         });
         if (!res.ok) {
-          throw new Error('Failed to delete movement');
+          throw new Error('Error al eliminar el movimiento');
         }
         await fetchAdminContext({ silent: true });
       } finally {

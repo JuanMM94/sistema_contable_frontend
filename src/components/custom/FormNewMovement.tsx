@@ -43,25 +43,25 @@ import {
 import type { InputMovement } from '@/lib/schemas';
 
 const moneyNumberSchema = z
-  .number()
-  .positive()
+  .number({ message: 'Monto requerido' })
+  .positive({ message: 'El monto debe ser mayor a 0' })
   .refine((v) => /^\d+\.\d{2}$/.test(v.toFixed(2)), {
-    message: 'Must have exactly 2 decimal places.',
+    message: 'El monto debe tener exactamente 2 decimales',
   });
 
 const formSchema = z.object({
   date: z
-    .string()
+    .string({ message: 'Fecha requerida' })
     .refine((v) => !Number.isNaN(Date.parse(v)), { message: 'Formato ISO8601 inválido' }),
-  payer: z.string().min(1),
-  member: z.uuidv4(),
-  concept: z.string().min(1),
-  note: z.string().optional(),
-  method: z.enum(['CASH', 'DEPOSIT', 'WIRE']),
+  payer: z.string({ message: 'Nombre del cliente requerido' }).min(1, 'El nombre del cliente no puede estar vacío'),
+  member: z.uuidv4({ message: 'Debe seleccionar un usuario' }),
+  concept: z.string({ message: 'Concepto requerido' }).min(1, 'El concepto no puede estar vacío'),
+  note: z.string({ message: 'Nota inválida' }).optional(),
+  method: z.enum(['CASH', 'DEPOSIT', 'WIRE'], { message: 'Método de transacción inválido' }),
   amount: moneyNumberSchema,
-  status: z.enum(['PAID', 'UNPAID', 'PENDING']),
-  type: z.enum(['INCOME', 'EGRESS']),
-  currency: z.enum(['ARS', 'USD']),
+  status: z.enum(['PAID', 'UNPAID', 'PENDING'], { message: 'Estado de transacción inválido' }),
+  type: z.enum(['INCOME', 'EGRESS'], { message: 'Tipo de transacción inválido' }),
+  currency: z.enum(['ARS', 'USD'], { message: 'Moneda inválida' }),
 });
 
 type FormNewMovementProps = {
