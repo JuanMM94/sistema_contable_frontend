@@ -27,8 +27,13 @@ import { MEMBER_AVAILABLE_ROLES } from '@/lib/global_variables';
 
 const formSchema = z.object({
   name: z.string({ message: 'Nombre requerido' }).min(1, 'El nombre no puede estar vacío'),
-  email: z.string({ message: 'Email requerido' }).min(1, 'El email es obligatorio').email({ message: 'Email inválido' }),
-  password: z.string({ message: 'Contraseña requerida' }).min(8, 'La contraseña debe tener al menos 8 caracteres'),
+  email: z
+    .string({ message: 'Email requerido' })
+    .min(1, 'El email es obligatorio')
+    .email({ message: 'Email inválido' }),
+  password: z
+    .string({ message: 'Contraseña requerida' })
+    .min(8, 'La contraseña debe tener al menos 8 caracteres'),
   role: z.enum(['ADMIN', 'MEMBER'], { message: 'Rol inválido' }),
 });
 

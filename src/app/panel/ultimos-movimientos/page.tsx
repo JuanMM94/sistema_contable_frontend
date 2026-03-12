@@ -1,6 +1,5 @@
 'use client';
 
-import { ListMovementsUser } from '@/components/custom/Tables';
 import { useSession } from '@/providers/RouteFetchProvider';
 import { MoveLeft } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
@@ -8,9 +7,10 @@ import { ButtonGroup } from '@/components/ui/button-group';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { MovementTable } from '@/components/custom/Tables';
 
 export default function Page() {
-  const { loading } = useSession();
+  const { loading, movements } = useSession();
   const searchParams = useSearchParams();
   const [filterBy, setFilterBy] = useState<string | null>(searchParams.get('currency'));
 
@@ -59,7 +59,7 @@ export default function Page() {
                 </Button>
               </ButtonGroup>
             </div>
-            <ListMovementsUser />
+            <MovementTable movements={movements ?? []} />
           </CardContent>
         </Card>
       )}

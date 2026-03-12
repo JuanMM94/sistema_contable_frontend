@@ -43,7 +43,9 @@ export const UserSchema = BaseUserSchema.extend({
 
 export const UserLoginSchema = z.object({
   email: z.email({ message: 'Email inválido' }),
-  password: z.string({ message: 'Contraseña requerida' }).min(8, 'La contraseña debe tener al menos 8 caracteres'),
+  password: z
+    .string({ message: 'Contraseña requerida' })
+    .min(8, 'La contraseña debe tener al menos 8 caracteres'),
 });
 
 export type InputMember = Omit<
@@ -109,9 +111,13 @@ export const InputSwap = z.object({
   userId: z.uuid({ message: 'ID de usuario inválido' }),
   fromCurrency: CurrencySchema,
   toCurrency: CurrencySchema,
-  amountChange: z.number({ message: 'Monto de cambio requerido' }).positive({ message: 'El monto debe ser mayor a 0' }),
+  amountChange: z
+    .number({ message: 'Monto de cambio requerido' })
+    .positive({ message: 'El monto debe ser mayor a 0' }),
   adminRate: z.any().optional(),
-  amountTotal: z.number({ message: 'Monto total requerido' }).positive({ message: 'El monto debe ser mayor a 0' }),
+  amountTotal: z
+    .number({ message: 'Monto total requerido' })
+    .positive({ message: 'El monto debe ser mayor a 0' }),
 });
 
 export type InputSwap = z.infer<typeof InputSwap>;
