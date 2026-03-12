@@ -169,7 +169,7 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
 
   const isPositive = (n: number) => n > 0;
   let adjustedConvertedAmount = 0;
-  
+
   const canConvert = isPositive(transferValue) && isPositive(rateValue);
   if (!canConvert) {
     adjustedConvertedAmount = 0;
@@ -181,8 +181,8 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
 
     adjustedConvertedAmount = convertingFromARS ? convertArsToUsd() : convertUsdToArs();
   }
-    const newFromBalance = fromBalance - transferValue;
-    const newToBalance = toBalance + adjustedConvertedAmount;
+  const newFromBalance = fromBalance - transferValue;
+  const newToBalance = toBalance + adjustedConvertedAmount;
 
   useEffect(() => {
     if (!exchangeRate) return;
@@ -414,7 +414,7 @@ export function FormNewSwap({ onCreated, formId = 'new-movement-form' }: FormNew
                         <FormLabel className="opacity-50">Tipo de cambio</FormLabel>
                         <div className="flex items-center">
                           <div className="flex h-10 items-center rounded-l-md border border-r-0 bg-muted px-3 text-sm text-muted-foreground">
-                            <BadgeDollarSignIcon size={18}/>
+                            <BadgeDollarSignIcon size={18} />
                           </div>
                           <FormControl>
                             <InputCurrency

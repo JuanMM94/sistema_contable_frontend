@@ -22,15 +22,15 @@ export default function Page() {
         </section>
         <Splitter />
 
-        <Tabs defaultValue='last-movements'>
+        <Tabs defaultValue="last-movements">
           <TabsList variant="line">
-            <TabsTrigger value='last-movements'>Últimos movimientos</TabsTrigger>
-            <TabsTrigger value='client-balance'>Saldos por cliente</TabsTrigger>
+            <TabsTrigger value="last-movements">Últimos movimientos</TabsTrigger>
+            <TabsTrigger value="client-balance">Saldos por cliente</TabsTrigger>
           </TabsList>
-          <TabsContent value='last-movements'>
+          <TabsContent value="last-movements">
             <ListMovementsUser />
           </TabsContent>
-          <TabsContent value='client-balance'>
+          <TabsContent value="client-balance">
             <PayerBalances />
           </TabsContent>
         </Tabs>
