@@ -1,4 +1,3 @@
-import { AdminFetchProvider } from '@/providers/AdminFetchProvider';
 import '../../globals.css';
 
 export default function AdminLayout({
@@ -6,9 +5,5 @@ export default function AdminLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <div className="py-6">
-      <AdminFetchProvider>{children}</AdminFetchProvider>
-    </div>
-  );
+  return <div className="py-6">{children}</div>;
 }

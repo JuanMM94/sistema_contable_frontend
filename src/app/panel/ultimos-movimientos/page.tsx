@@ -3,16 +3,15 @@
 import { useSession } from '@/providers/RouteFetchProvider';
 import { MoveLeft } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-import { ButtonGroup } from '@/components/ui/button-group';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MovementTable } from '@/components/custom/Tables';
+import { MovementTableFixCurrency } from '@/components/custom/Tables';
+import Link from 'next/link';
 
 export default function Page() {
   const { loading, movements } = useSession();
   const searchParams = useSearchParams();
-  const [filterBy, setFilterBy] = useState<string | null>(searchParams.get('currency'));
+  const filterBy = searchParams.get('currency');
 
   return (
     <div className="lg:w-[70vw] w-[90vw] p-4 flex flex-col gap-8 m-auto">
@@ -28,38 +27,28 @@ export default function Page() {
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>Últimos movimientos</CardTitle>
+            <CardTitle>Últimos movimientos en {filterBy}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex justify-center">
-              <ButtonGroup>
-                <Button
-                  onClick={() => setFilterBy(null)}
-                  variant="outline"
-                  size="sm"
-                  className={filterBy === null ? 'text-primary' : 'opacity-70'}
-                >
-                  Todos
-                </Button>
-                <Button
-                  onClick={() => setFilterBy('ARS')}
-                  variant="outline"
-                  size="sm"
-                  className={filterBy === 'ARS' ? 'text-primary' : 'opacity-70'}
-                >
-                  ARS
-                </Button>
-                <Button
-                  onClick={() => setFilterBy('USD')}
-                  variant="outline"
-                  size="sm"
-                  className={filterBy === 'USD' ? 'text-primary' : 'opacity-70'}
-                >
-                  USD
-                </Button>
-              </ButtonGroup>
+            <div className="pb-4">
+              {filterBy === 'ARS' ? (
+                <Link href="/panel/ultimos-movimientos?currency=USD">
+                  <Button variant="outline" size="sm">
+                    Ir a movimientos en USD
+                  </Button>
+                </Link>
+              ) : (
+                <Link href="/panel/ultimos-movimientos?currency=ARS">
+                  <Button variant="outline" size="sm">
+                    Ir a movimientos en ARS
+                  </Button>
+                </Link>
+              )}
             </div>
-            <MovementTable movements={movements ?? []} />
+            <MovementTableFixCurrency
+              movements={movements ?? []}
+              currency={filterBy as 'ARS' | 'USD'}
+            />
           </CardContent>
         </Card>
       )}

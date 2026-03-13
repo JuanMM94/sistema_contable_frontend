@@ -101,7 +101,7 @@ export function DataTable<T extends { id: string }, K extends string>({
                 key={col.key}
                 className={`whitespace-nowrap ${
                   col.allowFilter ? 'cursor-pointer hover:bg-accent' : ''
-                } ${col.align === 'right' ? 'text-right' : ''}`}
+                } ${col.align === 'right' ? 'text-right' : ''} border-l first:border-l-0 border-[var(--border)]`}
                 onClick={col.allowFilter ? () => handleSort(col.key) : undefined}
               >
                 {col.label}{' '}
