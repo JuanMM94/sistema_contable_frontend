@@ -4,7 +4,7 @@ import { ChartBarMultiple } from '@/components/custom/ChartBar';
 import { useAdminContext } from '@/providers/AdminFetchProvider';
 import { Loading } from '@/components/custom/Loading';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MovementTableAdmin, UsersTable } from '@/components/custom/Tables';
+import { MovementTable, UsersTable } from '@/components/custom/Tables';
 
 export default function Page() {
   const { loading, users, movements } = useAdminContext();
@@ -22,7 +22,7 @@ export default function Page() {
               <CardTitle>Movimientos totales</CardTitle>
             </CardHeader>
             <CardContent>
-              <MovementTableAdmin movements={movements ?? []} />
+              <MovementTable movements={movements ?? []} />
             </CardContent>
           </Card>
           <Card>

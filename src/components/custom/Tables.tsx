@@ -10,6 +10,9 @@ import {
 } from '@/lib/utils';
 import EditMovementDialog from './ModalEditMovement';
 import DeleteMovementDialog from './ModalDeleteMovement';
+import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
+import { useState } from 'react';
+import { useSession } from '@/providers/RouteFetchProvider';
 
 const COLUMNS: Column<User, UsersContent>[] = [
   {
@@ -186,14 +189,6 @@ function makeMovementColumnsAdmin(): Column<Movement, MovementContent>[] {
       getValue: (m) => getPaymentMethodLabel(m.method),
     },
     {
-      key: 'type',
-      label: 'Tipo',
-      allowFilter: true,
-      getSortValue: (m) => m.type,
-      getFilterValue: (m) => getPaymentTypeLabel(m.type),
-      getValue: (m) => getPaymentTypeLabel(m.type),
-    },
-    {
       key: 'id' as MovementContent,
       label: 'Acciones',
       allowFilter: false,
@@ -208,9 +203,40 @@ function makeMovementColumnsAdmin(): Column<Movement, MovementContent>[] {
 }
 
 export function MovementTable({ movements }: { movements: Movement[] }) {
-  return <DataTable rows={movements} columns={makeMovementColumns()} />;
+  const { user } = useSession();
+  const [activeTab, setActiveTab] = useState('ars-movements');
+  const isAdmin = user?.role === 'ADMIN';
+
+  const filteredMovements = movements.filter((m) =>
+    activeTab === 'ars-movements' ? m.currency === 'ARS' : m.currency === 'USD',
+  );
+
+  const columns = isAdmin ? makeMovementColumnsAdmin() : makeMovementColumns();
+
+  return (
+    <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <TabsList variant="line">
+        <TabsTrigger value="ars-movements">ARS</TabsTrigger>
+        <TabsTrigger value="usd-movements">USD</TabsTrigger>
+      </TabsList>
+      <DataTable rows={filteredMovements} columns={columns} />
+    </Tabs>
+  );
 }
 
-export function MovementTableAdmin({ movements }: { movements: Movement[] }) {
-  return <DataTable rows={movements} columns={makeMovementColumnsAdmin()} />;
+export function MovementTableFixCurrency({
+  movements,
+  currency,
+}: {
+  movements: Movement[];
+  currency: 'ARS' | 'USD';
+}) {
+  const { user } = useSession();
+  const isAdmin = user?.role === 'ADMIN';
+
+  const filteredMovements = movements.filter((m) => m.currency === currency);
+
+  const columns = isAdmin ? makeMovementColumnsAdmin() : makeMovementColumns();
+
+  return <DataTable rows={filteredMovements} columns={columns} />;
 }

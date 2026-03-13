@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { RouteFetchProvider } from '@/providers/RouteFetchProvider';
 import { Toaster } from '@/components/ui/sonner';
+import { AdminFetchProvider } from '@/providers/AdminFetchProvider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -31,7 +32,9 @@ export default function RootLayout({
   return (
     <html lang="es" className="w-[100vw]">
       <body className={`${geistSans.variable} ${geistMono.variable} h-screen`}>
-        <RouteFetchProvider>{children}</RouteFetchProvider>
+        <AdminFetchProvider>
+          <RouteFetchProvider>{children}</RouteFetchProvider>
+        </AdminFetchProvider>
         <Toaster theme="light" />
       </body>
     </html>
