@@ -12,8 +12,7 @@ export default function Page() {
   return (
     <main>
       <div className="lg:w-[70vw] w-[90vw] flex flex-col gap-6 m-auto">
-        <h3>Hola, {user?.name ?? 'usuario'}!</h3>
-        <section className="flex flex-col lg:flex-row gap-4">
+        <section className="flex flex-col lg:flex-row gap-4 pt-6">
           {loading ? (
             <></>
           ) : (
@@ -21,7 +20,6 @@ export default function Page() {
           )}
         </section>
         <Splitter />
-
         <Tabs defaultValue="last-movements">
           <TabsList variant="line">
             <TabsTrigger value="last-movements">Últimos movimientos</TabsTrigger>
